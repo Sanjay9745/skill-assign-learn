@@ -433,6 +433,20 @@ export default function LearningPlatform() {
   // --- Auto-scroll state for fullscreen ---
   const [autoScroll, setAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(1) // 1 = normal, 2 = fast, 0.5 = slow
+  const [zoomLevel, setZoomLevel] = useState(1) // Add zoom level state
+
+  // --- Zoom functions ---
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.1, 2)) // Max zoom 200%
+  }
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.5)) // Min zoom 50%
+  }
+
+  const handleZoomReset = () => {
+    setZoomLevel(1) // Reset to 100%
+  }
 
   // --- Certificate navigation handler ---
   const handleCertificateClick = () => {
@@ -1109,6 +1123,47 @@ export default function LearningPlatform() {
                           </Button>
                         )}
                       </div>
+
+                      {/* Zoom Controls */}
+                      <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 z-50 flex flex-col gap-1 md:gap-2">
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
+                          onClick={handleZoomIn}
+                          aria-label="Zoom In"
+                        >
+                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                            <line x1="11" y1="8" x2="11" y2="14"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                          </svg>
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
+                          onClick={handleZoomOut}
+                          aria-label="Zoom Out"
+                        >
+                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                          </svg>
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10 text-xs"
+                          onClick={handleZoomReset}
+                          aria-label="Reset Zoom"
+                        >
+                          <span className="text-xs font-bold">{Math.round(zoomLevel * 100)}%</span>
+                        </Button>
+                      </div>
+
                       <div className="w-full h-full flex items-center justify-center p-0">
                         {iframeUrl ? (
                           <iframe
@@ -1118,7 +1173,9 @@ export default function LearningPlatform() {
                             style={{ 
                               border: "none",
                               width: "100vw",
-                              height: "100vh"
+                              height: "100vh",
+                              transform: `scale(${zoomLevel})`,
+                              transformOrigin: "center center"
                             }}
                           />
                         ) : (
