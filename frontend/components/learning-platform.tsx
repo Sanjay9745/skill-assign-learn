@@ -235,7 +235,8 @@ function SidebarItem({
   const isSelected = selectedItem?.name === item.name
 
   const isCertificate = item.icon === "certificate"
-  const childrenUnlocked = item.progress >= 70 || isCertificate
+  // If parent is unlocked, all children should be unlocked too
+  const childrenUnlocked = isUnlocked || item.progress >= 70 || isCertificate
 
   const handleClick = () => {
     if (isUnlocked) {
@@ -385,7 +386,7 @@ function SidebarItem({
               key={child.name}
               item={child}
               level={level + 1}
-              isUnlocked={childrenUnlocked}
+              isUnlocked={isUnlocked} // Pass parent's unlock status to children
               onSelect={onSelect}
               selectedItem={selectedItem}
               isCollapsed={isCollapsed}
