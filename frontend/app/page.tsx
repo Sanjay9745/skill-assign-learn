@@ -1,6 +1,18 @@
-import LoginForm from '../components/LoginForm';
+"use client";
+import Loading from '@/components/Loading/Loading'
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react'
 
-export default function LoginPage() {
-  return <LoginForm />;
+function Page() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/learn');
+  }, []);
+  return (
+    <>
+    <Loading />
+    </>
+  )
 }
 
+export default Page

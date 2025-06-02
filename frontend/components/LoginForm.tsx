@@ -6,9 +6,6 @@ const LoginForm = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  useEffect(() => {
-    router.replace('/learn'); // Redirect to login page on mount
-  }, []);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle normal login

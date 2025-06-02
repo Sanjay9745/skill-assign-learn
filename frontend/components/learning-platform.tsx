@@ -851,7 +851,7 @@ export default function LearningPlatform() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-lg font-bold text-gray-900">LearnHub</h1>
+                  <h1 className="text-lg font-bold text-gray-900">Skill Assign</h1>
                   <p className="text-xs text-gray-500">Master Technology Skills</p>
                 </div>
               </div>
