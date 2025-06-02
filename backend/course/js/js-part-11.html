@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 11: Spread, Rest, and the Art of Copying! 🎨🧠</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #4a148c; /* Deep Purple */
+            --secondary-color: #6a1b9a; /* Purple */
+            --accent-color: #fdd835; /* Yellow */
+            --text-color: #212121; /* Black */
+            --light-bg: #f3e5f5; /* Light Purple */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 22px;
+            --border-radius-inner: 14px;
+            --box-shadow-main: 0 12px 35px rgba(0, 0, 0, 0.12);
+            --box-shadow-light: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 900;
+            margin-bottom: 35px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 12px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.9em;
+            margin-top: 35px;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-top: 28px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 10px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #d1c4e9; /* Light Purple border */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 0.95em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #b0bec5; font-style: italic; }
+        .token.keyword { color: #f06292; } /* Pink keyword */
+        .token.string { color: #aed581; } /* Light Green string */
+        .token.number { color: #ffb74d; }
+        .token.boolean { color: #ce93d8; } /* Light Purple boolean */
+        .token.function { color: #81d4fa; } /* Light Blue function */
+        .token.operator { color: #ff8a65; } /* Light Orange operator */
+        .token.punctuation { color: #e0e0e0; } /* Light Grey punctuation */
+        .token.parameter { color: #f48fb1; } /* Light Pink parameter */
+
+        .analogy-box {
+            background-color: #f3e5f5; /* Lightest Purple */
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 22px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #311b92; } /* Darkest Purple */
+        .analogy-box::before {
+            content: "\f0c9"; /* Bars icon for spreading/gathering */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(106, 27, 154, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 28px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f111"; /* Circle icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900; /* Solid */
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 0.8em; /* Smaller circle */
+            top: 6px;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .highlight-red { background-color: #f44336; color: #b71c1c; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+        .highlight-green { background-color: #4caf50; color: #1b5e20; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+        .highlight-blue { background-color: #2196f3; color: #0d47a1; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+
+        .button-style, .interactive-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button-style:hover, .interactive-button:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .interactive-button {
+            font-size: 0.9em;
+            padding: 8px 15px;
+            margin-right: 10px;
+        }
+        .output-area {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius-inner);
+            min-height: 40px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+
+
+        .diagram-container {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: var(--border-radius-inner);
+            margin: 25px 0;
+            border: 1px solid #bdc3c7;
+            overflow-x: auto;
+        }
+        .diagram-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            min-width: 550px; /* Adjusted for more complex diagrams */
+        }
+
+        .data-box { stroke-width: 1.5px; rx: 8; ry: 8; fill: #fff; stroke: var(--primary-color); }
+        .ref-line { stroke: var(--accent-color); stroke-width: 2px; marker-end: url(#arrowhead); stroke-dasharray: 5, 5; }
+        .value-text { font-family: 'Nunito', sans-serif; font-size: 14px; fill: var(--text-color); text-anchor: middle; }
+        .label-text { font-family: 'Nunito', sans-serif; font-size: 12px; fill: var(--secondary-color); text-anchor: start; }
+        .array-index { font-family: 'Nunito', sans-serif; font-size: 10px; fill: #757575; text-anchor: middle; }
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .analogy-box { padding: 10px; margin: 15px 0; }
+            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
+            ul li { padding-left: 22px; margin-bottom: 8px; }
+            ul li::before { font-size: 0.9em; }
+            .button-style, .interactive-button { padding: 10px 20px; font-size: 1em; }
+            .flow-text { font-size: 11px; }
+            .flow-text-small { font-size: 9px; }
+            .diagram-container svg { min-width: 450px; }
+            .value-text { font-size: 12px; }
+            .label-text { font-size: 10px; }
+            .array-index { font-size: 8px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style, .interactive-button { width: 100%; text-align: center; margin-bottom: 10px; }
+            .flow-text { font-size: 10px; }
+            .flow-text-small { font-size: 8px; }
+            .diagram-container svg { min-width: 300px; }
+            .value-text { font-size: 10px; }
+            .label-text { font-size: 9px; }
+            .array-index { font-size: 7px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-ellipsis-h emoji"></i>JavaScript Part 11: Spread, Rest, and the Art of Copying! <i class="fas fa-clone emoji"></i></h1>
+        <p style="text-align:center; font-size: 1.1em;">Unlocking Powerful JavaScript Syntax & Memory Management!</p>
+
+        <div class="section">
+            <h2><i class="fas fa-expand-arrows-alt"></i> Spread Syntax (...)</h2>
+            <p>The spread syntax (...) allows an iterable (like an array or string) to be expanded in places where zero or more arguments (for function calls) or elements (for array literals) are expected. It also allows object literals to be expanded in places where zero or more key-value pairs are expected.</p>
+
+            <h3><i class="fas fa-list-ul"></i> Spreading Arrays</h3>
+            <pre><code class="language-javascript">
+const numbers1 = [1, 2, 3];
+const numbers2 = [...numbers1, 4, 5]; // [1, 2, 3, 4, 5] - Spreads elements of numbers1
+const numbers3 = [0, ...numbers2]; // [0, 1, 2, 3, 4, 5] - Can be used at any position
+
+console.log(numbers2);
+console.log(numbers3);
+
+const sum = (a, b, c) => a + b + c;
+console.log(sum(...numbers1)); // Equivalent to sum(1, 2, 3)
+            </code></pre>
+            <p>Spread syntax is incredibly useful for:</p>
+            <ul>
+                <li>Combining arrays.</li>
+                <li>Inserting elements into an array.</li>
+                <li>Copying arrays (shallow copy - more on this later).</li>
+                <li>Passing array elements as individual arguments to a function.</li>
+            </ul>
+
+            <h3><i class="fas fa-object-group"></i> Spreading Objects</h3>
+            <pre><code class="language-javascript">
+const obj1 = { a: 1, b: 2 };
+const obj2 = { ...obj1, c: 3 }; // { a: 1, b: 2, c: 3 } - Spreads properties of obj1
+const obj3 = { ...obj2, b: 4 }; // { a: 1, b: 4, c: 3 } - If keys are the same, the last one wins
+
+console.log(obj2);
+console.log(obj3);
+            </code></pre>
+            <p>For objects, spread syntax allows you to:</p>
+            <ul>
+                <li>Combine objects.</li>
+                <li>Add new properties to an object.</li>
+                <li>Create shallow copies of objects.</li>
+                <li>Override existing properties in an object.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-layer-group"></i> Rest Parameters (...)</h2>
+            <p>The rest parameter syntax allows a function to accept an indefinite number of arguments as an array. It looks the same as spread syntax but is used in function parameter lists.</p>
+            <pre><code class="language-javascript">
+function myFunc(firstArg, ...restOfArgs) {
+  console.log("First argument:", firstArg);
+  console.log("Rest of the arguments (as an array):", restOfArgs);
+}
+
+myFunc(10, 20, 30, 40);
+// Output:
+// First argument: 10
+// Rest of the arguments (as an array): [20, 30, 40]
+
+function sumAll(...numbers) {
+  let total = 0;
+  for (const num of numbers) {
+    total += num;
+  }
+  return total;
+}
+
+console.log(sumAll(1, 5, 10, 20)); // 36
+            </code></pre>
+            <p>Key points about rest parameters:</p>
+            <ul>
+                <li>There can be only one rest parameter in a function definition.</li>
+                <li>The rest parameter must be the last parameter in the list.</li>
+                <li>It gathers all the remaining arguments passed to the function into an array.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-copy"></i> The Crucial Concept of Copying: Shallow vs. Deep</h2>
+            <p>When you work with objects and arrays in JavaScript, understanding how copying works is essential to avoid unexpected behavior. There are two main types of copying: shallow copy and deep copy.</p>
+
+            <h3><i class="fas fa-arrows-alt-h"></i> Shallow Copy</h3>
+            <p>A shallow copy creates a new object or array, but instead of copying the values themselves, it copies the <strong class="highlight-blue">references</strong> to the original values. This means that if the original object or array contains other objects or arrays (nested structures), the copied object will still point to the same nested objects in memory. Changes to these nested objects will affect both the original and the copied object.</p>
+
+            <h4>Methods that perform shallow copy:</h4>
+            <ul>
+                <li>Spread syntax (...) for arrays and objects.</li>
+                <li><code class="language-javascript">Object.assign()</code></li>
+                <li><code class="language-javascript">Array.prototype.slice()</code> (without arguments)</li>
+                <li><code class="language-javascript">Array.prototype.concat()</code> (without arguments)</li>
+            </ul>
+
+            <h4>Example of Shallow Copy with Spread Syntax:</h4>
+            <pre><code class="language-javascript">
+const originalArray = [1, 2, { value: 3 }];
+const shallowCopyArray = [...originalArray];
+
+console.log("Original Array:", originalArray);
+console.log("Shallow Copy Array:", shallowCopyArray);
+
+shallowCopyArray[0] = 10; // Modifies the primitive value in the copy
+shallowCopyArray[2].value = 30; // Modifies the nested object in BOTH original and copy
+
+console.log("Original Array after modification:", originalArray);
+console.log("Shallow Copy Array after modification:", shallowCopyArray);
+// Output:
+// Original Array after modification: [ 1, 2, { value: 30 } ]
+// Shallow Copy Array after modification: [ 10, 2, { value: 30 } ]
+            </code></pre>
+            <p>Notice that changing the <code class="language-javascript">value</code> property of the nested object in <code class="language-javascript">shallowCopyArray</code> also affected <code class="language-javascript">originalArray</code>.</p>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 8 3, 0 6" fill="var(--accent-color)" />
+                        </marker>
+                    </defs>
+                    <text x="300" y="20" class="value-text" style="font-size: 1.4em; font-weight: bold;">Shallow Copy</text>
+
+                    <rect x="50" y="50" width="100" height="50" class="data-box" />
+                    <text x="100" y="75" class="value-text">originalArray</text>
+
+                    <rect x="200" y="50" width="50" height="30" class="data-box" />
+                    <text x="225" y="70" class="value-text">1</text>
+                    <rect x="250" y="50" width="50" height="30" class="data-box" />
+                    <text x="275" y="70" class="value-text">2</text>
+                    <rect x="300" y="50" width="80" height="30" class="data-box" />
+                    <text x="340" y="70" class="value-text">{ value: 3 }</text>
+
+                    <path d="M150 75 L200 75" class="ref-line" />
+                    <path d="M250 75 L250 90 L300 90 L300 75" class="ref-line" />
+                    <path d="M380 75 L430 75" class="ref-line" />
+
+                    <rect x="430" y="50" width="100" height="50" class="data-box" />
+                    <text x="480" y="75" class="value-text">shallowCopyArray</text>
+
+                    <rect x="200" y="110" width="50" height="30" class="data-box" />
+                    <text x="225" y="130" class="value-text">1</text>
+                    <rect x="250" y="110" width="50" height="30" class="data-box" />
+                    <text x="275" y="130" class="value-text">2</text>
+                    <rect x="300" y="110" width="80" height="30" class="data-box" />
+                    <text x="340" y="130" class="value-text">{ value: 3 }</text>
+
+                    <path d="M530 75 L200 130" class="ref-line" />
+                    <path d="M250 75 L250 90 L250 110" class="ref-line" />
+                    <path d="M300 75 L300 90 L300 110" class="ref-line" />
+                    <path d="M380 75 L380 90 L380 110" class="ref-line" />
+                    <path d="M380 130 L300 130" class="ref-line" />
+                </svg>
+            </div>
+            <p class="analogy-box">
+                <strong>Analogy: Sharing a Recipe Book</strong> <span class="emoji">📖</span>
+                Imagine you have a recipe book (the original array/object). A shallow copy is like making a photocopy of the cover and the index page. The photocopy points to the same detailed recipes inside (the nested objects/arrays). If someone edits a recipe in the original book, the "reference" in your index will still lead you to the changed recipe, and vice versa.
+            </p>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-layer-plus"></i> Deep Copy</h3>
+            <p>A deep copy creates a completely independent copy of the original object or array and all of its nested objects and arrays. This means that changes to the copied object will not affect the original, and vice versa. Each copy has its own distinct set of data in memory.</p>
+
+            <h4>Methods for achieving deep copy:</h4>
+            <ul>
+                <li><strong><code class="language-javascript">JSON.parse(JSON.stringify(object))</code>:</strong> This is a common and simple way to perform a deep copy, but it has limitations (e.g., it won't work for functions, dates will be converted to strings, etc.).</li>
+                <li><strong>Recursion:</strong> You can write a custom function that recursively copies all properties, creating new objects and arrays for nested structures.</li>
+                <li><strong>External Libraries:</strong> Libraries like Lodash provide utility functions for deep cloning (<code class="language-javascript">_.cloneDeep()</code>).</li>
+            </ul>
+
+            <h4>Example of Deep Copy using JSON.parse(JSON.stringify()):</h4>
+            <pre><code class="language-javascript">
+const originalObject = { a: 1, b: { value: 2 } };
+const deepCopyObject = JSON.parse(JSON.stringify(originalObject));
+
+console.log("Original Object:", originalObject);
+console.log("Deep Copy Object:", deepCopyObject);
+
+deepCopyObject.a = 10; // Modifies the primitive value in the copy
+deepCopyObject.b.value = 20; // Modifies the nested object ONLY in the copy
+
+console.log("Original Object after modification:", originalObject);
+console.log("Deep Copy Object after modification:", deepCopyObject);
+// Output:
+// Original Object after modification: { a: 1, b: { value: 2 } }
+// Deep Copy Object after modification: { a: 10, b: { value: 20 } }
+            </code></pre>
+            <p>As you can see, the changes made to <code class="language-javascript">deepCopyObject</code> did not affect <code class="language-javascript">originalObject</code>.</p>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 8 3, 0 6" fill="var(--accent-color)" />
+                        </marker>
+                    </defs>
+                    <text x="300" y="20" class="value-text" style="font-size: 1.4em; font-weight: bold;">Deep Copy</text>
+
+                    <!-- Original Object -->
+                    <rect x="50" y="50" width="120" height="50" class="data-box" />
+                    <text x="110" y="75" class="value-text">originalObject</text>
+
+                    <rect x="220" y="50" width="50" height="30" class="data-box" />
+                    <text x="245" y="70" class="value-text">a: 1</text>
+                    <rect x="280" y="50" width="100" height="30" class="data-box" />
+                    <text x="330" y="70" class="value-text">b: { ... }</text>
+
+                    <path d="M170 75 L220 65" class="ref-line" />
+                    <path d="M170 75 L280 65" class="ref-line" />
+
+                    <rect x="420" y="50" width="80" height="30" class="data-box" />
+                    <text x="460" y="70" class="value-text">value: 2</text>
+                    <path d="M380 65 L420 65" class="ref-line" />
+
+                    <!-- Separation line -->
+                    <line x1="50" y1="110" x2="550" y2="110" stroke="#bdc3c7" stroke-width="2" stroke-dasharray="5,5"/>
+                    <text x="300" y="130" class="label-text" style="text-anchor: middle; font-weight: bold;">Completely Independent Memory</text>
+
+                    <!-- Deep Copy Object -->
+                    <rect x="50" y="150" width="120" height="50" class="data-box" />
+                    <text x="110" y="175" class="value-text">deepCopyObject</text>
+
+                    <rect x="220" y="150" width="50" height="30" class="data-box" />
+                    <text x="245" y="170" class="value-text">a: 1</text>
+                    <rect x="280" y="150" width="100" height="30" class="data-box" />
+                    <text x="330" y="170" class="value-text">b: { ... }</text>
+
+                    <path d="M170 175 L220 165" class="ref-line" />
+                    <path d="M170 175 L280 165" class="ref-line" />
+
+                    <rect x="420" y="150" width="80" height="30" class="data-box" />
+                    <text x="460" y="170" class="value-text">value: 2</text>
+                    <path d="M380 165 L420 165" class="ref-line" />
+
+                    <!-- Labels -->
+                    <text x="50" y="40" class="label-text" style="font-weight: bold;">Original:</text>
+                    <text x="50" y="140" class="label-text" style="font-weight: bold;">Deep Copy:</text>
+                </svg>
+            </div>
+            <p class="analogy-box">
+                <strong>Analogy: Writing Your Own Recipe Book</strong> <span class="emoji">✍️</span>
+                A deep copy is like writing down every single recipe from the original book into a brand new notebook. Your notebook contains all the same recipes, but they are now entirely your own. If someone changes a recipe in the original book, your version remains untouched, and vice versa.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-puzzle-piece"></i> Why Does This Matter?</h2>
+            <p>Understanding the difference between shallow and deep copy is crucial for:</p>
+            <ul>
+                <li><strong>Predicting and avoiding unexpected side effects:</strong> When you modify a copy, you need to know whether it will affect the original.</li>
+                <li><strong>Working with state in complex applications:</strong> In frameworks like React, ensuring you are creating new state objects (deep copies or carefully managed shallow copies) is essential for proper component updates.</li>
+                <li><strong>Data manipulation without altering the source:</strong> Sometimes you need to work with a modified version of data without changing the original data structure.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-check-double"></i> Spread, Rest, and Copying: Part 11 Complete!</h2>
+            <p>Excellent work! You've now mastered the power of spread and rest syntax, and you have a clear understanding of the important concepts of shallow and deep copying in JavaScript. This knowledge will significantly enhance your ability to write efficient and predictable code!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Continue to the Next JavaScript Adventure! <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

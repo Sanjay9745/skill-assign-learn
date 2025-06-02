@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS Part 1 - Making Web Pages Beautiful</title>
+    <!-- Prism.js CSS for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; 
+            margin: 30px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        h1, h2, h3 { 
+            color: #1565c0; 
+            border-bottom: 2px solid #42a5f5;
+            padding-bottom: 5px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .diagram { 
+            margin: 30px 0; 
+            text-align: center;
+        }
+        .diagram svg { 
+            background: #f8fbff; 
+            border-radius: 10px;
+            border: 1px solid #ccc; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .analogy {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .analogy-title {
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 5px;
+        }
+        .code-example {
+            background: #2d3748;
+            border-left: 4px solid #42a5f5;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .code-example pre {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Fira Code', Consolas, 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            background: transparent !important;
+        }
+        .code-example code {
+            font-family: 'Fira Code', Consolas, 'Monaco', monospace;
+            background: transparent !important;
+            color: inherit;
+        }
+        /* Override Prism theme for better readability */
+        .code-example pre[class*="language-"] {
+            background: #2d3748 !important;
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .css-basics {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .selectors-section {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .colors-section {
+            background: #f3e5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #9c27b0;
+        }
+        .typography-section {
+            background: #e1f5fe;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #03a9f4;
+        }
+        .box-model-section {
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .comparison-box {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            min-width: 280px;
+        }
+        .before-css {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+        }
+        .after-css {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+        }
+        .mindblown {
+            background: #fff9c4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #fbc02d;
+            text-align: center;
+        }
+        .step-by-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #6c757d;
+        }
+        .demo-box {
+            background: #e0f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #00bcd4;
+        }
+        .color-demo {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            margin: 5px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .font-demo {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .box-model-demo {
+            background: #e3f2fd;
+            border: 10px solid #2196f3;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        /* Inline code styling */
+        code:not([class*="language-"]) {
+            background: #f1f3f4;
+            color: #d73a49;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSS Part 1 - Making Web Pages Beautiful 🎨</h1>
+        <p>
+            Hey there, future web designer! 👋 Welcome to the wonderful world of <strong>CSS (Cascading Style Sheets)</strong>! 
+            If HTML is the skeleton of a webpage, then CSS is the clothing, makeup, and personality that makes it look amazing. 
+            Today, we're going to learn how to transform plain HTML into stunning visual experiences! ✨
+        </p>
+
+        <div class="analogy">
+            <div class="analogy-title">🎭 Real-life Analogy: Decorating Your Room</div>
+            <p>
+                Think of HTML as the empty room in your house - it has walls, a ceiling, and basic structure. CSS is like being an interior designer 
+                for that room. You can paint the walls any color, choose beautiful furniture, add lighting, arrange everything perfectly, 
+                and even add some cool decorations. The room's structure stays the same, but with CSS, you can make it look like a cozy bedroom, 
+                a professional office, or a funky art studio!
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>What is CSS? 🤔</h2>
+        
+        <p>CSS stands for <strong>Cascading Style Sheets</strong>. It's a language that describes how HTML elements should look and be positioned on the screen.</p>
+        
+        <div class="comparison">
+            <div class="comparison-box before-css">
+                <h4>Without CSS (Plain HTML)</h4>
+                <div style="font-family: Times; background: white; padding: 10px; border: 1px solid #ccc;">
+                    <h1 style="font-family: Times; color: black; margin: 16px 0;">My Website</h1>
+                    <p style="font-family: Times; color: black; margin: 16px 0;">This is just plain HTML. It works, but it's not very exciting to look at.</p>
+                    <ul style="font-family: Times; color: black;">
+                        <li>No colors</li>
+                        <li>Basic fonts</li>
+                        <li>No layout control</li>
+                    </ul>
+                </div>
+                <p>😴 Functional but boring...</p>
+            </div>
+            <div class="comparison-box after-css">
+                <h4>With CSS (Styled)</h4>
+                <div style="font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    <h1 style="font-size: 2.5em; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">My Website</h1>
+                    <p style="font-size: 1.1em; margin: 10px 0; line-height: 1.6;">Now we're talking! Beautiful colors, great typography, and stunning visual appeal.</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 5px 0; padding: 5px 0;">✨ Beautiful colors</li>
+                        <li style="margin: 5px 0; padding: 5px 0;">🎨 Custom fonts</li>
+                        <li style="margin: 5px 0; padding: 5px 0;">🏗️ Perfect layout</li>
+                    </ul>
+                </div>
+                <p>🤩 Now that's engaging!</p>
+            </div>
+        </div>
+
+        <div class="diagram">
+            <svg width="800" height="350">
+                <!-- Title -->
+                <text x="400" y="30" font-size="20" text-anchor="middle" fill="#1565c0" font-weight="bold">How CSS Works with HTML</text>
+                
+                <!-- HTML Structure -->
+                <rect x="50" y="60" width="200" height="120" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="10"/>
+                <text x="150" y="50" font-size="14" text-anchor="middle" fill="#2e7d32" font-weight="bold">HTML Structure</text>
+                <text x="70" y="85" font-size="12" fill="#333">&lt;h1&gt;Title&lt;/h1&gt;</text>
+                <text x="70" y="105" font-size="12" fill="#333">&lt;p&gt;Paragraph&lt;/p&gt;</text>
+                <text x="70" y="125" font-size="12" fill="#333">&lt;button&gt;Click me&lt;/button&gt;</text>
+                <text x="70" y="145" font-size="12" fill="#333">&lt;img src="photo.jpg"&gt;</text>
+                <text x="70" y="165" font-size="12" fill="#333">&lt;div class="card"&gt;...&lt;/div&gt;</text>
+                
+                <!-- CSS Rules -->
+                <rect x="300" y="60" width="200" height="120" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="10"/>
+                <text x="400" y="50" font-size="14" text-anchor="middle" fill="#1565c0" font-weight="bold">CSS Rules</text>
+                <text x="320" y="85" font-size="12" fill="#333">h1 { color: blue; }</text>
+                <text x="320" y="105" font-size="12" fill="#333">p { font-size: 16px; }</text>
+                <text x="320" y="125" font-size="12" fill="#333">button { background: red; }</text>
+                <text x="320" y="145" font-size="12" fill="#333">img { width: 100%; }</text>
+                <text x="320" y="165" font-size="12" fill="#333">.card { padding: 20px; }</text>
+                
+                <!-- Final Result -->
+                <rect x="550" y="60" width="200" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="10"/>
+                <text x="650" y="50" font-size="14" text-anchor="middle" fill="#ef6c00" font-weight="bold">Beautiful Website</text>
+                
+                <!-- Mini website preview -->
+                <rect x="570" y="80" width="160" height="90" fill="#fff" stroke="#ddd" stroke-width="1" rx="5"/>
+                <rect x="575" y="85" width="150" height="15" fill="#2196f3" rx="2"/>
+                <text x="650" y="95" font-size="10" fill="white" text-anchor="middle">Beautiful Title</text>
+                <text x="580" y="115" font-size="9" fill="#333">Styled paragraph text</text>
+                <rect x="580" y="125" width="60" height="15" fill="#f44336" rx="3"/>
+                <text x="610" y="135" font-size="8" fill="white" text-anchor="middle">Button</text>
+                <rect x="650" y="125" width="70" height="35" fill="#e0e0e0" stroke="#bbb" stroke-width="1" rx="3"/>
+                <text x="685" y="145" font-size="8" fill="#666" text-anchor="middle">Image</text>
+                
+                <!-- Arrows -->
+                <path d="M 255 120 L 295 120" stroke="#333" stroke-width="3" marker-end="url(#arrowhead5)"/>
+                <path d="M 505 120 L 545 120" stroke="#333" stroke-width="3" marker-end="url(#arrowhead5)"/>
+                
+                <!-- Labels -->
+                <text x="275" y="110" font-size="11" fill="#333">+</text>
+                <text x="525" y="110" font-size="11" fill="#333">=</text>
+                
+                <!-- Explanation -->
+                <rect x="100" y="220" width="600" height="100" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+                <text x="400" y="240" font-size="16" text-anchor="middle" fill="#495057" font-weight="bold">The CSS Process</text>
+                <text x="120" y="265" font-size="13" fill="#333">1. Browser reads HTML structure</text>
+                <text x="120" y="285" font-size="13" fill="#333">2. Browser applies CSS rules to matching elements</text>
+                <text x="120" y="305" font-size="13" fill="#333">3. Result: Beautiful, styled webpage that users see!</text>
+                
+                <defs>
+                    <marker id="arrowhead5" markerWidth="12" markerHeight="9" refX="11" refY="4.5" orient="auto">
+                        <polygon points="0 0, 12 4.5, 0 9" fill="#333"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>CSS Syntax: The Language of Style 📝</h2>
+        
+        <div class="css-basics">
+            <h3>Understanding CSS Rules</h3>
+            <p>Every CSS rule has the same basic structure. Let's break it down:</p>
+            
+            <div class="diagram">
+                <svg width="700" height="200">
+                    <!-- Title -->
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Anatomy of a CSS Rule</text>
+                    
+                    <!-- CSS Rule Box -->
+                    <rect x="100" y="50" width="500" height="100" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+                    
+                    <!-- Selector -->
+                    <rect x="120" y="70" width="80" height="30" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                    <text x="160" y="90" font-size="16" text-anchor="middle" fill="#2e7d32" font-weight="bold">h1</text>
+                    <text x="160" y="60" font-size="12" text-anchor="middle" fill="#4caf50">Selector</text>
+                    
+                    <!-- Opening Brace -->
+                    <text x="220" y="90" font-size="20" fill="#333">{</text>
+                    
+                    <!-- Property and Value -->
+                    <rect x="250" y="70" width="200" height="30" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                    <text x="280" y="90" font-size="14" fill="#ef6c00" font-weight="bold">color</text>
+                    <text x="330" y="90" font-size="14" fill="#333">:</text>
+                    <text x="350" y="90" font-size="14" fill="#ef6c00" font-weight="bold">blue</text>
+                    <text x="400" y="90" font-size="14" fill="#333">;</text>
+                    <text x="350" y="60" font-size="12" text-anchor="middle" fill="#ff9800">Property: Value;</text>
+                    
+                    <!-- Closing Brace -->
+                    <text x="470" y="90" font-size="20" fill="#333">}</text>
+                    
+                    <!-- Explanation -->
+                    <text x="120" y="175" font-size="13" fill="#666">This rule says: "Make all h1 elements blue"</text>
+                </svg>
+            </div>
+            
+            <div class="code-example">
+                <pre><code class="language-css">/* Basic CSS rule structure */
+h1 {
+    color: blue;
+    font-size: 32px;
+    text-align: center;
+}
+
+/* You can style multiple properties */
+p {
+    color: #333;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+/* Class selector (starts with .) */
+.highlight {
+    background-color: yellow;
+    padding: 10px;
+}
+
+/* ID selector (starts with #) */
+#header {
+    background-color: navy;
+    color: white;
+    height: 80px;
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>CSS Selectors: Targeting Elements 🎯</h2>
+        
+        <div class="selectors-section">
+            <h3>Different Ways to Select HTML Elements</h3>
+            <p>CSS selectors are like addressing a letter - you need to tell CSS exactly which elements you want to style.</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Element Selector</h4>
+                    <p>Targets all elements of a specific type</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Styles ALL paragraphs */
+p {
+    color: darkblue;
+    font-size: 16px;
+}
+
+/* Styles ALL headings */
+h1 {
+    color: red;
+    font-size: 2em;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Class Selector (.)</h4>
+                    <p>Targets elements with a specific class</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* HTML: &lt;p class="special"&gt; */
+.special {
+    background-color: lightblue;
+    border: 2px solid blue;
+}
+
+/* Can be used on any element */
+.highlight {
+    background-color: yellow;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>ID Selector (#)</h4>
+                    <p>Targets one specific element with unique ID</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* HTML: &lt;div id="header"&gt; */
+#header {
+    background-color: navy;
+    color: white;
+    padding: 20px;
+}
+
+/* IDs should be unique! */
+#sidebar {
+    width: 300px;
+    float: right;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Advanced Selectors</h4>
+                    <p>More specific targeting options</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Descendant: p inside div */
+div p {
+    margin-left: 20px;
+}
+
+/* Child: direct p child of div */
+div > p {
+    font-weight: bold;
+}
+
+/* Multiple classes */
+.card.featured {
+    border: 3px solid gold;
+}
+
+/* Pseudo-selectors */
+a:hover {
+    color: red;
+}
+
+p:first-child {
+    font-size: 1.2em;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analogy">
+                <div class="analogy-title">📮 CSS Selectors Analogy: Addressing Mail</div>
+                <p>
+                    CSS selectors work like addressing mail in an apartment building:
+                    <br>• <strong>Element selector (p)</strong> = "All apartments" - affects everyone
+                    <br>• <strong>Class selector (.kitchen)</strong> = "All apartments with kitchens" - affects many but not all
+                    <br>• <strong>ID selector (#apt-304)</strong> = "Apartment 304" - affects only one specific apartment
+                    <br>• <strong>Descendant selector (div p)</strong> = "All bedrooms in apartments" - very specific targeting
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Colors: Painting Your Web 🌈</h2>
+        
+        <div class="colors-section">
+            <h3>Adding Color to Your Website</h3>
+            <p>Colors can completely change the mood and feel of your website. Let's explore the different ways to specify colors in CSS!</p>
+            
+            <div class="demo-box">
+                <h4>Color Examples</h4>
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div class="color-demo" style="background-color: red;" title="red"></div>
+                    <div class="color-demo" style="background-color: #3498db;" title="#3498db"></div>
+                    <div class="color-demo" style="background-color: rgb(52, 152, 219);" title="rgb(52, 152, 219)"></div>
+                    <div class="color-demo" style="background-color: hsl(204, 70%, 53%);" title="hsl(204, 70%, 53%)"></div>
+                    <div class="color-demo" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);" title="gradient"></div>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Color Names</h4>
+                    <p>Simple and easy to remember</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">h1 {
+    color: red;
+    background-color: lightblue;
+}
+
+/* 140+ named colors available */
+.warning {
+    color: orange;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: crimson;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Hex Colors</h4>
+                    <p>Precise color control with hexadecimal</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">.header {
+    color: #ffffff;        /* White */
+    background-color: #2c3e50; /* Dark blue */
+}
+
+/* Short form when possible */
+.button {
+    background-color: #f39; /* Same as #ff3399 */
+}
+
+/* Popular color palettes */
+.primary { color: #3498db; }   /* Blue */
+.success { color: #2ecc71; }   /* Green */
+.warning { color: #f39c12; }   /* Orange */
+.danger { color: #e74c3c; }    /* Red */</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>RGB Colors</h4>
+                    <p>Red, Green, Blue values (0-255)</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">.element {
+    color: rgb(52, 152, 219);
+    background-color: rgb(255, 255, 255);
+}
+
+/* RGBA with transparency */
+.overlay {
+    background-color: rgba(0, 0, 0, 0.5); /* 50% transparent black */
+}
+
+.highlight {
+    background-color: rgba(255, 255, 0, 0.3); /* 30% transparent yellow */
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>HSL Colors</h4>
+                    <p>Hue, Saturation, Lightness - intuitive color model</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">.element {
+    color: hsl(204, 70%, 53%);
+}
+
+/* HSLA with transparency */
+.card {
+    background-color: hsla(120, 100%, 50%, 0.8); /* Green with transparency */
+}
+
+/* Easy to create color variations */
+.light-blue { color: hsl(200, 70%, 70%); }
+.medium-blue { color: hsl(200, 70%, 50%); }
+.dark-blue { color: hsl(200, 70%, 30%); }</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <h4>🎨 Color Properties You Can Style</h4>
+                <div class="code-example">
+                    <pre><code class="language-css">.text-example {
+    color: #2c3e50;                    /* Text color */
+    background-color: #ecf0f1;         /* Background color */
+    border-color: #3498db;             /* Border color */
+    outline-color: #e74c3c;            /* Outline color */
+}
+
+/* Cool effects with colors */
+.gradient-background {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.text-shadow {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.box-shadow {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Typography: Making Text Beautiful 📚</h2>
+        
+        <div class="typography-section">
+            <h3>Controlling Fonts and Text</h3>
+            <p>Typography is crucial for readability and design. Let's explore how to make your text look amazing!</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Font Family</h4>
+                    <p>Choose the typeface for your text</p>
+                    <div class="font-demo" style="font-family: Arial, sans-serif;">
+                        This text uses Arial (sans-serif)
+                    </div>
+                    <div class="font-demo" style="font-family: 'Times New Roman', serif;">
+                        This text uses Times New Roman (serif)
+                    </div>
+                    <div class="font-demo" style="font-family: 'Courier New', monospace;">
+                        This text uses Courier New (monospace)
+                    </div>
+                    <div class="code-example">
+                        <pre><code class="language-css">body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    font-family: 'Georgia', serif;
+}
+
+code {
+    font-family: 'Courier New', monospace;
+}
+
+/* Web safe font stack */
+.text {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Font Size</h4>
+                    <p>Control how big or small your text appears</p>
+                    <div class="font-demo" style="font-size: 12px;">Small text (12px)</div>
+                    <div class="font-demo" style="font-size: 16px;">Normal text (16px)</div>
+                    <div class="font-demo" style="font-size: 24px;">Large text (24px)</div>
+                    <div class="font-demo" style="font-size: 2em;">Relative size (2em)</div>
+                    <div class="code-example">
+                        <pre><code class="language-css">h1 { font-size: 2.5em; }    /* Relative to parent */
+h2 { font-size: 2rem; }     /* Relative to root */
+p { font-size: 16px; }      /* Absolute pixels */
+small { font-size: 80%; }   /* Percentage */
+
+/* Common font sizes */
+.tiny { font-size: 12px; }
+.small { font-size: 14px; }
+.normal { font-size: 16px; }
+.large { font-size: 20px; }
+.huge { font-size: 32px; }</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Font Weight & Style</h4>
+                    <p>Make text bold, italic, or other variations</p>
+                    <div class="font-demo" style="font-weight: normal;">Normal weight</div>
+                    <div class="font-demo" style="font-weight: bold;">Bold weight</div>
+                    <div class="font-demo" style="font-style: italic;">Italic style</div>
+                    <div class="font-demo" style="font-weight: bold; font-style: italic;">Bold and italic</div>
+                    <div class="code-example">
+                        <pre><code class="language-css">.bold { font-weight: bold; }
+.light { font-weight: 300; }
+.normal { font-weight: 400; }
+.heavy { font-weight: 700; }
+.extra-bold { font-weight: 900; }
+
+.italic { font-style: italic; }
+.oblique { font-style: oblique; }
+
+.underline { text-decoration: underline; }
+.strikethrough { text-decoration: line-through; }
+.no-decoration { text-decoration: none; }</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Text Alignment & Spacing</h4>
+                    <p>Control how text is positioned and spaced</p>
+                    <div class="font-demo" style="text-align: left; border: 1px solid #ddd;">Left aligned text</div>
+                    <div class="font-demo" style="text-align: center; border: 1px solid #ddd;">Center aligned text</div>
+                    <div class="font-demo" style="text-align: right; border: 1px solid #ddd;">Right aligned text</div>
+                    <div class="font-demo" style="line-height: 2; border: 1px solid #ddd;">Text with increased line height for better readability</div>
+                    <div class="code-example">
+                        <pre><code class="language-css">.left { text-align: left; }
+.center { text-align: center; }
+.right { text-align: right; }
+.justify { text-align: justify; }
+
+.spaced { line-height: 1.8; }
+.tight { line-height: 1.2; }
+
+.letter-spaced { letter-spacing: 2px; }
+.word-spaced { word-spacing: 5px; }
+
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>The Box Model: Understanding Space 📦</h2>
+        
+        <div class="box-model-section">
+            <h3>Every Element is a Box</h3>
+            <p>In CSS, every element is treated as a rectangular box. Understanding the box model is crucial for controlling layout and spacing.</p>
+            
+            <div class="diagram">
+                <svg width="700" height="400">
+                    <!-- Title -->
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">The CSS Box Model</text>
+                    
+                    <!-- Margin (outermost) -->
+                    <rect x="100" y="50" width="500" height="300" fill="#ffcdd2" stroke="#f44336" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+                    <text x="120" y="70" font-size="14" fill="#c62828" font-weight="bold">Margin</text>
+                    <text x="120" y="85" font-size="12" fill="#c62828">(Space outside border)</text>
+                    
+                    <!-- Border -->
+                    <rect x="150" y="100" width="400" height="200" fill="#c8e6c9" stroke="#4caf50" stroke-width="4" rx="8"/>
+                    <text x="170" y="125" font-size="14" fill="#2e7d32" font-weight="bold">Border</text>
+                    <text x="170" y="140" font-size="12" fill="#2e7d32">(Visible border around element)</text>
+                    
+                    <!-- Padding -->
+                    <rect x="200" y="150" width="300" height="100" fill="#bbdefb" stroke="#2196f3" stroke-width="2" stroke-dasharray="3,3" rx="5"/>
+                    <text x="220" y="175" font-size="14" fill="#1565c0" font-weight="bold">Padding</text>
+                    <text x="220" y="190" font-size="12" fill="#1565c0">(Space inside border)</text>
+                    
+                    <!-- Content -->
+                    <rect x="250" y="190" width="200" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="3"/>
+                    <text x="350" y="210" font-size="14" fill="#ef6c00" font-weight="bold" text-anchor="middle">Content</text>
+                    <text x="350" y="225" font-size="12" fill="#ef6c00" text-anchor="middle">(Text, images, etc.)</text>
+                    
+                    <!-- Labels with arrows -->
+                    <path d="M 90 200 L 145 200" stroke="#f44336" stroke-width="2" marker-end="url(#arrowhead6)"/>
+                    <text x="85" y="195" font-size="12" fill="#c62828" text-anchor="end">margin: 20px</text>
+                    
+                    <path d="M 610 200 L 555 200" stroke="#4caf50" stroke-width="2" marker-start="url(#arrowhead6)"/>
+                    <text x="615" y="195" font-size="12" fill="#2e7d32">border: 3px solid</text>
+                    
+                    <path d="M 190 280 L 195 255" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead6)"/>
+                    <text x="185" y="295" font-size="12" fill="#1565c0" text-anchor="end">padding: 15px</text>
+                    
+                    <path d="M 510 280 L 505 255" stroke="#ff9800" stroke-width="2" marker-start="url(#arrowhead6)"/>
+                    <text x="515" y="295" font-size="12" fill="#ef6c00">width: 200px</text>
+                    
+                    <defs>
+                        <marker id="arrowhead6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+            
+            <div class="demo-box">
+                <h4>Box Model in Action</h4>
+                <div class="box-model-demo">
+                    This box has:<br>
+                    • Margin: 20px (transparent space outside)<br>
+                    • Border: 10px solid blue<br>
+                    • Padding: 20px (space inside border)<br>
+                    • Content: This text you're reading
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Margin</h4>
+                    <p>Space outside the element (transparent)</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* All sides */
+.element {
+    margin: 20px;
+}
+
+/* Individual sides */
+.element {
+    margin-top: 10px;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    margin-left: 15px;
+}
+
+/* Shorthand (top, right, bottom, left) */
+.element {
+    margin: 10px 15px 10px 15px;
+}
+
+/* Two values (vertical, horizontal) */
+.element {
+    margin: 10px 15px;
+}
+
+/* Center an element */
+.centered {
+    margin: 0 auto;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Padding</h4>
+                    <p>Space inside the element (inherits background)</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* All sides */
+.element {
+    padding: 15px;
+}
+
+/* Individual sides */
+.element {
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+}
+
+/* Shorthand (same as margin) */
+.element {
+    padding: 10px 20px;
+}
+
+/* Different padding for different elements */
+.button { padding: 12px 24px; }
+.card { padding: 20px; }
+.input { padding: 8px 12px; }</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Border</h4>
+                    <p>Visible outline around the element</p>
+                    <div style="border: 2px solid #2196f3; padding: 10px; margin: 10px 0;">Solid border</div>
+                    <div style="border: 2px dashed #4caf50; padding: 10px; margin: 10px 0;">Dashed border</div>
+                    <div style="border: 3px dotted #ff9800; padding: 10px; margin: 10px 0;">Dotted border</div>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Border shorthand: width style color */
+.element {
+    border: 2px solid #333;
+}
+
+/* Individual properties */
+.element {
+    border-width: 2px;
+    border-style: solid;
+    border-color: #333;
+}
+
+/* Individual sides */
+.element {
+    border-top: 1px solid #ddd;
+    border-bottom: 2px solid #333;
+}
+
+/* Border styles */
+.solid { border: 2px solid #333; }
+.dashed { border: 2px dashed #333; }
+.dotted { border: 2px dotted #333; }
+.double { border: 4px double #333; }
+
+/* Rounded corners */
+.rounded { border-radius: 10px; }
+.circle { border-radius: 50%; }</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Width & Height</h4>
+                    <p>Control the size of the content area</p>
+                    <div style="width: 200px; height: 50px; background: #e3f2fd; border: 1px solid #2196f3; margin: 10px 0; display: flex; align-items: center; justify-content: center;">200px × 50px</div>
+                    <div style="width: 100%; height: 30px; background: #e8f5e9; border: 1px solid #4caf50; margin: 10px 0; display: flex; align-items: center; justify-content: center;">100% width</div>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Fixed dimensions */
+.box {
+    width: 300px;
+    height: 200px;
+}
+
+/* Percentage dimensions */
+.responsive {
+    width: 100%;
+    height: 50vh; /* 50% of viewport height */
+}
+
+/* Maximum and minimum sizes */
+.flexible {
+    width: 80%;
+    max-width: 800px;
+    min-width: 320px;
+    min-height: 200px;
+}
+
+/* Auto sizing */
+.auto {
+    width: auto; /* Default - fits content */
+    height: auto; /* Default - fits content */
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analogy">
+                <div class="analogy-title">📦 Box Model Analogy: Shipping Package</div>
+                <p>
+                    Think of the CSS box model like a shipping package:
+                    <br>• <strong>Content</strong> = The actual item you bought (phone, book, etc.)
+                    <br>• <strong>Padding</strong> = Bubble wrap or foam padding around the item
+                    <br>• <strong>Border</strong> = The cardboard box itself
+                    <br>• <strong>Margin</strong> = The space between this package and other packages on the delivery truck
+                </p>
+                <p>Just like shipping, you need to consider all these layers to understand how much space your element actually takes up!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Getting Started: Your First CSS 🚀</h2>
+        
+        <div class="step-by-step">
+            <h3>Three Ways to Add CSS to HTML</h3>
+            
+            <div class="feature-grid">
+                <div class="feature-card" style="background: #ffebee;">
+                    <h4>1. Inline Styles</h4>
+                    <p><strong>Good for:</strong> Quick one-off styles</p>
+                    <p><strong>Bad for:</strong> Maintenance, reusability</p>
+                    <div class="code-example">
+                        <pre><code class="language-html">&lt;h1 style="color: blue; font-size: 32px;"&gt;
+    My Heading
+&lt;/h1&gt;
+
+&lt;p style="color: #333; margin: 16px 0;"&gt;
+    My paragraph with inline styles.
+&lt;/p&gt;</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card" style="background: #fff3e0;">
+                    <h4>2. Internal Styles</h4>
+                    <p><strong>Good for:</strong> Single-page websites</p>
+                    <p><strong>Bad for:</strong> Multi-page sites</p>
+                    <div class="code-example">
+                        <pre><code class="language-html">&lt;head&gt;
+    &lt;style&gt;
+        h1 {
+            color: blue;
+            font-size: 32px;
+        }
+        
+        p {
+            color: #333;
+            margin: 16px 0;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card" style="background: #e8f5e9;">
+                    <h4>3. External Stylesheets</h4>
+                    <p><strong>Good for:</strong> Everything! (Recommended)</p>
+                    <p><strong>Bad for:</strong> Requires extra file</p>
+                    <div class="code-example">
+                        <pre><code class="language-html">&lt;!-- In HTML head --&gt;
+&lt;link rel="stylesheet" href="styles.css"&gt;</code></pre>
+                        <pre><code class="language-css">/* In styles.css file */
+h1 {
+    color: blue;
+    font-size: 32px;
+}
+
+p {
+    color: #333;
+    margin: 16px 0;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <h4>🛠️ Your First Complete Example</h4>
+            <div class="code-example">
+                <pre><code class="language-html">&lt;!-- HTML (index.html) --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;My Styled Page&lt;/title&gt;
+    &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header class="main-header"&gt;
+        &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+    &lt;/header&gt;
+    
+    &lt;main&gt;
+        &lt;p class="intro"&gt;This is my beautifully styled website!&lt;/p&gt;
+        &lt;button class="cta-button"&gt;Click Me!&lt;/button&gt;
+    &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+            
+            <div class="code-example">
+                <pre><code class="language-css">/* CSS (styles.css) */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.main-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+.intro {
+    font-size: 1.2em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.cta-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #2980b9;
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>What We Learned in Part 1 🎓</h2>
+        
+        <div class="step-by-step">
+            <h3>Key Takeaways:</h3>
+            <ul>
+                <li><strong>🎨 CSS Purpose:</strong> Transforms plain HTML into beautiful, styled web pages</li>
+                <li><strong>📝 CSS Syntax:</strong> selector { property: value; } - simple but powerful</li>
+                <li><strong>🎯 CSS Selectors:</strong> Element, class (.class), ID (#id), and advanced selectors</li>
+                <li><strong>🌈 Colors:</strong> Named colors, hex (#ff0000), RGB, HSL - many ways to add color</li>
+                <li><strong>📚 Typography:</strong> Control fonts, sizes, weights, and text spacing</li>
+                <li><strong>📦 Box Model:</strong> Content, padding, border, margin - how elements take up space</li>
+                <li><strong>🔗 Adding CSS:</strong> Inline, internal, or external (external is best!)</li>
+            </ul>
+        </div>
+
+        <div class="mindblown">
+            <h3>🤯 The Transformation Power of CSS</h3>
+            <p style="font-size: 16px; margin: 20px 0;">
+                With just CSS, you can take the same HTML and make it look like a professional business site, a fun gaming blog, 
+                a minimalist portfolio, or anything you can imagine! CSS is like having a magic wand that transforms plain text 
+                into visually stunning experiences. Every website you've ever admired uses these same fundamental CSS concepts!
+            </p>
+        </div>
+
+        <div class="analogy">
+            <div class="analogy-title">🎯 Coming Up in Part 2: Layout and Responsive Design</div>
+            <p>
+                Now that you know how to style individual elements, in Part 2 we'll explore:
+                <br>• Advanced layout techniques with Flexbox and Grid
+                <br>• Making your websites look great on phones, tablets, and desktops
+                <br>• Positioning elements exactly where you want them
+                <br>• Creating complex, professional layouts
+                <br>• CSS animations and transitions that bring your pages to life
+            </p>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: center;">
+            <h3>🎨 Ready to Create Beautiful Websites?</h3>
+            <p>You now have the fundamental skills to style web pages! You can control colors, fonts, spacing, and make your 
+            HTML look professional and engaging. Practice by styling some simple HTML pages, experiment with different colors 
+            and fonts, and then move on to Part 2 to learn advanced layout techniques!</p>
+            
+            <p style="margin-top: 15px; font-style: italic;">
+                "Design is not just what it looks like and feels like. Design is how it works." - Steve Jobs<br>
+                <strong>And now YOU can make websites that both look amazing AND work perfectly! 🌟</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Prism.js JavaScript for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

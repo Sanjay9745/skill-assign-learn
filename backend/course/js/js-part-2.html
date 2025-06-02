@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 2: Decisions & Loops! 🧠⚙️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #5e35b1; /* Deep Purple */
+            --secondary-color: #00acc1; /* Cyan */
+            --accent-color: #ffb300; /* Amber */
+            --text-color: #37474f; /* Blue Grey */
+            --light-bg: #f5f5f5; /* Lighter Grey */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 20px;
+            --border-radius-inner: 12px;
+            --box-shadow-main: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --box-shadow-light: 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8; /* Increased for better readability */
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 950px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.97); /* Slightly more opaque */
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 10px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-top: 30px; /* Added margin-top */
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-top: 25px; /* Increased margin-top */
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 8px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e0e0e0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #797979; font-style: italic; }
+        .token.keyword { color: #00e0e0; } /* Cyan for keywords */
+        .token.string { color: #9ef080; } /* Light green for strings */
+        .token.number { color: #ffb880; } /* Light orange for numbers */
+        .token.boolean { color: #80dfff; } /* Light blue for booleans */
+        .token.function { color: #ffd700; }
+        .token.operator { color: #ff8c00; } /* DarkOrange for operators */
+        .token.punctuation { color: #f0f0f0; } /* Light grey for punctuation */
+
+        .analogy-box {
+            background-color: #e6fffa; /* Mint cream */
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #00796b; } /* Teal */
+        .analogy-box::before {
+            content: "\f550"; /* Brain icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(0, 172, 193, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f058"; /* Check circle solid */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 1em;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .button-style {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+        .button-style:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .diagram-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: var(--border-radius-inner);
+            margin: 25px 0;
+            border: 2px solid var(--secondary-color);
+            overflow-x: auto;
+            overflow-y: hidden;
+            box-shadow: var(--box-shadow-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        .diagram-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            min-width: 300px;
+        }
+
+        /* Enhanced diagram styles */
+        .flow-rect { 
+            fill: #e3f2fd; 
+            stroke: var(--secondary-color); 
+            stroke-width: 2px; 
+            rx: 10; 
+            ry: 10;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        .flow-diamond { 
+            fill: #fff9c4; 
+            stroke: var(--accent-color); 
+            stroke-width: 2px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        .flow-oval { 
+            fill: #e8f5e9; 
+            stroke: #4caf50; 
+            stroke-width: 2px; 
+            rx: 25; 
+            ry: 25;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        .flow-text { 
+            font-family: 'Nunito', sans-serif; 
+            font-size: 13px; 
+            fill: var(--text-color); 
+            text-anchor: middle; 
+            dominant-baseline: middle;
+            font-weight: 600;
+        }
+        .flow-text-bold { font-weight: 800; }
+        .flow-text-small { font-size: 11px; }
+        .flow-line { 
+            stroke: var(--text-color); 
+            stroke-width: 2px; 
+            marker-end: url(#arrowhead);
+            opacity: 0.8;
+        }
+        .flow-line-true { stroke: #4caf50; stroke-width: 2.5px; }
+        .flow-line-false { stroke: #f44336; stroke-width: 2.5px; }
+
+        /* Responsive diagram adjustments */
+        @media (max-width: 768px) {
+            .diagram-container {
+                padding: 15px;
+                margin: 20px 0;
+                min-height: 180px;
+            }
+            .diagram-container svg {
+                min-width: 280px;
+            }
+            .flow-text { font-size: 12px; }
+            .flow-text-small { font-size: 10px; }
+            .flow-rect, .flow-diamond, .flow-oval {
+                stroke-width: 1.5px;
+            }
+            .flow-line {
+                stroke-width: 1.5px;
+            }
+            .flow-line-true, .flow-line-false {
+                stroke-width: 2px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .diagram-container {
+                padding: 10px;
+                margin: 15px 0;
+                min-height: 160px;
+            }
+            .diagram-container svg {
+                min-width: 260px;
+            }
+            .flow-text { font-size: 11px; }
+            .flow-text-small { font-size: 9px; }
+        }
+
+        /* ...existing code... */
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-brain emoji"></i>JavaScript Part 2: Decisions & Repeating Stuff!<i class="fas fa-cogs emoji"></i></h1>
+
+        <div class="section">
+            <h2><i class="fas fa-code-branch"></i> Conditional Statements: Making Choices!</h2>
+            <p>Sometimes, your code needs to make decisions. That's where conditional statements like <code class="highlight">if</code>, <code class="highlight">else if</code>, and <code class="highlight">else</code> come in handy! They let your program do different things based on whether something is true or false.</p>
+
+            <h3><i class="fas fa-question"></i> The Simple <code class="highlight">if</code> Statement</h3>
+            <p>An <code class="highlight">if</code> statement runs a block of code <strong class="highlight">only if</strong> a certain condition is true.</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🚦</span> Imagine you're at a traffic light. <strong>If</strong> the light is green (condition is true), you go (action). If it's not green, you don't do that specific "go" action.
+            </div>
+            <pre><code class="language-javascript">
+let temperature = 30; // degrees Celsius
+
+if (temperature > 25) {
+  console.log("It's a hot day! Wear shorts! ☀️");
+}
+// Output: It's a hot day! Wear shorts! ☀️
+            </code></pre>
+
+            <h4>Visualizing an <code class="highlight">if</code> Statement: The Two Roads</h4>
+            <div class="diagram-container">
+                <svg viewBox="0 0 450 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 4, 0 8" fill="var(--text-color)" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Start -->
+                    <ellipse cx="225" cy="35" rx="70" ry="25" class="flow-oval" />
+                    <text x="225" y="35" class="flow-text flow-text-bold">Start</text>
+                    <line x1="225" y1="60" x2="225" y2="85" class="flow-line" />
+
+                    <!-- Decision Diamond -->
+                    <polygon points="225,85 310,125 225,165 140,125" class="flow-diamond" />
+                    <text x="225" y="118" class="flow-text flow-text-bold">Is it raining?</text>
+                    <text x="225" y="135" class="flow-text flow-text-small">(Condition)</text>
+
+                    <!-- True path -->
+                    <line x1="310" y1="125" x2="365" y2="125" class="flow-line flow-line-true" />
+                    <text x="338" y="110" class="flow-text flow-text-bold" fill="#4caf50">Yes (True)</text>
+                    <rect x="335" y="95" width="90" height="50" class="flow-rect" />
+                    <text x="380" y="115" class="flow-text flow-text-bold">Take</text>
+                    <text x="380" y="130" class="flow-text flow-text-bold">Umbrella</text>
+                    <line x1="380" y1="145" x2="380" y2="180" class="flow-line" />
+                    <line x1="380" y1="180" x2="225" y2="215" class="flow-line" />
+
+                    <!-- False path -->
+                    <line x1="140" y1="125" x2="85" y2="125" class="flow-line flow-line-false" />
+                    <text x="112" y="110" class="flow-text flow-text-bold" fill="#f44336">No (False)</text>
+                    <line x1="85" y1="125" x2="85" y2="180" class="flow-line" />
+                    <line x1="85" y1="180" x2="225" y2="215" class="flow-line" />
+
+                    <!-- End -->
+                    <ellipse cx="225" cy="235" rx="85" ry="25" class="flow-oval" />
+                    <text x="225" y="235" class="flow-text flow-text-bold">Continue Program</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-else"></i> The <code class="highlight">if...else</code> Statement</h3>
+            <p>What if you want to do something else if the condition is false? That's what <code class="highlight">else</code> is for!</p>
+             <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🍦</span> You want ice cream. <strong>If</strong> your favorite flavor (e.g., chocolate) is available, you get that. <strong>Else</strong> (if it's not available), you get vanilla.
+            </div>
+            <pre><code class="language-javascript">
+let age = 15;
+
+if (age >= 18) {
+  console.log("You are old enough to vote! 🗳️");
+} else {
+  console.log("Sorry, you are too young to vote. 😕");
+}
+// Output: Sorry, you are too young to vote. 😕
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-stream"></i> The <code class="highlight">if...else if...else</code> Ladder</h3>
+            <p>For checking multiple conditions in a sequence, you can use an <code class="highlight">else if</code> ladder. It's like a series of questions.</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🎮</span> Choosing a game:
+                <ul>
+                    <li><strong>If</strong> you feel like building: Play Minecraft.</li>
+                    <li><strong>Else if</strong> you feel like an adventure: Play Zelda.</li>
+                    <li><strong>Else if</strong> you want to relax: Play Stardew Valley.</li>
+                    <li><strong>Else</strong> (if none of the above): Read a book.</li>
+                </ul>
+            </div>
+            <pre><code class="language-javascript">
+let score = 85;
+let grade;
+
+if (score >= 90) {
+  grade = "A 🎉";
+} else if (score >= 80) {
+  grade = "B 👍";
+} else if (score >= 70) {
+  grade = "C 😊";
+} else if (score >= 60) {
+  grade = "D 🤔";
+} else {
+  grade = "F 😥";
+}
+console.log("Your grade is: " + grade); // Output: Your grade is: B 👍
+            </code></pre>
+            <h4><i class="fas fa-equals"></i> Comparison and Logical Operators</h4>
+            <p>To make conditions, we use comparison operators (like <code class="highlight">&gt;</code>, <code class="highlight">&lt;</code>, <code class="highlight">===</code> for strict equality) and logical operators (<code class="highlight">&amp;&amp;</code> for AND, <code class="highlight">||</code> for OR, <code class="highlight">!</code> for NOT).</p>
+            <pre><code class="language-javascript">
+let hour = 14;
+let isWeekend = false;
+
+if (hour < 9 || hour > 17 || isWeekend) {
+  console.log("The office is closed. 😴");
+} else {
+  console.log("The office is open! 💼");
+}
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-sync-alt"></i> Loops: Repeating Actions!</h2>
+            <p>Loops are super useful when you want to do something over and over again without writing the same code multiple times.</p>
+
+            <h3><i class="fas fa-running"></i> The <code class="highlight">for</code> Loop</h3>
+            <p>A <code class="highlight">for</code> loop is great when you know how many times you want to repeat an action.</p>
+            <p>It has three parts, separated by semicolons <code class="highlight">( ; )</code>:</p>
+            <ol>
+                <li><strong>Initialization:</strong> Code that runs once at the very beginning (e.g., <code class="highlight">let i = 0</code>). Sets up your loop variable.</li>
+                <li><strong>Condition:</strong> Checked before each loop. If it's true, the loop runs. If false, the loop stops (e.g., <code class="highlight">i < 5</code>).</li>
+                <li><strong>Final Expression (Update):</strong> Code that runs after each loop iteration (e.g., <code class="highlight">i++</code> to count up).</li>
+            </ol>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🤸</span> Doing 5 jumping jacks:
+                <ol>
+                    <li><strong>Initialization:</strong> Say "Okay, I'll start counting my jumping jacks from 1." (<code>let count = 1</code>)</li>
+                    <li><strong>Condition:</strong> "Have I done less than or equal to 5 jumping jacks?" (<code>count <= 5</code>)</li>
+                    <li><strong>Code Block:</strong> If yes, do one jumping jack!</li>
+                    <li><strong>Final Expression:</strong> Add one to my count. (<code>count++</code>)</li>
+                    <li>Repeat from step 2.</li>
+                </ol>
+            </div>
+            <pre><code class="language-javascript">
+// Print numbers from 1 to 5
+for (let i = 1; i <= 5; i++) {
+  console.log("Number: " + i + " 🎈");
+}
+// Output:
+// Number: 1 🎈
+// Number: 2 🎈
+// Number: 3 🎈
+// Number: 4 🎈
+// Number: 5 🎈
+
+// Looping through an array
+let friends = ["Alex", "Sam", "Jordan"];
+for (let i = 0; i < friends.length; i++) {
+  console.log("Hello, " + friends[i] + "! 👋");
+}
+// Output:
+// Hello, Alex! 👋
+// Hello, Sam! 👋
+// Hello, Jordan! 👋
+            </code></pre>
+
+            <h4>Visualizing a <code class="highlight">for</code> Loop</h4>
+            <div class="diagram-container">
+                <svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+                     <defs>
+                        <marker id="arrowhead-loop" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 4, 0 8" fill="var(--text-color)" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Start -->
+                    <ellipse cx="250" cy="35" rx="70" ry="25" class="flow-oval" />
+                    <text x="250" y="35" class="flow-text flow-text-bold">Start</text>
+                    <line x1="250" y1="60" x2="250" y2="85" class="flow-line" marker-end="url(#arrowhead-loop)" />
+
+                    <!-- Initialization -->
+                    <rect x="170" y="85" width="160" height="45" class="flow-rect" />
+                    <text x="250" y="103" class="flow-text flow-text-bold">1. Initialization</text>
+                    <text x="250" y="118" class="flow-text flow-text-small">(e.g., let i = 0)</text>
+                    <line x1="250" y1="130" x2="250" y2="155" class="flow-line" marker-end="url(#arrowhead-loop)" />
+
+                    <!-- Condition Check -->
+                    <polygon points="250,155 340,195 250,235 160,195" class="flow-diamond" />
+                    <text x="250" y="188" class="flow-text flow-text-bold">2. Condition?</text>
+                    <text x="250" y="205" class="flow-text flow-text-small">(e.g., i < 5)</text>
+
+                    <!-- True path - Code Block -->
+                    <line x1="340" y1="195" x2="395" y2="195" class="flow-line flow-line-true" marker-end="url(#arrowhead-loop)" />
+                    <text x="368" y="180" class="flow-text flow-text-bold" fill="#4caf50">True</text>
+                    <rect x="365" y="165" width="90" height="60" class="flow-rect" />
+                    <text x="410" y="188" class="flow-text flow-text-bold">3. Execute</text>
+                    <text x="410" y="205" class="flow-text flow-text-bold">Code Block</text>
+                    
+                    <!-- Update step -->
+                    <line x1="410" y1="225" x2="410" y2="265" class="flow-line" marker-end="url(#arrowhead-loop)" />
+                    <rect x="350" y="265" width="120" height="45" class="flow-rect" />
+                    <text x="410" y="283" class="flow-text flow-text-bold">4. Update</text>
+                    <text x="410" y="298" class="flow-text flow-text-small">(e.g., i++)</text>
+                    
+                    <!-- Loop back -->
+                    <path d="M350 287 Q250 340 160 287 L160 215" fill="none" class="flow-line" marker-end="url(#arrowhead-loop)" stroke-dasharray="5,5" />
+                    <text x="255" y="335" class="flow-text flow-text-small" fill="#666">Loop Back</text>
+
+                    <!-- False path - End -->
+                    <line x1="160" y1="195" x2="105" y2="195" class="flow-line flow-line-false" marker-end="url(#arrowhead-loop)" />
+                    <text x="132" y="180" class="flow-text flow-text-bold" fill="#f44336">False</text>
+                    
+                    <ellipse cx="70" cy="235" rx="65" ry="25" class="flow-oval" />
+                    <text x="70" y="235" class="flow-text flow-text-bold">End Loop</text>
+                    <line x1="105" y1="195" x2="70" y2="210" class="flow-line" marker-end="url(#arrowhead-loop)" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-history"></i> The <code class="highlight">while</code> Loop</h3>
+            <p>A <code class="highlight">while</code> loop keeps repeating as long as its condition is true. You set up the starting point <strong class="highlight">before</strong> the loop, check the condition <strong class="highlight">at the start</strong> of each repetition, and you <strong class="highlight">must</strong> change something inside the loop to eventually make the condition false (otherwise, you get an infinite loop! 😱).</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🍿</span> Eating popcorn:
+                <ol>
+                    <li><strong>Initialization:</strong> You have a full bowl of popcorn. (<code>let popcornLeft = true;</code>)</li>
+                    <li><strong>Condition:</strong> "Is there still popcorn left?" (<code>while (popcornLeft)</code>)</li>
+                    <li><strong>Code Block:</strong> If yes, eat some popcorn! Then, check if the bowl is empty. If it is, set <code>popcornLeft = false;</code>.</li>
+                    <li>Repeat from step 2.</li>
+                </ol>
+            </div>
+            <pre><code class="language-javascript">
+let countdown = 3;
+
+while (countdown > 0) {
+  console.log(countdown + "... 🚀");
+  countdown--; // IMPORTANT: Change the variable so the loop eventually stops!
+}
+console.log("Blast off!");
+// Output:
+// 3... 🚀
+// 2... 🚀
+// 1... 🚀
+// Blast off!
+            </code></pre>
+            <h4><code class="highlight">for</code> vs <code class="highlight">while</code></h4>
+            <ul>
+                <li>Use a <code class="highlight">for</code> loop when you generally know how many times you want to loop (e.g., for each item in an array, or 10 times).</li>
+                <li>Use a <code class="highlight">while</code> loop when you want to loop as long as a condition is true, and you don't necessarily know upfront how many iterations that will be.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-magic"></i> Functions: Reusable Code Spells!</h2>
+            <p>Functions are like named blocks of code that you can run whenever you need them. They help you organize your code and avoid repeating yourself (this is called the DRY principle: Don't Repeat Yourself!).</p>
+
+            <h3><i class="fas fa-scroll"></i> Defining and Calling Functions</h3>
+            <p>First, you <strong class="highlight">define</strong> (create) a function, then you <strong class="highlight">call</strong> (run) it.</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">📜</span>
+                <ul>
+                    <li><strong>Defining a function</strong> is like writing down a recipe for your favorite cookies. The recipe has a name (function name) and steps to follow (code inside).</li>
+                    <li><strong>Calling a function</strong> is like actually taking out the recipe and baking those cookies! You can bake them many times using the same recipe.</li>
+                </ul>
+            </div>
+            <pre><code class="language-javascript">
+// 1. Defining the function (writing the recipe)
+function sayHello() {
+  console.log("Hello there, awesome coder! 👋");
+}
+
+// 2. Calling the function (using the recipe)
+sayHello(); // Output: Hello there, awesome coder! 👋
+sayHello(); // You can call it again! Output: Hello there, awesome coder! 👋
+            </code></pre>
+
+            <h3><i class="fas fa-gift"></i> Parameters and Arguments: Giving Info to Functions</h3>
+            <p>Functions can take <strong class="highlight">parameters</strong> (placeholders for information they need) and you give them <strong class="highlight">arguments</strong> (the actual information) when you call them.</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">💌</span>
+                Imagine a function that writes a greeting card:
+                <ul>
+                    <li><strong>Parameter:</strong> The recipe for the card might say "Write 'Dear [<em>name</em>]'". Here, `name` is a parameter.</li>
+                    <li><strong>Argument:</strong> When you actually write a card, you fill in the blank: "Dear [<em>Alex</em>]". Here, "Alex" is the argument.</li>
+                </ul>
+            </div>
+            <pre><code class="language-javascript">
+// Function with one parameter: 'name'
+function greetUser(name) {
+  console.log("Welcome to the game, " + name + "! 🏆");
+}
+
+greetUser("PixelPioneer"); // "PixelPioneer" is the argument
+// Output: Welcome to the game, PixelPioneer! 🏆
+
+greetUser("CodeWizard");   // "CodeWizard" is the argument
+// Output: Welcome to the game, CodeWizard! 🏆
+
+// Function with two parameters: 'num1' and 'num2'
+function addNumbers(num1, num2) {
+  let sum = num1 + num2;
+  console.log("The sum is: " + sum);
+}
+
+addNumbers(5, 3); // 5 and 3 are arguments. Output: The sum is: 8
+addNumbers(10, 20); // Output: The sum is: 30
+            </code></pre>
+
+            <h3><i class="fas fa-reply"></i> Return Values: Getting Info Back from Functions</h3>
+            <p>Functions can also give back a result using the <code class="highlight">return</code> keyword. When a function hits a <code class="highlight">return</code> statement, it stops running and sends the value back.</p>
+             <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">➕</span>
+                Think of a calculator function. You give it two numbers (arguments), it does the calculation, and then it <strong class="highlight">returns</strong> the answer to you.
+            </div>
+            <pre><code class="language-javascript">
+function calculateArea(width, height) {
+  let area = width * height;
+  return area; // Sends the calculated area back
+}
+
+let roomArea = calculateArea(10, 5); // The function call becomes the returned value
+console.log("The room area is: " + roomArea + " square meters."); // Output: The room area is: 50 square meters.
+
+let anotherArea = calculateArea(7, 3);
+console.log("Another area: " + anotherArea); // Output: Another area: 21
+            </code></pre>
+            <p>If a function doesn't have a <code class="highlight">return</code> statement, or just has <code class="highlight">return;</code> with no value, it automatically returns <code class="highlight">undefined</code>.</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🏆</span> You've Leveled Up! (Part 2 Complete)</h2>
+            <p>Amazing work! You've now mastered some incredibly powerful JavaScript tools:</p>
+            <ul>
+                <li>Making decisions with <code class="highlight">if</code>, <code class="highlight">else if</code>, and <code class="highlight">else</code>.</li>
+                <li>Repeating tasks efficiently with <code class="highlight">for</code> and <code class="highlight">while</code> loops.</li>
+                <li>Creating reusable blocks of code with <code class="highlight">functions</code>, using parameters and return values.</li>
+            </ul>
+            <p>These concepts are the heart of programming and will allow you to build much more complex and interesting applications. Keep practicing these, and you'll be building amazing things in no time!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Onwards to More JS Adventures! <i class="fas fa-hat-wizard"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

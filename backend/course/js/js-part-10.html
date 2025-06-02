@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 10: Mastering Fetch - API Calls & Beyond! 🚀🌐</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #3f51b5; /* Indigo */
+            --secondary-color: #5c6bc0; /* Light Indigo */
+            --accent-color: #ff9800; /* Orange */
+            --text-color: #263238; /* Blue Grey Dark */
+            --light-bg: #e8eaf6; /* Light Indigo */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 22px;
+            --border-radius-inner: 14px;
+            --box-shadow-main: 0 12px 35px rgba(0, 0, 0, 0.12);
+            --box-shadow-light: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 900;
+            margin-bottom: 35px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 12px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.9em;
+            margin-top: 35px;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-top: 28px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 10px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #9fa8da; /* Light Indigo border */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 0.95em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #a7b0b9; font-style: italic; }
+        .token.keyword { color: #c792ea; } /* Purple keyword */
+        .token.string { color: #f08d49; } /* Orange string */
+        .token.number { color: #f76d47; }
+        .token.boolean { color: #90a8f0; } /* Light Blue boolean */
+        .token.function { color: #addb67; } /* Green function */
+        .token.operator { color: #89ddff; } /* Cyan operator */
+        .token.punctuation { color: #d4d4d4; } /* Grey punctuation */
+        .token.parameter { color: #c3e88d; } /* Light Green parameter */
+
+        .analogy-box {
+            background-color: #e8eaf6; /* Lightest Indigo */
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 22px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #303f9f; } /* Darkest Indigo */
+        .analogy-box::before {
+            content: "\f09b"; /* Github icon (for API feel) */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(92, 107, 192, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 28px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f192"; /* Circle icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900; /* Solid */
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 0.8em; /* Smaller circle */
+            top: 6px;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .highlight-red { background-color: #f44336; color: #b71c1c; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+        .highlight-green { background-color: #4caf50; color: #1b5e20; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+        .highlight-blue { background-color: #2196f3; color: #0d47a1; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+
+
+        .button-style, .interactive-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button-style:hover, .interactive-button:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .interactive-button {
+            font-size: 0.9em;
+            padding: 8px 15px;
+            margin-right: 10px;
+        }
+        .output-area {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius-inner);
+            min-height: 40px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+
+
+        .diagram-container {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: var(--border-radius-inner);
+            margin: 25px 0;
+            border: 1px solid #bdc3c7;
+            overflow-x: auto;
+        }
+        .diagram-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            min-width: 550px; /* Adjusted for more complex diagrams */
+        }
+
+        .flow-box { stroke-width: 1.5px; rx: 8; ry: 8; }
+        .call-stack-box { fill: #a5d6a7; stroke: #388e3c; }
+        .web-apis-box { fill: #f8c471; stroke: #b9770e; }
+        .callback-queue-box { fill: #AED6F1; stroke: #2E86C1; }
+        .microtask-queue-box { fill: #d5a6bd; stroke: #884ea0; }
+        .event-loop-circle { fill: #ec7063; stroke: #af6060; }
+        .render-queue-box { fill: #cfd8dc; stroke: #546e7a; } /* For rendering */
+
+        .flow-text { font-family: 'Nunito', sans-serif; font-size: 12px; fill: var(--text-color); text-anchor: middle; } /* Slightly smaller base */
+        .flow-text-small { font-size: 10px; }
+        .flow-text-bold { font-weight: 700; }
+        .flow-line { stroke: var(--text-color); stroke-width: 1.5px; marker-end: url(#arrowhead); }
+        .flow-line-dashed { stroke-dasharray: 4, 2; }
+
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .analogy-box { padding: 10px; margin: 15px 0; }
+            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
+            ul li { padding-left: 22px; margin-bottom: 8px; }
+            ul li::before { font-size: 0.9em; }
+            .button-style, .interactive-button { padding: 10px 20px; font-size: 1em; }
+            .flow-text { font-size: 11px; }
+            .flow-text-small { font-size: 9px; }
+            .diagram-container svg { min-width: 450px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style, .interactive-button { width: 100%; text-align: center; margin-bottom: 10px; }
+            .flow-text { font-size: 10px; }
+            .flow-text-small { font-size: 8px; }
+            .diagram-container svg { min-width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-globe emoji"></i>JavaScript Part 10: Mastering Fetch - API Calls & Beyond! <i class="fas fa-rocket emoji"></i></h1>
+        <p style="text-align:center; font-size: 1.1em;">Unlock the Power of Web APIs!</p>
+
+        <div class="section">
+            <h2><i class="fas fa-network-wired"></i> Introduction to the Fetch API</h2>
+            <p>The <code class="language-javascript">fetch()</code> function is a modern replacement for the older <code class="language-javascript">XMLHttpRequest</code>. It provides a cleaner and more powerful way to make asynchronous requests to web servers (APIs). Whether you need to get data, send data, or interact with online services, <code>fetch</code> is your go-to tool.</p>
+            <p>At its core, <code class="language-javascript">fetch()</code> allows your JavaScript code running in the browser to communicate with servers over the internet.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-handshake"></i> Basic Usage: Making a GET Request</h2>
+            <p>The simplest form of a <code>fetch</code> request is a GET request, used to retrieve data from a server. Here's a basic example:</p>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/data')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json(); // Or response.text() for plain text, etc.
+  })
+  .then(data => {
+    console.log('Data received:', data);
+    // Process your data here
+  })
+  .catch(error => {
+    console.error('There was an error fetching the data:', error);
+  });
+            </code></pre>
+            <ul>
+                <li>We call <code class="language-javascript">fetch()</code> with the URL of the API endpoint.</li>
+                <li>It returns a <code class="language-javascript">Promise</code> that resolves to a <code class="language-javascript">Response</code> object.</li>
+                <li>The first <code class="language-javascript">.then()</code> block checks if the request was successful using <code class="language-javascript">response.ok</code> (status codes 200-299). If not, it throws an error.</li>
+                <li><code class="language-javascript">response.json()</code> is used to parse the response body as JSON. It also returns a Promise.</li>
+                <li>The second <code class="language-javascript">.then()</code> block receives the parsed JSON data.</li>
+                <li>The <code class="language-javascript">.catch()</code> block handles any errors that occurred during the process.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-server"></i> HTTP Methods: Beyond GET</h2>
+            <p>APIs use different HTTP methods to indicate the type of action being performed. The most common ones include:</p>
+            <ul>
+                <li><strong>GET:</strong> Retrieve data from the server (as seen above).</li>
+                <li><strong>POST:</strong> Send data to the server to create a new resource.</li>
+                <li><strong>PUT:</strong> Send data to the server to update an existing resource.</li>
+                <li><strong>DELETE:</strong> Request the server to delete a specific resource.</li>
+            </ul>
+            <p>To use methods other than GET, you need to provide an optional second argument to <code class="language-javascript">fetch()</code>, which is an options object.</p>
+
+            <h3><i class="fas fa-plus-square"></i> Making a POST Request</h3>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/items', {
+  method: 'POST', // Specify the HTTP method
+  headers: {
+    'Content-Type': 'application/json', // Indicate that we are sending JSON data
+  },
+  body: JSON.stringify({ name: 'New Item', description: 'A brand new item' }), // Data to be sent in the request body
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Item created:', data);
+  })
+  .catch(error => {
+    console.error('Error creating item:', error);
+  });
+            </code></pre>
+            <ul>
+                <li>The <code class="language-javascript">method</code> property in the options object sets the HTTP method to 'POST'.</li>
+                <li>The <code class="language-javascript">headers</code> property is an object containing HTTP headers. Here, we set <code class="language-javascript">'Content-Type'</code> to <code class="language-javascript">'application/json'</code> to tell the server that the request body will be in JSON format.</li>
+                <li>The <code class="language-javascript">body</code> property contains the data to be sent. We use <code class="language-javascript">JSON.stringify()</code> to convert our JavaScript object into a JSON string.</li>
+            </ul>
+
+            <h3><i class="fas fa-pencil-alt"></i> Making a PUT Request (Similar to POST)</h3>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/items/123', { // Assuming '123' is the ID of the item to update
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ description: 'Updated description' }),
+})
+  // ... (rest of the code is similar to POST request handling)
+            </code></pre>
+
+            <h3><i class="fas fa-trash-alt"></i> Making a DELETE Request</h3>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/items/123', {
+  method: 'DELETE',
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    console.log('Item deleted successfully');
+    // Often, DELETE requests might not return any body, so you might not need response.json()
+  })
+  .catch(error => {
+    console.error('Error deleting item:', error);
+  });
+            </code></pre>
+            <p>Note that DELETE requests often don't require a body, so you might not call <code class="language-javascript">response.json()</code> in the success handler.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-code-branch"></i> Understanding Response Status Codes</h2>
+            <p>The <code class="language-javascript">response.status</code> property of the <code class="language-javascript">Response</code> object provides the HTTP status code returned by the server. These codes indicate the outcome of the request.</p>
+            <p>Here are some common status code categories:</p>
+            <ul>
+                <li><strong>2xx (Successful):</strong> The request was successful.
+                    <ul>
+                        <li><strong>200 OK:</strong> Standard response for successful HTTP requests.</li>
+                        <li><strong>201 Created:</strong> The request has been fulfilled and resulted in a new resource being created.</li>
+                        <li><strong>204 No Content:</strong> The server has successfully fulfilled the request but does not need to return any content.</li>
+                    </ul>
+                </li>
+                <li><strong>3xx (Redirection):</strong> The client needs to take additional action to complete the request.
+                    <ul>
+                        <li><strong>301 Moved Permanently:</strong> The requested resource has been permanently moved to a new URL.</li>
+                        <li><strong>302 Found:</strong> The requested resource resides temporarily under a different URL.</li>
+                    </ul>
+                </li>
+                <li><strong>4xx (Client Errors):</strong> The request contains bad syntax or cannot be fulfilled.
+                    <ul>
+                        <li><strong>400 Bad Request:</strong> The server cannot or will not process the request due to an apparent client error.</li>
+                        <li><strong>401 Unauthorized:</strong> The client must authenticate itself to get the requested response.</li>
+                        <li><strong>403 Forbidden:</strong> The client does not have access rights to the content.</li>
+                        <li><strong>404 Not Found:</strong> The server cannot find the requested resource.</li>
+                    </ul>
+                </li>
+                <li><strong>5xx (Server Errors):</strong> The server failed to fulfill a valid request.
+                    <ul>
+                        <li><strong>500 Internal Server Error:</strong> The server encountered an unexpected condition that prevented it from fulfilling the request.</li>
+                        <li><strong>503 Service Unavailable:</strong> The server is currently unavailable (due to temporary overloading or maintenance).</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>Checking <code class="language-javascript">response.ok</code> is a convenient way to see if the status code is in the 200-299 range. For more specific error handling, you can check the exact value of <code class="language-javascript">response.status</code>.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-file-alt"></i> Working with Request Headers</h2>
+            <p>HTTP headers allow the client and server to pass additional information with the request or response. We already saw how to set the <code class="language-javascript">'Content-Type'</code> header for POST and PUT requests.</p>
+            <p>Here are some other common headers you might encounter or need to set:</p>
+            <ul>
+                <li><strong>Content-Type:</strong> Indicates the media type of the resource (e.g., <code class="language-javascript">'application/json'</code>, <code class="language-javascript">'text/plain'</code>, <code class="language-javascript">'multipart/form-data'</code>).</li>
+                <li><strong>Authorization:</strong> Contains credentials to authenticate the user, often using tokens (e.g., <code class="language-javascript">'Bearer your_token_here'</code>).</li>
+                <li><strong>Accept:</strong> Specifies the media types that the client is willing to accept in the response (e.g., <code class="language-javascript">'application/json'</code>, <code class="language-javascript">'application/xml'</code>).</li>
+                <li><strong>Cache-Control:</strong> Controls how responses are cached by browsers and proxies.</li>
+                <li><strong>User-Agent:</strong> Identifies the client software making the request.</li>
+            </ul>
+            <p>You can set multiple headers in the <code class="language-javascript">headers</code> object:</p>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/protected-data', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your_super_secret_token',
+    'Accept': 'application/json',
+  },
+})
+  .then(response => {
+    // ... handle response
+  })
+  .catch(error => {
+    // ... handle error
+  });
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-exclamation-circle"></i> Handling Errors Effectively</h2>
+            <p>It's crucial to handle potential errors when making API calls. This includes network issues, server errors, and invalid responses.</p>
+            <ul>
+                <li>The <code class="language-javascript">.catch()</code> block in the Promise chain is used to handle any errors that occur during the <code class="language-javascript">fetch</code> operation itself (e.g., network failure).</li>
+                <li>Inside the <code class="language-javascript">.then()</code> block, we check <code class="language-javascript">response.ok</code> to handle unsuccessful HTTP responses (status codes outside 200-299).</li>
+                <li>You might also need to handle cases where the server returns a successful status code but the response body is not in the expected format.</li>
+            </ul>
+            <pre><code class="language-javascript">
+fetch('https://api.example.com/unstable-api')
+  .then(response => {
+    if (!response.ok) {
+      console.warn(`API responded with status: ${response.status}`);
+      return response.text().then(errorMessage => {
+        throw new Error(`Request failed: ${errorMessage}`);
+      });
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Success!', data);
+  })
+  .catch(error => {
+    console.error('Something went wrong:', error);
+  });
+            </code></pre>
+            <p>In this example, even if the response is not <code class="language-javascript">ok</code>, we try to read the error message from the response body and include it in our error.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-certificate"></i> Fetch API Mastery Achieved! (Part 10 Complete)</h2>
+            <p>Congratulations! You've now gained a solid understanding of the JavaScript <code class="language-javascript">fetch</code> API. You can now confidently make various types of API requests, understand response status codes, and work with request headers to interact with web services effectively.</p>
+            <p>This knowledge is fundamental for building modern web applications that communicate with backends and utilize the vast resources available on the internet!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Ready for the Next Challenge? <i class="fas fa-forward"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

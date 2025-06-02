@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>HTML Part 1 - The Building Blocks of the Web</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" /> <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; 
+            margin: 30px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        h1, h2, h3 { 
+            color: #1565c0; 
+            border-bottom: 2px solid #42a5f5;
+            padding-bottom: 5px;
+        }
+        h4 {
+             color: #1976d2; /* Slightly lighter blue for H4 */
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .diagram { 
+            margin: 30px 0; 
+            text-align: center;
+        }
+        .diagram svg { 
+            background: #f8fbff; 
+            border-radius: 10px;
+            border: 1px solid #ccc; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 100%; /* Ensure SVGs are responsive */
+            height: auto;
+        }
+        .analogy {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .analogy-title {
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 5px;
+        }
+        /* Styles for Prism.js integration */
+        .code-example { /* Apply to the <pre> tag */
+            background: #f5f5f5;
+            border-left: 4px solid #42a5f5;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            overflow-x: auto;
+            padding: 15px; /* Padding for the <pre> container */
+        }
+        .code-example code { /* Target the <code> tag inside */
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333; /* Default text color for code */
+        }
+        /* Ensure Prism's line numbers align well with our padding */
+        .line-numbers .line-numbers-rows {
+            padding-top: 15px; /* Match .code-example padding */
+            border-right: 1px solid #ddd; /* From Prism default, looks good */
+        }
+        pre[class*="language-"].line-numbers {
+            padding-left: 3.8em; /* Default Prism line number padding */
+        }
+
+        .highlight {
+            background: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: Consolas, 'Courier New', monospace;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased minmax for more content */
+            gap: 20px; /* Increased gap */
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px; /* Increased padding */
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .elements-section, .structure-section, .semantic-section, .attributes-section {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .elements-section { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        .structure-section { background: #fff3e0; border-left: 4px solid #ff9800; }
+        .semantic-section { background: #f3e5f5; border-left: 4px solid #9c27b0; }
+        .attributes-section { background: #e1f5fe; border-left: 4px solid #03a9f4; }
+        
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .comparison-box {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 280px; /* Ensure boxes don't get too small */
+        }
+        .bad-example { background: #ffebee; border: 1px solid #ef9a9a; }
+        .good-example { background: #e8f5e9; border: 1px solid #a5d6a7; }
+        
+        .mindblown {
+            background: #ffebee; /* Light Red */
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336; /* Red */
+            text-align: center;
+        }
+        .step-by-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #6c757d;
+        }
+        .tags-demo {
+            background: #e0f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #00bcd4;
+        }
+        dl dt {
+            font-weight: bold;
+            color: #1565c0;
+        }
+        dl dd {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTML Part 1 - The Building Blocks of the Web 🧱</h1>
+        <p>
+            Hey there, future web developer! 👋 Welcome to your journey into <strong>HTML (HyperText Markup Language)</strong>, 
+            the foundation of every website you've ever visited. HTML was first created by Tim Berners-Lee in 1990, and today we use <strong>HTML5</strong>, the current standard, which brings many powerful features.
+            Think of HTML as the skeleton that gives structure to web pages. Without it, the web would just be plain text documents! 🤯
+        </p>
+
+        <div class="analogy">
+            <div class="analogy-title">🏗️ Real-life Analogy: Building a House</div>
+            <p>
+                Think of a website like a house. HTML is the framework and structure - the walls, rooms, and doorways that organize everything. 
+                CSS (which we'll learn later) is like the paint, furniture, and decorations that make it look nice. JavaScript (also coming later) 
+                is like the electricity, plumbing, and appliances that make things happen and work. Today, we're focusing on HTML - the foundation without 
+                which the rest wouldn't stand!
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>What is HTML? 🤔</h2>
+        <p>HTML is a <strong>markup language</strong>, not a programming language. That means it uses special "tags" – keywords surrounded by angle brackets like <code class="highlight">&lt;tagname&gt;</code> – to "mark up" text. These tags tell web browsers how to structure and display the content on a webpage. Most tags come in pairs: an opening tag (e.g., <code class="highlight">&lt;p&gt;</code>) and a closing tag (e.g., <code class="highlight">&lt;/p&gt;</code>). The content between these tags, along with the tags themselves, forms an HTML <strong>element</strong>.</p>
+        
+        <div class="diagram">
+            <svg width="800" height="330"> {/* Increased height for more text */}
+                <text x="400" y="30" font-size="20" text-anchor="middle" fill="#1565c0" font-weight="bold">How HTML Works</text>
+                
+                <rect x="50" y="60" width="150" height="120" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="10"/>
+                <text x="125" y="50" font-size="14" text-anchor="middle" fill="#1565c0" font-weight="bold">HTML File</text>
+                <text x="125" y="85" font-size="12" text-anchor="middle">&lt;html&gt;</text>
+                <text x="125" y="105" font-size="12" text-anchor="middle">&nbsp;&nbsp;&lt;head&gt;...&lt;/head&gt;</text>
+                <text x="125" y="125" font-size="12" text-anchor="middle">&nbsp;&nbsp;&lt;body&gt;</text>
+                <text x="125" y="145" font-size="12" text-anchor="middle">&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Hello!&lt;/h1&gt;</text>
+                <text x="125" y="165" font-size="12" text-anchor="middle">&nbsp;&nbsp;&lt;/body&gt;</text>
+                <text x="125" y="185" font-size="12" text-anchor="middle">&lt;/html&gt;</text>
+                
+                <rect x="300" y="70" width="200" height="100" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="10"/> {/* Adjusted y and height */}
+                <text x="400" y="60" font-size="14" text-anchor="middle" fill="#ef6c00" font-weight="bold">Browser Processing</text>
+                <text x="400" y="95" font-size="12" text-anchor="middle">1. Reads HTML tags</text>
+                <text x="400" y="115" font-size="12" text-anchor="middle">2. Builds DOM tree</text> {/* Updated text */}
+                <text x="400" y="135" font-size="12" text-anchor="middle">3. Renders visual elements</text> {/* Updated text */}
+                <text x="400" y="155" font-size="10" text-anchor="middle">(Applies default styles)</text>
+
+                <rect x="600" y="60" width="150" height="120" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="10"/>
+                <text x="675" y="50" font-size="14" text-anchor="middle" fill="#2e7d32" font-weight="bold">What You See</text>
+                <rect x="620" y="80" width="110" height="15" fill="#f5f5f5" stroke="#bdbdbd" stroke-width="1"/>
+                <rect x="620" y="95" width="110" height="60" fill="#fff" stroke="#bdbdbd" stroke-width="1"/>
+                <text x="675" y="120" font-size="14" font-weight="bold" text-anchor="middle">Hello!</text>
+                
+                <path d="M 205 120 L 295 120" stroke="#333" stroke-width="2" marker-end="url(#arrowheadUpdated)"/>
+                <path d="M 505 120 L 595 120" stroke="#333" stroke-width="2" marker-end="url(#arrowheadUpdated)"/>
+                
+                <text x="250" y="110" font-size="11" fill="#333">You Write Code</text>
+                <text x="550" y="110" font-size="11" fill="#333">Browser Renders</text>
+                
+                <rect x="50" y="240" width="700" height="65" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/> {/* Adjusted y and width */}
+                <text x="400" y="265" font-size="13" text-anchor="middle" fill="#333">HTML tells the browser: "This is a heading," "This is a paragraph," "This is an image," etc.</text>
+                <text x="400" y="285" font-size="13" text-anchor="middle" fill="#333">The browser parses this into a tree-like structure called the Document Object Model (DOM).</text>
+                <text x="400" y="305" font-size="13" text-anchor="middle" fill="#333">Then, it uses the DOM to display the elements, often with default styles.</text>
+                
+                <defs>
+                    <marker id="arrowheadUpdated" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+
+        <h3>The 3 Core Technologies of the Web</h3>
+        <div class="feature-grid">
+            <div class="feature-card" style="background: #e8f5e9;">
+                <h4>HTML</h4>
+                <p><strong>HyperText Markup Language</strong></p>
+                <p>Provides structure and semantic meaning to content. It's the skeleton.</p>
+                <p>What you're learning now! 🎯</p>
+                <pre class="code-example line-numbers"><code class="language-html">
+&lt;h1&gt;This is a heading&lt;/h1&gt;
+&lt;p&gt;This is a paragraph.&lt;/p&gt;
+                </code></pre>
+            </div>
+            <div class="feature-card" style="background: #e1f5fe;">
+                <h4>CSS</h4>
+                <p><strong>Cascading Style Sheets</strong></p>
+                <p>Controls presentation, styling, and layout. It's the clothing and decoration.</p>
+                <p>Coming in Part 2! ✨</p>
+                <pre class="code-example line-numbers"><code class="language-css">
+h1 {
+  color: blue;
+  font-size: 24px;
+}
+                </code></pre>
+            </div>
+            <div class="feature-card" style="background: #fff3e0;">
+                <h4>JavaScript</h4>
+                <p><strong>Programming Language</strong></p>
+                <p>Adds interactivity, behavior, and dynamic content. It makes things happen.</p>
+                <p>Coming in later parts! 🚀</p>
+                <pre class="code-example line-numbers"><code class="language-javascript">
+document.querySelector('button')
+  .addEventListener('click', () => {
+    alert('Button clicked!');
+  });
+                </code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>HTML Structure: The Basic Blueprint 📝</h2>
+        <div class="structure-section">
+            <h3>Every HTML Document Needs These Parts</h3>
+            <p>HTML documents have a standard structure that every webpage follows. Think of it as the essential boilerplate.</p>
+            
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;meta name="description" content="A brief description of the page"&gt;
+    &lt;title&gt;My First Webpage&lt;/title&gt;
+    &lt;!-- Links to CSS files would go here --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- All visible content goes here --&gt;
+    &lt;h1&gt;Hello, World!&lt;/h1&gt;
+    &lt;p&gt;This is my first webpage.&lt;/p&gt;
+    &lt;!-- Scripts are often placed at the end of the body --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+            </code></pre>
+
+            <div class="diagram">
+                <svg width="700" height="550"> {/* Increased height for more detail */}
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Anatomy of an HTML Document</text>
+                    
+                    <rect x="100" y="50" width="500" height="470" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+                    <text x="350" y="70" font-size="14" text-anchor="middle" fill="#495057" font-weight="bold">&lt;!DOCTYPE html&gt; - Document Type Declaration</text>
+                    <text x="350" y="85" font-size="11" text-anchor="middle" fill="#495057">(Tells browser it's HTML5, ensures standards mode)</text>
+                    
+                    <rect x="120" y="100" width="460" height="400" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="10"/>
+                    <text x="150" y="120" font-size="14" fill="#1565c0" font-weight="bold">&lt;html lang="en"&gt; - Root Element</text>
+                    <text x="350" y="135" font-size="11" text-anchor="middle" fill="#1565c0">(Contains all other elements; 'lang' helps with accessibility & SEO)</text>
+                    
+                    <rect x="140" y="150" width="420" height="150" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="10"/>
+                    <text x="170" y="170" font-size="14" fill="#2e7d32" font-weight="bold">&lt;head&gt; - Document Metadata (Not Visible on Page)</text>
+                    
+                    <rect x="160" y="190" width="380" height="40" fill="#fff9c4" stroke="#fbc02d" stroke-width="2" rx="5"/>
+                    <text x="190" y="215" font-size="12" fill="#f9a825">&lt;meta charset="UTF-8"&gt; - Character Set</text>
+                    
+                    <rect x="160" y="240" width="380" height="40" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                    <text x="190" y="265" font-size="12" fill="#ef6c00">&lt;title&gt;My First Webpage&lt;/title&gt; - Browser Tab Title</text>
+                    
+                    <rect x="140" y="320" width="420" height="160" fill="#ffebee" stroke="#f44336" stroke-width="2" rx="10"/>
+                    <text x="170" y="340" font-size="14" fill="#c62828" font-weight="bold">&lt;body&gt; - Visible Page Content</text>
+                    
+                    <rect x="160" y="360" width="380" height="40" fill="#e0f2f1" stroke="#009688" stroke-width="2" rx="5"/>
+                    <text x="190" y="385" font-size="12" fill="#00796b">&lt;h1&gt;Hello, World!&lt;/h1&gt; - Main Heading</text>
+                    
+                    <rect x="160" y="410" width="380" height="40" fill="#e0f2f1" stroke="#009688" stroke-width="2" rx="5"/>
+                    <text x="190" y="435" font-size="12" fill="#00796b">&lt;p&gt;This is my first webpage.&lt;/p&gt; - Paragraph</text>
+                    
+                    <path d="M 210 530 L 210 550 L 490 550 L 490 530" stroke="#1565c0" stroke-width="2" fill="none"/>
+                    <text x="350" y="520" font-size="14" text-anchor="middle" fill="#1565c0" font-weight="bold">Elements are Nested: Opening and Closing Tags</text>
+                </svg>
+            </div>
+            
+            <div class="step-by-step">
+                <h4>🔍 Understanding Each Part:</h4>
+                <dl>
+                    <dt>&lt;!DOCTYPE html&gt;</dt>
+                    <dd>This is a mandatory declaration. It tells the browser that this document is an HTML5 document. It's not an HTML tag itself but an instruction to the browser about what version of HTML the page is written in. This helps ensure the browser renders the page in "standards mode."</dd>
+                    
+                    <dt>&lt;html lang="en"&gt;</dt>
+                    <dd>This is the root element of an HTML page. All other elements must be descendants of this element. The <code class="highlight">lang="en"</code> attribute specifies the language of the document content (in this case, English), which is important for accessibility (screen readers) and search engines.</dd>
+                    
+                    <dt>&lt;head&gt;</dt>
+                    <dd>This element contains meta-information about the HTML document, which is not displayed on the page itself. This includes things like the document title, character set, styles, scripts, and other metadata.</dd>
+                    
+                    <dt>&lt;meta charset="UTF-8"&gt;</dt>
+                    <dd>Specifies the character encoding for the document. UTF-8 is a universal character set that includes almost any character from any language, preventing issues with special characters not displaying correctly.</dd>
+
+                    <dt>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</dt>
+                    <dd>This meta tag is crucial for responsive web design. It sets the width of the viewport to the device width and the initial zoom level to 1. This makes your website look good on all devices (desktops, tablets, and phones).</dd>
+
+                    <dt>&lt;meta name="description" content="..."&gt;</dt>
+                    <dd>Provides a short summary of the page's content. Search engines often use this for display in search results.</dd>
+                    
+                    <dt>&lt;title&gt;My First Webpage&lt;/title&gt;</dt>
+                    <dd>Sets the title of the HTML document. This title is shown in the browser's title bar or tab, and is also used by search engines.</dd>
+                    
+                    <dt>&lt;body&gt;</dt>
+                    <dd>This element contains all the visible content of the HTML document, such as headings, paragraphs, images, hyperlinks, tables, lists, etc. There can only be one <code class="highlight">&lt;body&gt;</code> element in an HTML document.</dd>
+                </dl>
+                <h4>Nesting Elements Correctly</h4>
+                <p>HTML elements can be nested inside other elements. Proper nesting is crucial for valid HTML and correct rendering.</p>
+                <div class="comparison">
+                    <div class="comparison-box bad-example">
+                        <h5>❌ Bad Nesting</h5>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;p&gt;Here is some &lt;strong&gt;bold text that is not properly closed.&lt;/p&gt;&lt;/strong&gt; 
+                        </code></pre>
+                    </div>
+                    <div class="comparison-box good-example">
+                        <h5>✅ Good Nesting</h5>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;p&gt;Here is some &lt;strong&gt;bold text that is properly closed.&lt;/strong&gt;&lt;/p&gt;
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analogy">
+                <div class="analogy-title">📚 HTML Structure Analogy: A Book</div>
+                <p>
+                    Think of an HTML document like a book:
+                    <br>• <strong>&lt;!DOCTYPE&gt;</strong> is like the "Type: Non-Fiction, Modern Edition" label.
+                    <br>• <strong>&lt;html&gt;</strong> is the entire physical book, including covers and all pages.
+                    <br>• <strong>&lt;head&gt;</strong> is like the cover page, copyright information, table of contents, and author bio – information *about* the book, not the main story.
+                    <br>• <strong>&lt;title&gt;</strong> is the title printed on the book's spine and cover.
+                    <br>• <strong>&lt;body&gt;</strong> contains all the chapters, paragraphs, images – the actual story you read.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Essential HTML Tags: Your Toolkit 🧰</h2>
+        <div class="elements-section">
+            <h3>Building Blocks for Your Web Pages</h3>
+            <p>These are some of the most common HTML tags you'll use. Remember that browsers have default styling for many of these, but you'll learn to customize them with CSS.</p>
+
+            <div class="tags-demo">
+                <h4>Headings - <code class="highlight">&lt;h1&gt;</code> to <code class="highlight">&lt;h6&gt;</code></h4>
+                <p>Headings define the structure and hierarchy of your content. <code class="highlight">&lt;h1&gt;</code> is the most important (main title), and <code class="highlight">&lt;h6&gt;</code> is the least. They are crucial for SEO and accessibility, not just for visual styling.</p>
+                <pre class="code-example line-numbers"><code class="language-html">
+&lt;h1&gt;Main Title (Most Important)&lt;/h1&gt;
+&lt;h2&gt;Section Heading&lt;/h2&gt;
+&lt;h3&gt;Subsection Heading&lt;/h3&gt;
+&lt;!-- ...and so on, down to h6 --&gt;
+&lt;h6&gt;Smallest Heading&lt;/h6&gt;
+                </code></pre>
+                <p>⚠️ Use only <span class="highlight">one &lt;h1&gt;</span> per page for the main title of that page.</p>
+            </div>
+
+            <div class="tags-demo">
+                <h4>Text Elements - Paragraphs, Breaks, and Formatting</h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h5>Paragraphs & Breaks</h5>
+                        <p><code class="highlight">&lt;p&gt;</code>: Defines a paragraph of text.</p>
+                        <p><code class="highlight">&lt;br&gt;</code>: Inserts a single line break. Use sparingly, typically within blocks of text like poems or addresses, not for creating space between elements (use CSS for that).</p>
+                        <p><code class="highlight">&lt;hr&gt;</code>: Represents a thematic break between paragraph-level elements (e.g., a scene change in a story, or a shift of topic). It's usually displayed as a horizontal line.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+&lt;p&gt;Another paragraph.&lt;br&gt;This line starts after a break.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Text after a thematic break.&lt;/p&gt;
+                        </code></pre>
+                    </div>
+                    <div class="feature-card">
+                        <h5>Text Formatting (Semantic)</h5>
+                        <p><code class="highlight">&lt;strong&gt;</code>: Marks text with strong importance, seriousness, or urgency (typically bold).</p>
+                        <p><code class="highlight">&lt;em&gt;</code>: Marks text with emphasis (typically italic).</p>
+                        <p><code class="highlight">&lt;mark&gt;</code>: Represents text marked or highlighted for reference purposes (like a highlighter pen).</p>
+                        <p><code class="highlight">&lt;small&gt;</code>: Represents side comments such as small print or legal text.</p>
+                        <p><code class="highlight">&lt;q&gt;</code>: For short inline quotations. Browsers often add quotation marks.</p>
+                        <p><code class="highlight">&lt;blockquote&gt;</code>: For longer quotations that are block-level. Browsers often indent this text.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;p&gt;&lt;strong&gt;Warning:&lt;/strong&gt; High voltage!&lt;/p&gt;
+&lt;p&gt;This is &lt;em&gt;really&lt;/em&gt; important.&lt;/p&gt;
+&lt;p&gt;The answer is &lt;mark&gt;42&lt;/mark&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;small&gt;Copyright 2025. All rights reserved.&lt;/small&gt;&lt;/p&gt;
+&lt;p&gt;He said, &lt;q&gt;Hello there!&lt;/q&gt;&lt;/p&gt;
+&lt;blockquote cite="source_url"&gt;
+  This is a longer quotation from an external source.
+&lt;/blockquote&gt;
+                        </code></pre>
+                        <p><small>Note: Avoid using <code class="highlight">&lt;b&gt;</code> and <code class="highlight">&lt;i&gt;</code> if a semantic alternative exists. Use them only for stylistically offsetting text without implying importance or emphasis (e.g., a ship's name in italics).</small></p>
+                    </div>
+                     <div class="feature-card">
+                        <h5>Lists - Ordered, Unordered, Description</h5>
+                        <p><code class="highlight">&lt;ol&gt;</code>: Ordered (numbered) list.</p>
+                        <p><code class="highlight">&lt;ul&gt;</code>: Unordered (bulleted) list.</p>
+                        <p><code class="highlight">&lt;li&gt;</code>: List item (used in <code class="highlight">&lt;ol&gt;</code> and <code class="highlight">&lt;ul&gt;</code>).</p>
+                        <p><code class="highlight">&lt;dl&gt;</code>: Description list.</p>
+                        <p><code class="highlight">&lt;dt&gt;</code>: Description term.</p>
+                        <p><code class="highlight">&lt;dd&gt;</code>: Description details.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;h4&gt;Ordered List&lt;/h4&gt;
+&lt;ol&gt;
+  &lt;li&gt;First item&lt;/li&gt;
+  &lt;li&gt;Second item&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;Unordered List&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Apples&lt;/li&gt;
+  &lt;li&gt;Oranges&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;Description List&lt;/h4&gt;
+&lt;dl&gt;
+  &lt;dt&gt;HTML&lt;/dt&gt;
+  &lt;dd&gt;HyperText Markup Language&lt;/dd&gt;
+  &lt;dt&gt;CSS&lt;/dt&gt;
+  &lt;dd&gt;Cascading Style Sheets&lt;/dd&gt;
+&lt;/dl&gt;
+                        </code></pre>
+                         <p>Lists can also be nested within each other!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tags-demo">
+                <h4>Links and Images - Connecting and Showing</h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h5>Links (Anchors - <code class="highlight">&lt;a&gt;</code>)</h5>
+                        <p>The anchor tag <code class="highlight">&lt;a&gt;</code> creates hyperlinks. The <code class="highlight">href</code> attribute is crucial as it specifies the destination URL.</p>
+                        <p>Use <code class="highlight">target="_blank"</code> to open links in a new browser tab.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;!-- Link to an external site --&gt;
+&lt;a href="https://www.google.com"&gt;Visit Google&lt;/a&gt;
+
+&lt;!-- Link to another page on your site --&gt;
+&lt;a href="/about.html"&gt;About Us&lt;/a&gt;
+
+&lt;!-- Link to a section on the current page (needs an element with id="section1") --&gt;
+&lt;a href="#section1"&gt;Go to Section 1&lt;/a&gt;
+
+&lt;!-- Open in new tab --&gt;
+&lt;a href="https://www.mozilla.org" target="_blank"&gt;Mozilla Developer Network&lt;/a&gt;
+                        </code></pre>
+                    </div>
+                    <div class="feature-card">
+                        <h5>Images (<code class="highlight">&lt;img&gt;</code>)</h5>
+                        <p>The image tag <code class="highlight">&lt;img&gt;</code> embeds images. It's an empty tag (no closing tag).</p>
+                        <p><code class="highlight">src</code>: Specifies the path to the image file.</p>
+                        <p><code class="highlight">alt</code>: Provides alternative text if the image cannot be displayed. Crucial for accessibility and SEO.</p>
+                        <p><code class="highlight">width</code> / <code class="highlight">height</code>: Can set dimensions (though CSS is often preferred for more control). Setting these can help prevent layout shifts as the page loads.</p>
+                        <p>Common formats: JPEG (photos), PNG (graphics with transparency), GIF (simple animations), SVG (scalable vector graphics).</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;!-- Basic image --&gt;
+&lt;img src="images/dog.jpg" alt="A cute playful dog"&gt;
+
+&lt;!-- Image with specified dimensions --&gt;
+&lt;img src="logo.svg" alt="Company Logo" width="200" height="100"&gt;
+                        </code></pre>
+                    </div>
+                </div>
+                <p>⚠️ Always include the <span class="highlight">alt</span> attribute for images for accessibility!</p>
+            </div>
+
+            <div class="tags-demo">
+                <h4>Containers - <code class="highlight">&lt;div&gt;</code> and <code class="highlight">&lt;span&gt;</code></h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h5>Generic Block Container (<code class="highlight">&lt;div&gt;</code>)</h5>
+                        <p>A "division" or section. It's a block-level element used to group larger chunks of content for styling with CSS or for JavaScript manipulation. It has no inherent semantic meaning.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;div class="article-header"&gt;
+  &lt;h2&gt;Article Title&lt;/h2&gt;
+  &lt;p&gt;By John Doe&lt;/p&gt;
+&lt;/div&gt;
+                        </code></pre>
+                    </div>
+                    <div class="feature-card">
+                        <h5>Generic Inline Container (<code class="highlight">&lt;span&gt;</code>)</h5>
+                        <p>An inline container used to group a small piece of text or other inline content for styling or targeting with JavaScript. It also has no inherent semantic meaning.</p>
+                        <pre class="code-example line-numbers"><code class="language-html">
+&lt;p&gt;My favorite color is &lt;span style="color:blue; font-weight:bold;"&gt;blue&lt;/span&gt;.&lt;/p&gt;
+                        </code></pre>
+                    </div>
+                </div>
+                <p>While <code class="highlight">&lt;div&gt;</code> and <code class="highlight">&lt;span&gt;</code> are very useful, always prefer using semantic HTML5 elements (like <code class="highlight">&lt;article&gt;</code>, <code class="highlight">&lt;section&gt;</code>, <code class="highlight">&lt;nav&gt;</code>) when appropriate, as they provide meaning to your content.</p>
+            </div>
+
+            <div class="analogy">
+                <div class="analogy-title">🧩 HTML Tags Analogy: Building Blocks & Labels</div>
+                <p>
+                    Think of HTML tags like different types of Lego bricks and special labels:
+                    <br>• <strong>Headings (&lt;h1&gt; to &lt;h6&gt;)</strong> are like different sized signpost bricks.
+                    <br>• <strong>Paragraphs (&lt;p&gt;)</strong> are like standard rectangular text bricks.
+                    <br>• <strong>Lists (&lt;ul&gt;, &lt;ol&gt;)</strong> are like special bricks with connectors for item bricks (<code class="highlight">&lt;li&gt;</code>).
+                    <br>• <strong>Images (&lt;img&gt;)</strong> are like flat bricks where you can stick a picture.
+                    <br>• <strong>Links (&lt;a&gt;)</strong> are like special "doorway" bricks that can connect to other Lego constructions.
+                    <br>• <strong>Divisions (&lt;div&gt;)</strong> are like large, generic container bricks to group other bricks.
+                    <br>• <strong>Spans (&lt;span&gt;)</strong> are like tiny connector pieces to label or style a small part of another brick.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>HTML Attributes: Superpowers for Your Tags ⚡</h2>
+        <div class="attributes-section">
+            <h3>Giving Extra Information and Functionality to Elements</h3>
+            <p>Attributes provide additional information about HTML elements or configure their behavior. They are always specified in the <strong>start tag</strong> and usually come in name/value pairs like <code class="highlight">name="value"</code>.</p>
+
+            <div class="diagram">
+                 <svg width="700" height="300"> {/* Adjusted height */}
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Anatomy of an HTML Element with Attributes</text>
+                    
+                    <rect x="50" y="60" width="600" height="100" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="10"/>
+                    
+                    <text x="70" y="110" font-size="18" font-family="Consolas, monospace" fill="#333">&lt;a</text>
+                    <text x="100" y="110" font-size="18" font-family="Consolas, monospace" fill="#d9480f">href</text>
+                    <text x="150" y="110" font-size="18" font-family="Consolas, monospace" fill="#333">="</text>
+                    <text x="165" y="110" font-size="18" font-family="Consolas, monospace" fill="#1971c2">https://example.com</text>
+                    <text x="365" y="110" font-size="18" font-family="Consolas, monospace" fill="#333">"</text>
+                    <text x="390" y="110" font-size="18" font-family="Consolas, monospace" fill="#d9480f">class</text>
+                    <text x="445" y="110" font-size="18" font-family="Consolas, monospace" fill="#333">="</text>
+                    <text x="460" y="110" font-size="18" font-family="Consolas, monospace" fill="#1971c2">external-link</text>
+                    <text x="600" y="110" font-size="18" font-family="Consolas, monospace" fill="#333">"&gt;</text>
+                    
+                    <text x="350" y="180" font-size="18" font-family="Consolas, monospace" text-anchor="middle" fill="#0b7285">Link Text</text>
+                    
+                    <text x="350" y="210" font-size="18" font-family="Consolas, monospace" text-anchor="middle" fill="#333">&lt;/a&gt;</text>
+                    
+                    <text x="350" y="80" font-size="12" text-anchor="middle" fill="#1565c0">Start Tag with Attributes</text>
+                    <text x="350" y="160" font-size="12" text-anchor="middle" fill="#0b7285">Content</text>
+                    <text x="350" y="230" font-size="12" text-anchor="middle" fill="#333">End Tag</text>
+                    
+                    <line x1="125" y1="125" x2="125" y2="145" stroke="#d9480f" stroke-width="1.5"/>
+                    <text x="125" y="155" font-size="11" text-anchor="middle" fill="#d9480f">Attribute Name</text>
+                    
+                    <line x1="260" y1="125" x2="260" y2="145" stroke="#1971c2" stroke-width="1.5"/>
+                    <text x="260" y="155" font-size="11" text-anchor="middle" fill="#1971c2">Attribute Value</text>
+
+                    <rect x="50" y="250" width="600" height="40" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+                    <text x="350" y="275" font-size="13" text-anchor="middle" fill="#333">Attributes are name="value" pairs inside the opening tag.</text>
+                </svg>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔑 Most Common & Useful Attributes</h4>
+                <dl>
+                    <dt>Global Attributes (can be used on any HTML element):</dt>
+                    <dd><strong>class</strong>: Specifies one or more class names for an element. Used to select elements for CSS styling or JavaScript manipulation. Multiple elements can share the same class. <br><code>&lt;p class="highlight important"&gt;...</code></dd>
+                    <dd><strong>id</strong>: Specifies a unique identifier for an element within a document. Used for CSS styling (higher specificity than class), JavaScript manipulation, and as a target for fragment links (e.g., <code class="highlight">href="#myId"</code>). An ID must be unique per page. <br><code>&lt;div id="main-navigation"&gt;...</code></dd>
+                    <dd><strong>style</strong>: Used to apply inline CSS styles directly to an element. Generally less preferred than external or internal stylesheets for maintainability. <br><code>&lt;p style="color: blue; margin-left: 20px;"&gt;...</code></dd>
+                    <dd><strong>title</strong>: Specifies extra information about an element. Browsers usually display this information as a tooltip when the mouse hovers over the element. <br><code>&lt;abbr title="HyperText Markup Language"&gt;HTML&lt;/abbr&gt;</code></dd>
+                    <dd><strong>lang</strong>: Specifies the language of an element's content. (Usually set on the <code class="highlight">&lt;html&gt;</code> tag but can be used on specific elements if their content is in a different language).</dd>
+                    <dd><strong>data-*</strong>: Custom data attributes. A way to store private custom data for the page or application, which can be accessed by CSS or JavaScript. E.g., <code class="highlight">&lt;div data-user-id="123" data-item-type="book"&gt;...</code></dd>
+
+                    <dt>Specific Attributes (used on particular elements):</dt>
+                    <dd><strong>href</strong> (for <code class="highlight">&lt;a&gt;</code>, <code class="highlight">&lt;link&gt;</code>): Specifies the URL of the page the link goes to, or the path to a resource. <br><code>&lt;a href="https://example.com"&gt;...</code></dd>
+                    <dd><strong>src</strong> (for <code class="highlight">&lt;img&gt;</code>, <code class="highlight">&lt;script&gt;</code>, <code class="highlight">&lt;iframe&gt;</code>): Specifies the source URL for the embedded content. <br><code>&lt;img src="image.jpg"&gt;</code></dd>
+                    <dd><strong>alt</strong> (for <code class="highlight">&lt;img&gt;</code>, <code class="highlight">&lt;area&gt;</code>, <code class="highlight">&lt;input type="image"&gt;</code>): Specifies alternative text if the image cannot be displayed. Essential for accessibility. <br><code>&lt;img src="logo.png" alt="Company Logo"&gt;</code></dd>
+                    <dd><strong>width</strong> / <strong>height</strong> (for <code class="highlight">&lt;img&gt;</code>, <code class="highlight">&lt;canvas&gt;</code>, <code class="highlight">&lt;video&gt;</code>, etc.): Specifies the dimensions of the element.</dd>
+                    <dd><strong>target</strong> (for <code class="highlight">&lt;a&gt;</code>, <code class="highlight">&lt;form&gt;</code>): Specifies where to display the linked URL (e.g., <code class="highlight">_blank</code> for a new tab).</dd>
+
+                    <dt>Boolean Attributes:</dt>
+                    <dd>These attributes do not require a value. Their presence in the tag implies a true state, and their absence implies a false state. Examples: <code class="highlight">disabled</code>, <code class="highlight">checked</code>, <code class="highlight">readonly</code>, <code class="highlight">selected</code>, <code class="highlight">required</code>, <code class="highlight">autoplay</code>, <code class="highlight">controls</code>. <br><code>&lt;input type="checkbox" checked&gt;</code> <br><code>&lt;button disabled&gt;Can't Click Me&lt;/button&gt;</code></dd>
+                </dl>
+            </div>
+
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;!-- Link with multiple attributes --&gt;
+&lt;a href="https://www.example.com" 
+   target="_blank"
+   title="Visit Example Website (opens in new tab)"
+   class="external-link nav-item"&gt;
+   Example Website
+&lt;/a&gt;
+
+&lt;!-- Image with attributes --&gt;
+&lt;img src="images/cat.jpg"
+     alt="A fluffy orange cat sleeping on a couch"
+     width="300"
+     height="200"
+     class="pet-image responsive-img"
+     id="main-cat-photo"&gt;
+
+&lt;!-- Input field with boolean and other attributes --&gt;
+&lt;input type="text" id="username" name="username" required readonly&gt;
+            </code></pre>
+
+            <div class="analogy">
+                <div class="analogy-title">🏷️ HTML Attributes Analogy: Modifiers for Lego Bricks</div>
+                <p>
+                    If HTML tags are Lego bricks, attributes are like special stickers or features you add to those bricks:
+                    <br>• The <strong>element (brick)</strong> is the basic component.
+                    <br>• The <strong>attributes (stickers/features)</strong> give it specific properties or behaviors.
+                    <br>• <code class="highlight">class="red large"</code> is like putting a "red color" sticker and a "large size" sticker on a brick.
+                    <br>• <code class="highlight">id="engine-brick"</code> is like giving one unique brick a special serial number.
+                    <br>• <code class="highlight">src="engine-sound.mp3"</code> for a sound brick tells it which sound file to play.
+                    <br>• <code class="highlight">disabled</code> for a button brick means its clicker feature is turned off.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Semantic HTML: Giving Meaning to Your Code 🧠</h2>
+        <div class="semantic-section">
+            <h3>What is Semantic HTML?</h3>
+            <p>
+                Semantic HTML means using HTML tags that accurately describe the meaning and structure of their content, rather than just how they look. For example, using <code class="highlight">&lt;h1&gt;</code> for a top-level heading (not just because it's big and bold) or <code class="highlight">&lt;nav&gt;</code> for a set of navigation links. This makes your code more accessible for users with disabilities (e.g., using screen readers), improves SEO (search engines understand your content better), and makes your code easier for other developers (and your future self!) to read and maintain.
+            </p>
+
+            <div class="comparison">
+                <div class="comparison-box bad-example">
+                    <h4>❌ Non-Semantic (or Less Semantic) HTML</h4>
+                    <pre class="code-example line-numbers"><code class="language-html">
+&lt;div class="header"&gt;
+  &lt;div class="logo-text"&gt;My Awesome Site&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="navigation-menu"&gt;
+  &lt;div class="link-item"&gt;Home&lt;/div&gt;
+  &lt;div class="link-item"&gt;About&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="main-page-content"&gt;
+  &lt;div class="blog-post"&gt;
+    &lt;div class="post-title"&gt;My First Post&lt;/div&gt;
+    &lt;div class="post-body"&gt;Content...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="page-bottom-info"&gt;
+  &lt;div&gt;Copyright 2025&lt;/div&gt;
+&lt;/div&gt;
+                    </code></pre>
+                    <p>This is often called "divitis" – relying heavily on generic <code class="highlight">&lt;div&gt;</code>s. While it can be styled to look correct, it lacks inherent meaning.</p>
+                </div>
+                <div class="comparison-box good-example">
+                    <h4>✅ Semantic HTML</h4>
+                    <pre class="code-example line-numbers"><code class="language-html">
+&lt;header&gt;
+  &lt;h1&gt;My Awesome Site&lt;/h1&gt; &lt;!-- Site title is a top heading --&gt;
+&lt;/header&gt;
+
+&lt;nav&gt; &lt;!-- Clearly a navigation block --&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;main&gt; &lt;!-- Main content of the page --&gt;
+  &lt;article&gt; &lt;!-- A self-contained piece of content --&gt;
+    &lt;h2&gt;My First Post&lt;/h2&gt; &lt;!-- Article title --&gt;
+    &lt;p&gt;Content...&lt;/p&gt;
+  &lt;/article&gt;
+&lt;/main&gt;
+
+&lt;footer&gt; &lt;!-- Page footer information --&gt;
+  &lt;p&gt;&copy; Copyright 2025&lt;/p&gt;
+&lt;/footer&gt;
+                    </code></pre>
+                    <p>This code is much clearer about the purpose of each section, benefiting both browsers and developers.</p>
+                </div>
+            </div>
+
+            <div class="diagram">
+                <svg width="700" height="550"> {/* Increased height for figcaption */}
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Common Semantic Layout of a Webpage</text>
+                    
+                    <rect x="100" y="50" width="500" height="480" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="5"/>
+                    
+                    <rect x="120" y="70" width="460" height="60" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="5"/>
+                    <text x="160" y="105" font-size="16" fill="#1565c0" font-weight="bold">&lt;header&gt;</text>
+                    <text x="350" y="105" font-size="14" fill="#333">Site logo, title, main tagline</text>
+                    
+                    <rect x="120" y="140" width="460" height="40" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                    <text x="160" y="165" font-size="16" fill="#4caf50" font-weight="bold">&lt;nav&gt;</text>
+                    <text x="350" y="165" font-size="14" fill="#333">Main navigation menu</text>
+                    
+                    <rect x="120" y="190" width="460" height="250" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="2" rx="5"/>
+                    <text x="160" y="215" font-size="16" fill="#9e9e9e" font-weight="bold">&lt;main&gt;</text>
+                    
+                    <rect x="140" y="230" width="300" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                    <text x="180" y="255" font-size="16" fill="#ff9800" font-weight="bold">&lt;article&gt; / &lt;section&gt;</text>
+                    <text x="290" y="280" font-size="14" text-anchor="middle" fill="#333">Primary content blocks</text>
+                    <text x="290" y="300" font-size="14" text-anchor="middle" fill="#333">(e.g., blog post, product info)</text>
+
+                    <rect x="140" y="360" width="300" height="60" fill="#e0f7fa" stroke="#00bcd4" stroke-width="2" rx="5"/>
+                    <text x="180" y="380" font-size="14" fill="#00796b" font-weight="bold">&lt;figure&gt;</text>
+                    <text x="290" y="380" font-size="12" text-anchor="middle" fill="#333">Image, diagram, chart</text>
+                    <text x="180" y="400" font-size="12" fill="#00796b" font-weight="bold">&lt;figcaption&gt;Caption&lt;/figcaption&gt;</text>
+                    
+                    <rect x="450" y="230" width="110" height="190" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2" rx="5"/>
+                    <text x="460" y="255" font-size="13" fill="#9c27b0" font-weight="bold">&lt;aside&gt;</text>
+                    <text x="505" y="280" font-size="12" text-anchor="middle" fill="#333">Sidebar</text>
+                    <text x="505" y="300" font-size="12" text-anchor="middle" fill="#333">Related links</text>
+                    <text x="505" y="320" font-size="12" text-anchor="middle" fill="#333">Ads</text>
+                    
+                    <rect x="120" y="450" width="460" height="50" fill="#ffebee" stroke="#f44336" stroke-width="2" rx="5"/>
+                    <text x="160" y="480" font-size="16" fill="#f44336" font-weight="bold">&lt;footer&gt;</text>
+                    <text x="350" y="480" font-size="14" fill="#333">Copyright, contact info, sitemap links</text>
+                    
+                    <rect x="100" y="505" width="500" height="30" fill="#e0f7fa" stroke="#00bcd4" stroke-width="2" rx="5"/>
+                    <text x="350" y="525" font-size="14" text-anchor="middle" fill="#333">Benefits: Accessibility, SEO, Readability, Maintainability</text>
+                </svg>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🌟 Key Semantic HTML5 Elements</h4>
+                <div class="feature-grid">
+                    <div class="feature-card"><strong>&lt;header&gt;</strong><p>Introductory content for its nearest ancestor sectioning content or sectioning root. Typically contains headings, logos, search forms, author names, etc.</p></div>
+                    <div class="feature-card"><strong>&lt;nav&gt;</strong><p>A section of a page that links to other pages or to parts within the page: a section with navigation links.</p></div>
+                    <div class="feature-card"><strong>&lt;main&gt;</strong><p>The dominant content of the &lt;body&gt; of a document. There should only be one &lt;main&gt; element per page, and it shouldn't be a descendant of &lt;article&gt;, &lt;aside&gt;, &lt;footer&gt;, &lt;header&gt;, or &lt;nav&gt;.</p></div>
+                    <div class="feature-card"><strong>&lt;article&gt;</strong><p>A self-contained composition in a document, page, application, or site, which is intended to be independently distributable or reusable (e.g., a forum post, a magazine or newspaper article, a blog entry).</p></div>
+                    <div class="feature-card"><strong>&lt;section&gt;</strong><p>A generic thematic grouping of content, typically with a heading. Used when no more specific semantic element is appropriate.</p></div>
+                    <div class="feature-card"><strong>&lt;aside&gt;</strong><p>Content that is tangentially related to the content around it (sidebar, pull-quotes, advertising).</p></div>
+                    <div class="feature-card"><strong>&lt;footer&gt;</strong><p>Represents a footer for its nearest ancestor sectioning content or sectioning root. Typically contains authorship, copyright, contact info, sitemap links.</p></div>
+                    <div class="feature-card"><strong>&lt;figure&gt; &amp; &lt;figcaption&gt;</strong><p>&lt;figure&gt; is for self-contained content (like images, diagrams, code snippets) that is referenced from the main content. &lt;figcaption&gt; provides a caption for the &lt;figure&gt;.</p></div>
+                </div>
+            </div>
+
+            <div class="analogy">
+                <div class="analogy-title">📰 Semantic HTML Analogy: Newspaper Layout</div>
+                <p>
+                    Semantic HTML is like the clear, predictable structure of a well-organized newspaper:
+                    <br>• <strong>&lt;header&gt;</strong> is the newspaper's masthead (name, date, price) at the very top of the front page.
+                    <br>• <strong>&lt;nav&gt;</strong> is like the index or list of sections (e.g., "News," "Sports," "Business," "Lifestyle").
+                    <br>• <strong>&lt;main&gt;</strong> encompasses all the main news articles and features.
+                    <br>• <strong>&lt;article&gt;</strong> is an individual news story or feature piece that could stand on its own if published elsewhere.
+                    <br>• <strong>&lt;section&gt;</strong> could be a major part of the newspaper, like the "Sports Section," which might contain multiple articles.
+                    <br>• <strong>&lt;figure&gt;</strong> with a <strong>&lt;figcaption&gt;</strong> is like a photograph with its caption.
+                    <br>• <strong>&lt;aside&gt;</strong> could be a small sidebar with a weather forecast, a correction, or an ad, related but separate from the main articles.
+                    <br>• <strong>&lt;footer&gt;</strong> is like the publisher's information, contact details, or page numbers at the bottom of a page or section.
+                </p>
+                <p>This clear structure helps readers (and screen readers or search engines) understand and navigate the content efficiently!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Creating Your First HTML Page 🚀</h2>
+        <div class="step-by-step">
+            <h3>Step-by-Step Guide</h3>
+            <ol>
+                <li><strong>Choose a Text Editor:</strong> You'll need a program to write your code. Popular free choices include Visual Studio Code (VS Code), Sublime Text (offers an unlimited trial), Atom, or even basic editors like Notepad (Windows) or TextEdit (Mac - in plain text mode). Dedicated code editors offer features like syntax highlighting and code completion.</li>
+                <li><strong>Create a Folder:</strong> Make a new folder on your computer for your project (e.g., "MyFirstWebsite").</li>
+                <li><strong>Create an HTML File:</strong> Inside your project folder, create a new file. Save it with the <code class="highlight">.html</code> extension (e.g., <code class="highlight">index.html</code>). The name <code class="highlight">index.html</code> is special, as web servers usually look for this file as the default page for a directory.</li>
+                <li><strong>Set up the Basic Structure:</strong> Copy and paste the basic HTML structure (shown below) into your <code class="highlight">index.html</code> file.</li>
+                <li><strong>Add Your Content:</strong> Modify the content within the <code class="highlight">&lt;body&gt;</code> tags.</li>
+                <li><strong>Save and Open:</strong> Save your file. Then, find the file on your computer and double-click it. It should open in your default web browser, and you'll see your webpage!</li>
+                <li><strong>Edit and Refresh:</strong> Make changes to your HTML file in the text editor, save them, then go back to your browser and refresh the page (usually F5 or Ctrl/Cmd+R) to see your updates.</li>
+            </ol>
+        </div>
+        
+        <h4>Basic HTML Page Template:</h4>
+        <pre class="code-example line-numbers"><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;My First Real HTML Page&lt;/title&gt; &lt;!-- Change this title --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;h1&gt;Welcome to My Awesome Website!&lt;/h1&gt; &lt;!-- Your main heading --&gt;
+    &lt;/header&gt;
+    
+    &lt;nav&gt;
+        &lt;h2 style="display:none;"&gt;Main Navigation&lt;/h2&gt; &lt;!-- Hidden heading for accessibility --&gt;
+        &lt;ul&gt;
+            &lt;li&gt;&lt;a href="index.html"&gt;Home&lt;/a&gt;&lt;/li&gt;
+            &lt;li&gt;&lt;a href="about.html"&gt;About Me&lt;/a&gt;&lt;/li&gt; &lt;!-- You'd create an about.html later --&gt;
+            &lt;li&gt;&lt;a href="#contact"&gt;Contact Info&lt;/a&gt;&lt;/li&gt; &lt;!-- Link to a section below --&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+    
+    &lt;main&gt;
+        &lt;section aria-labelledby="about-heading"&gt;
+            &lt;h2 id="about-heading"&gt;A Little About This Page&lt;/h2&gt;
+            &lt;p&gt;Hello! I'm currently learning the fundamentals of HTML. This page is a demonstration of basic HTML structure and some common tags.&lt;/p&gt;
+            &lt;p&gt;I'm excited to continue my journey into web development and learn CSS and JavaScript next!&lt;/p&gt;
+            &lt;figure&gt;
+                &lt;img src="https://via.placeholder.com/300x150.png?text=Placeholder+Image" alt="A sample placeholder image"&gt;
+                &lt;figcaption&gt;Fig.1 - A placeholder image to show the &lt;code&gt;&amp;lt;figure&amp;gt;&lt;/code&gt; and &lt;code&gt;&amp;lt;figcaption&amp;gt;&lt;/code&gt; tags.&lt;/figcaption&gt;
+            &lt;/figure&gt;
+        &lt;/section&gt;
+        
+        &lt;section aria-labelledby="hobbies-heading"&gt;
+            &lt;h2 id="hobbies-heading"&gt;My Hobbies Include:&lt;/h2&gt;
+            &lt;ul&gt;
+                &lt;li&gt;Learning to Code (HTML so far!)&lt;/li&gt;
+                &lt;li&gt;Reading Tech Blogs&lt;/li&gt;
+                &lt;li&gt;Exploring New Web Technologies&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/section&gt;
+
+        &lt;section id="contact" aria-labelledby="contact-heading"&gt;
+            &lt;h2 id="contact-heading"&gt;Contact Information&lt;/h2&gt;
+            &lt;p&gt;You can reach out via imaginary email: learner@example.com&lt;/p&gt;
+        &lt;/section&gt;
+    &lt;/main&gt;
+    
+    &lt;footer&gt;
+        &lt;p&gt;&copy; 2025 MyFirstWebsite. All rights reserved by The Learner.&lt;/p&gt;
+        &lt;p&gt;Proudly built with HTML!&lt;/p&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </code></pre>
+    </div>
+
+    <div class="container">
+        <h2>What We Learned in Part 1 🎓</h2>
+        <div class="step-by-step">
+            <h3>Key Takeaways:</h3>
+            <ul>
+                <li><strong>📜 HTML is a Markup Language:</strong> It uses tags (e.g., <code class="highlight">&lt;p&gt;</code>, <code class="highlight">&lt;h1&gt;</code>) to structure and give semantic meaning to web content, not a programming language.</li>
+                <li><strong>🏗️ Basic Document Structure:</strong> Every HTML page follows a fundamental structure: <code class="highlight">&lt;!DOCTYPE html&gt;</code>, <code class="highlight">&lt;html&gt;</code> (with <code class="highlight">&lt;head&gt;</code> and <code class="highlight">&lt;body&gt;</code> inside).</li>
+                <li><strong>🏷️ Tags and Elements:</strong> Elements are formed by tags and the content between them. Most have opening and closing tags.</li>
+                <li><strong>🧰 Essential Tags:</strong> You learned about headings, paragraphs, lists, links, images, breaks, text formatting tags, and generic containers (<code class="highlight">&lt;div&gt;</code>, <code class="highlight">&lt;span&gt;</code>).</li>
+                <li><strong>⚡ Attributes:</strong> Provide additional information or functionality to HTML elements (e.g., <code class="highlight">href</code> for links, <code class="highlight">src</code> and <code class="highlight">alt</code> for images, <code class="highlight">class</code> and <code class="highlight">id</code> for styling/scripting).</li>
+                <li><strong>🧠 Semantic HTML:</strong> Using tags that accurately describe their content's meaning (<code class="highlight">&lt;article&gt;</code>, <code class="highlight">&lt;nav&gt;</code>, <code class="highlight">&lt;header&gt;</code>, <code class="highlight">&lt;footer&gt;</code>, etc.) improves accessibility, SEO, and code readability.</li>
+                <li><strong>📝 Creating a Page:</strong> You know the steps to create, save, and view an HTML file in a browser.</li>
+            </ul>
+        </div>
+
+        <div class="mindblown">
+            <h3>🤯 The Power of HTML</h3>
+            <p style="font-size: 16px; margin: 20px 0;">
+                With just the HTML concepts you've explored today, you hold the keys to structuring millions of different webpages! 
+                HTML is the universal language of the web, the skeleton that underpins every site from the simplest personal blog to the most complex global enterprise application. 
+                You're taking foundational steps into a vast digital world of creation, communication, and possibility!
+            </p>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: center;">
+            <h3>🚀 Ready for the Next Step?</h3>
+            <p>You now understand the fundamental building blocks of the web! HTML gives structure and meaning to all your content, 
+            and you've learned the key elements and attributes needed to create well-formed and semantic web pages. Practice creating a few 
+            simple pages, perhaps try to replicate the structure of a favorite simple website (ignoring the styling for now). 
+            Cement your knowledge, and then get ready to move on to CSS to make your pages look amazing! 🎨</p>
+            
+            <p style="margin-top: 15px; font-style: italic;">
+                "The power of the Web is in its universality. Access by everyone regardless of disability is an essential aspect." - Tim Berners-Lee<br>
+                <strong>And now YOU know how to build the accessible, structural foundation for this amazing information network! 🌐</strong>
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script>
+        // Optional: If you add code blocks dynamically or need to re-highlight.
+        // Prism.highlightAll(); // Usually runs automatically on page load.
+    </script>
+</body>
+</html>

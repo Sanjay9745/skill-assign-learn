@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS Part 2 - Advanced Layout & Responsive Design</title>
+    <!-- Prism.js CSS for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; 
+            margin: 30px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        h1, h2, h3 { 
+            color: #1565c0; 
+            border-bottom: 2px solid #42a5f5;
+            padding-bottom: 5px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .diagram { 
+            margin: 30px 0; 
+            text-align: center;
+        }
+        .diagram svg { 
+            background: #f8fbff; 
+            border-radius: 10px;
+            border: 1px solid #ccc; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .analogy {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .analogy-title {
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 5px;
+        }
+        .code-example {
+            background: #2d3748;
+            border-left: 4px solid #42a5f5;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .code-example pre {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Fira Code', Consolas, 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            background: transparent !important;
+        }
+        .code-example code {
+            font-family: 'Fira Code', Consolas, 'Monaco', monospace;
+            background: transparent !important;
+            color: inherit;
+        }
+        /* Override Prism theme for better readability */
+        .code-example pre[class*="language-"] {
+            background: #2d3748 !important;
+            color: #e2e8f0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .flexbox-section {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .grid-section {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .responsive-section {
+            background: #f3e5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #9c27b0;
+        }
+        .animations-section {
+            background: #e1f5fe;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #03a9f4;
+        }
+        .demo-box {
+            background: #e0f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #00bcd4;
+        }
+        .flexbox-demo {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            background: #f1f8e9;
+        }
+        .flex-item {
+            background: #8bc34a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .grid-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            background: #fff8e1;
+        }
+        .grid-item {
+            background: #ff9800;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .step-by-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #6c757d;
+        }
+        .mindblown {
+            background: #fff9c4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #fbc02d;
+            text-align: center;
+        }
+        .animation-demo {
+            width: 60px;
+            height: 60px;
+            background-color: #42a5f5;
+            border-radius: 50%;
+            margin: 20px;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .hover-demo {
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .hover-demo:hover {
+            background: #2196f3;
+            color: white;
+            transform: scale(1.05);
+        }
+        /* Inline code styling */
+        code:not([class*="language-"]) {
+            background: #f1f3f4;
+            color: #d73a49;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSS Part 2 - Advanced Layout & Responsive Design 🚀</h1>
+        <p>
+            Welcome back, CSS master in training! 👋 Now that you've mastered the basics of styling individual elements, 
+            it's time to level up! Today we're diving into <strong>advanced layout techniques</strong>, 
+            <strong>responsive design</strong>, and <strong>animations</strong> that will make your websites truly professional. 
+            Get ready to create layouts that work beautifully on every device! ✨
+        </p>
+
+        <div class="analogy">
+            <div class="analogy-title">🏗️ Real-life Analogy: Becoming an Architect</div>
+            <p>
+                In Part 1, you learned to be an interior designer - choosing colors, fonts, and decorating individual rooms. 
+                Now you're becoming an architect! You'll learn to design entire building layouts, make sure they work for 
+                people of all sizes (responsive design), and add special features like automatic doors and lighting 
+                (animations). Your websites will go from nice-looking to absolutely stunning and functional!
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Flexbox: The Smart Layout System 🧩</h2>
+        
+        <div class="flexbox-section">
+            <h3>What is Flexbox?</h3>
+            <p>Flexbox (Flexible Box Layout) is like having a smart assistant that arranges items for you. 
+            It automatically handles spacing, alignment, and even adjusts when the screen size changes!</p>
+            
+            <div class="demo-box">
+                <h4>🎯 Flexbox in Action</h4>
+                <div class="flexbox-demo">
+                    <div class="flex-item">Item 1</div>
+                    <div class="flex-item">Item 2</div>
+                    <div class="flex-item">Item 3</div>
+                </div>
+                <p>These items automatically space themselves evenly! Try resizing your browser window.</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Basic Flexbox Setup</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Parent container */
+.flex-container {
+    display: flex;
+    gap: 20px; /* Space between items */
+}
+
+/* Child items */
+.flex-item {
+    flex: 1; /* Equal width */
+    padding: 20px;
+    background: lightblue;
+}</code></pre>
+                    </div>
+                    <p>Just add <code>display: flex</code> to the parent!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Direction Control</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">.flex-container {
+    display: flex;
+    flex-direction: row; /* Default: left to right */
+}
+
+.vertical {
+    flex-direction: column; /* Top to bottom */
+}
+
+.reverse {
+    flex-direction: row-reverse; /* Right to left */
+}</code></pre>
+                    </div>
+                    <p>Control which direction items flow!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Alignment Magic</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">.flex-container {
+    display: flex;
+    
+    /* Horizontal alignment */
+    justify-content: center; /* flex-start, flex-end, space-between */
+    
+    /* Vertical alignment */
+    align-items: center; /* flex-start, flex-end, stretch */
+    
+    /* Wrap items to new lines */
+    flex-wrap: wrap;
+}</code></pre>
+                    </div>
+                    <p>Perfect centering made easy!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Flexible Sizing</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">.flex-item {
+    flex: 1; /* Equal width for all */
+}
+
+.flex-item.large {
+    flex: 2; /* This one is twice as wide */
+}
+
+.flex-item.fixed {
+    flex: 0 0 200px; /* Fixed 200px width */
+}</code></pre>
+                    </div>
+                    <p>Items automatically share available space!</p>
+                </div>
+            </div>
+            
+            <div class="diagram">
+                <svg width="700" height="350">
+                    <!-- Title -->
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Flexbox Layout Concepts</text>
+                    
+                    <!-- Main Axis -->
+                    <rect x="100" y="60" width="500" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="10"/>
+                    <text x="350" y="50" font-size="14" text-anchor="middle" fill="#2e7d32" font-weight="bold">Main Axis (justify-content)</text>
+                    
+                    <!-- Flex Items on Main Axis -->
+                    <rect x="120" y="80" width="80" height="40" fill="#4caf50" stroke="#2e7d32" stroke-width="1" rx="5"/>
+                    <text x="160" y="105" font-size="12" text-anchor="middle" fill="white">Item 1</text>
+                    
+                    <rect x="220" y="80" width="80" height="40" fill="#4caf50" stroke="#2e7d32" stroke-width="1" rx="5"/>
+                    <text x="260" y="105" font-size="12" text-anchor="middle" fill="white">Item 2</text>
+                    
+                    <rect x="320" y="80" width="80" height="40" fill="#4caf50" stroke="#2e7d32" stroke-width="1" rx="5"/>
+                    <text x="360" y="105" font-size="12" text-anchor="middle" fill="white">Item 3</text>
+                    
+                    <!-- Cross Axis -->
+                    <rect x="50" y="60" width="30" height="200" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="10"/>
+                    <text x="-50" y="55" font-size="14" text-anchor="middle" fill="#ef6c00" font-weight="bold" transform="rotate(-90 65 50)">Cross Axis (align-items)</text>
+                    
+                    <!-- Justify Content Examples -->
+                    <rect x="100" y="180" width="500" height="60" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+                    <text x="350" y="170" font-size="14" text-anchor="middle" fill="#495057" font-weight="bold">justify-content Examples</text>
+                    
+                    <!-- flex-start -->
+                    <rect x="120" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="145" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="170" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <text x="155" y="230" font-size="10" text-anchor="middle">flex-start</text>
+                    
+                    <!-- center -->
+                    <rect x="275" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="300" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="325" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <text x="300" y="230" font-size="10" text-anchor="middle">center</text>
+                    
+                    <!-- space-between -->
+                    <rect x="430" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="490" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <rect x="550" y="195" width="20" height="15" fill="#2196f3" rx="2"/>
+                    <text x="490" y="230" font-size="10" text-anchor="middle">space-between</text>
+                    
+                    <!-- Align Items Examples -->
+                    <rect x="100" y="280" width="500" height="60" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="10"/>
+                    <text x="350" y="270" font-size="14" text-anchor="middle" fill="#495057" font-weight="bold">align-items Examples</text>
+                    
+                    <!-- flex-start -->
+                    <rect x="140" y="295" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <rect x="160" y="295" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <text x="155" y="325" font-size="10" text-anchor="middle">flex-start</text>
+                    
+                    <!-- center -->
+                    <rect x="290" y="305" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <rect x="310" y="305" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <text x="300" y="325" font-size="10" text-anchor="middle">center</text>
+                    
+                    <!-- flex-end -->
+                    <rect x="440" y="315" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <rect x="460" y="315" width="15" height="10" fill="#9c27b0" rx="2"/>
+                    <text x="450" y="335" font-size="10" text-anchor="middle">flex-end</text>
+                </svg>
+            </div>
+            
+            <div class="analogy">
+                <div class="analogy-title">🎼 Flexbox Analogy: Orchestra Conductor</div>
+                <p>
+                    Think of Flexbox like a conductor leading an orchestra:
+                    <br>• The <strong>flex container</strong> is the conductor - it coordinates everything
+                    <br>• The <strong>flex items</strong> are the musicians - they follow the conductor's instructions
+                    <br>• <strong>justify-content</strong> is like telling musicians how to spread across the stage horizontally
+                    <br>• <strong>align-items</strong> is like telling them how to align vertically (sitting, standing)
+                    <br>• <strong>flex-grow</strong> is like giving some musicians permission to take up more space when needed
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>CSS Grid: The Layout Powerhouse 🏗️</h2>
+        
+        <div class="grid-section">
+            <h3>What is CSS Grid?</h3>
+            <p>CSS Grid is like having graph paper for your website. You can create complex, two-dimensional layouts 
+            with precise control over rows and columns. It's perfect for page layouts, card grids, and complex designs!</p>
+            
+            <div class="demo-box">
+                <h4>🎯 Grid in Action</h4>
+                <div class="grid-demo">
+                    <div class="grid-item">Header</div>
+                    <div class="grid-item">Nav</div>
+                    <div class="grid-item">Main</div>
+                    <div class="grid-item">Sidebar</div>
+                    <div class="grid-item">Footer</div>
+                    <div class="grid-item">Ad</div>
+                </div>
+                <p>This grid automatically creates a 3-column layout with perfect spacing!</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Basic Grid Setup</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Grid container */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 equal columns */
+    grid-template-rows: auto auto; /* 2 automatic rows */
+    gap: 20px; /* Space between items */
+}
+
+/* Grid items automatically flow into cells */
+.grid-item {
+    background: lightcoral;
+    padding: 20px;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Flexible Columns</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">.grid-container {
+    display: grid;
+    
+    /* Different column sizes */
+    grid-template-columns: 200px 1fr 100px;
+    /* Fixed, flexible, fixed */
+    
+    /* Repeat pattern */
+    grid-template-columns: repeat(4, 1fr);
+    /* Creates 4 equal columns */
+    
+    /* Auto-fit responsive */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    /* Automatically fits columns */
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Grid Areas (Named Layout)</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-areas:
+        "header header header"
+        "nav    main   sidebar"
+        "footer footer footer";
+}
+
+.header { grid-area: header; }
+.nav { grid-area: nav; }
+.main { grid-area: main; }
+.sidebar { grid-area: sidebar; }
+.footer { grid-area: footer; }</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Item Positioning</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Place item in specific grid cell */
+.grid-item {
+    grid-column: 2 / 4; /* Span columns 2-4 */
+    grid-row: 1 / 3; /* Span rows 1-3 */
+}
+
+/* Shorthand */
+.grid-item {
+    grid-area: 1 / 2 / 3 / 4;
+    /* row-start / col-start / row-end / col-end */
+}
+
+/* Span multiple cells */
+.wide-item {
+    grid-column: span 2; /* Takes up 2 columns */
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="diagram">
+                <svg width="700" height="400">
+                    <!-- Title -->
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">CSS Grid Layout Structure</text>
+                    
+                    <!-- Grid Container -->
+                    <rect x="100" y="50" width="500" height="300" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="10"/>
+                    <text x="120" y="40" font-size="14" fill="#ef6c00" font-weight="bold">Grid Container (display: grid)</text>
+                    
+                    <!-- Grid Lines -->
+                    <!-- Vertical lines -->
+                    <line x1="250" y1="70" x2="250" y2="330" stroke="#ff9800" stroke-width="1" stroke-dasharray="3,3"/>
+                    <line x1="400" y1="70" x2="400" y2="330" stroke="#ff9800" stroke-width="1" stroke-dasharray="3,3"/>
+                    
+                    <!-- Horizontal lines -->
+                    <line x1="120" y1="150" x2="580" y2="150" stroke="#ff9800" stroke-width="1" stroke-dasharray="3,3"/>
+                    <line x1="120" y1="230" x2="580" y2="230" stroke="#ff9800" stroke-width="1" stroke-dasharray="3,3"/>
+                    
+                    <!-- Grid Items -->
+                    <rect x="130" y="80" width="110" height="60" fill="#2196f3" stroke="#1565c0" stroke-width="2" rx="5"/>
+                    <text x="185" y="115" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 1</text>
+                    
+                    <rect x="260" y="80" width="110" height="60" fill="#2196f3" stroke="#1565c0" stroke-width="2" rx="5"/>
+                    <text x="315" y="115" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 2</text>
+                    
+                    <rect x="410" y="80" width="110" height="60" fill="#2196f3" stroke="#1565c0" stroke-width="2" rx="5"/>
+                    <text x="465" y="115" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 3</text>
+                    
+                    <rect x="130" y="160" width="240" height="60" fill="#4caf50" stroke="#2e7d32" stroke-width="2" rx="5"/>
+                    <text x="250" y="195" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 4 (spans 2 columns)</text>
+                    
+                    <rect x="410" y="160" width="110" height="60" fill="#2196f3" stroke="#1565c0" stroke-width="2" rx="5"/>
+                    <text x="465" y="195" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 5</text>
+                    
+                    <rect x="130" y="240" width="390" height="60" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+                    <text x="325" y="275" font-size="12" text-anchor="middle" fill="white" font-weight="bold">Item 6 (spans 3 columns)</text>
+                    
+                    <!-- Labels -->
+                    <text x="80" y="115" font-size="10" text-anchor="middle" fill="#ff9800" transform="rotate(-90 80 115)">Row 1</text>
+                    <text x="80" y="195" font-size="10" text-anchor="middle" fill="#ff9800" transform="rotate(-90 80 195)">Row 2</text>
+                    <text x="80" y="275" font-size="10" text-anchor="middle" fill="#ff9800" transform="rotate(-90 80 275)">Row 3</text>
+                    
+                    <text x="185" y="370" font-size="10" text-anchor="middle" fill="#ff9800">Col 1</text>
+                    <text x="315" y="370" font-size="10" text-anchor="middle" fill="#ff9800">Col 2</text>
+                    <text x="465" y="370" font-size="10" text-anchor="middle" fill="#ff9800">Col 3</text>
+                </svg>
+            </div>
+            
+            <div class="analogy">
+                <div class="analogy-title">🧩 Grid Analogy: City Planning</div>
+                <p>
+                    CSS Grid is like being a city planner designing a neighborhood:
+                    <br>• <strong>Grid lines</strong> are like the streets that define city blocks
+                    <br>• <strong>Grid cells</strong> are like individual lots where buildings can go
+                    <br>• <strong>Grid areas</strong> are like zoning (residential, commercial, park)
+                    <br>• <strong>Grid items</strong> are like the actual buildings placed on lots
+                    <br>• Some buildings can span multiple lots (like a shopping mall), just like grid items can span multiple cells!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Responsive Design: One Website, Every Device 📱💻🖥️</h2>
+        
+        <div class="responsive-section">
+            <h3>What is Responsive Design?</h3>
+            <p>Responsive design means your website automatically adjusts to look great on phones, tablets, laptops, 
+            and desktop computers. It's like having a shape-shifting website that always fits perfectly!</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Media Queries - The Magic Tool</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Mobile-first approach */
+.container {
+    width: 100%;
+    padding: 10px;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    .container {
+        max-width: 750px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1200px;
+        padding: 40px;
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Flexible Grid Systems</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Responsive grid */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile: 1 column */
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr 1fr; /* Tablet: 2 columns */
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Responsive Typography</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Fluid font sizes */
+h1 {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+    /* min: 1.5rem, preferred: 5% of viewport, max: 3rem */
+}
+
+p {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    line-height: 1.6;
+}
+
+/* Traditional responsive typography */
+@media (max-width: 768px) {
+    h1 { font-size: 1.5rem; }
+    p { font-size: 0.9rem; }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Responsive Images</h4>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Basic responsive image */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Advanced responsive images */
+.hero-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+    .hero-image {
+        height: 400px;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="diagram">
+                <svg width="700" height="300">
+                    <!-- Title -->
+                    <text x="350" y="25" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Responsive Breakpoints</text>
+                    
+                    <!-- Mobile -->
+                    <rect x="50" y="60" width="120" height="180" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="10"/>
+                    <text x="110" y="50" font-size="14" text-anchor="middle" fill="#2e7d32" font-weight="bold">Mobile</text>
+                    <text x="110" y="270" font-size="12" text-anchor="middle" fill="#2e7d32">≤ 767px</text>
+                    
+                    <!-- Mobile content -->
+                    <rect x="70" y="80" width="80" height="20" fill="#4caf50" rx="3"/>
+                    <rect x="70" y="110" width="80" height="60" fill="#4caf50" rx="3"/>
+                    <rect x="70" y="180" width="80" height="40" fill="#4caf50" rx="3"/>
+                    <text x="110" y="200" font-size="10" text-anchor="middle" fill="white">Single Column</text>
+                    
+                    <!-- Tablet -->
+                    <rect x="220" y="60" width="160" height="180" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="10"/>
+                    <text x="300" y="50" font-size="14" text-anchor="middle" fill="#ef6c00" font-weight="bold">Tablet</text>
+                    <text x="300" y="270" font-size="12" text-anchor="middle" fill="#ef6c00">768px - 1023px</text>
+                    
+                    <!-- Tablet content -->
+                    <rect x="240" y="80" width="60" height="20" fill="#ff9800" rx="3"/>
+                    <rect x="310" y="80" width="50" height="20" fill="#ff9800" rx="3"/>
+                    <rect x="240" y="110" width="60" height="60" fill="#ff9800" rx="3"/>
+                    <rect x="310" y="110" width="50" height="60" fill="#ff9800" rx="3"/>
+                    <rect x="240" y="180" width="120" height="40" fill="#ff9800" rx="3"/>
+                    <text x="300" y="200" font-size="10" text-anchor="middle" fill="white">Two Columns</text>
+                    
+                    <!-- Desktop -->
+                    <rect x="430" y="60" width="220" height="180" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="10"/>
+                    <text x="540" y="50" font-size="14" text-anchor="middle" fill="#1565c0" font-weight="bold">Desktop</text>
+                    <text x="540" y="270" font-size="12" text-anchor="middle" fill="#1565c0">≥ 1024px</text>
+                    
+                    <!-- Desktop content -->
+                    <rect x="450" y="80" width="180" height="20" fill="#2196f3" rx="3"/>
+                    <rect x="450" y="110" width="40" height="60" fill="#2196f3" rx="3"/>
+                    <rect x="500" y="110" width="90" height="60" fill="#2196f3" rx="3"/>
+                    <rect x="600" y="110" width="30" height="60" fill="#2196f3" rx="3"/>
+                    <rect x="450" y="180" width="180" height="40" fill="#2196f3" rx="3"/>
+                    <text x="540" y="200" font-size="10" text-anchor="middle" fill="white">Multi-Column Layout</text>
+                </svg>
+            </div>
+            
+            <div class="step-by-step">
+                <h4>📏 Common Breakpoints</h4>
+                <ul>
+                    <li><strong>Mobile:</strong> 320px - 767px (portrait phones)</li>
+                    <li><strong>Tablet:</strong> 768px - 1023px (tablets, landscape phones)</li>
+                    <li><strong>Desktop:</strong> 1024px+ (laptops, desktops)</li>
+                    <li><strong>Large Desktop:</strong> 1200px+ (large monitors)</li>
+                </ul>
+                
+                <h4>🎯 Mobile-First Strategy</h4>
+                <p>Start designing for mobile, then add styles for larger screens. This ensures your site works great on the smallest devices first!</p>
+            </div>
+            
+            <div class="analogy">
+                <div class="analogy-title">🏠 Responsive Design Analogy: Smart Furniture</div>
+                <p>
+                    Responsive design is like having smart furniture that automatically adjusts to your room:
+                    <br>• <strong>Media queries</strong> are like sensors that detect room size
+                    <br>• <strong>Flexible layouts</strong> are like expandable dining tables
+                    <br>• <strong>Fluid images</strong> are like pictures that automatically resize their frames
+                    <br>• <strong>Responsive typography</strong> is like text that gets bigger in larger rooms so it's always readable
+                    <br>Whether you're in a tiny studio apartment or a mansion, everything fits perfectly!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>CSS Animations and Transitions ✨</h2>
+        
+        <div class="animations-section">
+            <h3>Bringing Your Website to Life</h3>
+            <p>Animations and transitions make your website feel interactive and professional. 
+            They guide users' attention and provide feedback for their actions!</p>
+            
+            <div class="demo-box">
+                <h4>🎬 Animation Examples</h4>
+                <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div class="animation-demo"></div>
+                    <div class="hover-demo">Hover over me!</div>
+                    <div style="background: #f44336; color: white; padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;" onclick="this.style.transform='rotate(360deg)'">Click to spin!</div>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>CSS Transitions</h4>
+                    <p>Smooth changes between states</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Smooth hover effects */
+.button {
+    background-color: blue;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    
+    /* The magic line! */
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background-color: darkblue;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>CSS Keyframe Animations</h4>
+                    <p>Complex multi-step animations</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">/* Define the animation */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply the animation */
+.fade-in-element {
+    animation: fadeInUp 1s ease-out;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Loading Animations</h4>
+                    <p>Keep users engaged while content loads</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Page Entrance Effects</h4>
+                    <p>Elements that animate when they come into view</p>
+                    <div class="code-example">
+                        <pre><code class="language-css">@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in {
+    animation: slideInLeft 0.8s ease-out;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-by-step">
+                <h4>🎨 Animation Best Practices</h4>
+                <ul>
+                    <li><strong>Keep it subtle:</strong> Animations should enhance, not distract</li>
+                    <li><strong>Make it fast:</strong> Most animations should be 200-500ms</li>
+                    <li><strong>Use easing:</strong> <code>ease-out</code> feels more natural than <code>linear</code></li>
+                    <li><strong>Respect preferences:</strong> Some users prefer reduced motion</li>
+                    <li><strong>Test performance:</strong> Avoid animating properties that cause layout recalculation</li>
+                </ul>
+                
+                <div class="code-example">
+                    <pre><code class="language-css">/* Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>What We Learned in Part 2 🎓</h2>
+        
+        <div class="step-by-step">
+            <h3>Key Takeaways:</h3>
+            <ul>
+                <li><strong>🧩 Flexbox:</strong> Perfect for one-dimensional layouts (rows or columns)</li>
+                <li><strong>🏗️ CSS Grid:</strong> Ideal for two-dimensional layouts (rows AND columns)</li>
+                <li><strong>📱 Responsive Design:</strong> One website that works beautifully on all devices</li>
+                <li><strong>📏 Media Queries:</strong> Apply different styles based on screen size</li>
+                <li><strong>✨ Animations:</strong> Bring your website to life with smooth transitions and effects</li>
+                <li><strong>🎯 Mobile-First:</strong> Start with mobile, then enhance for larger screens</li>
+            </ul>
+        </div>
+
+        <div class="mindblown">
+            <h3>🤯 You're Now a Layout Master!</h3>
+            <p style="font-size: 16px; margin: 20px 0;">
+                You've gone from styling individual elements to creating complete, professional layouts that work on any device! 
+                You can now build modern websites with flexible grids, smooth animations, and responsive designs. 
+                You have all the tools that professional web developers use every day!
+            </p>
+        </div>
+
+        <div class="analogy">
+            <div class="analogy-title">🎯 Coming Up Next: JavaScript - Adding Interactivity</div>
+            <p>
+                Now that you've mastered structure (HTML) and styling (CSS), you're ready for:
+                <br>• Making your websites interactive with JavaScript
+                <br>• Responding to user clicks, scrolls, and form inputs
+                <br>• Building dynamic content that updates without page reloads
+                <br>• Creating modern web applications with frameworks like React
+                <br>• Working with APIs and external data sources
+            </p>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: center;">
+            <h3>🚀 Ready to Build Amazing Websites?</h3>
+            <p>You now have professional-level CSS skills! You can create layouts that adapt to any screen size, 
+            add beautiful animations, and build modern, responsive websites that users love. Practice these 
+            techniques by building complete projects, and you'll be amazed at what you can create!</p>
+            
+            <p style="margin-top: 15px; font-style: italic;">
+                "The details are not the details. They make the design." - Charles Eames<br>
+                <strong>And now YOU can craft those perfect details that make websites extraordinary! 🌟</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Prism.js JavaScript for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 8: Event Loop - Advanced Insights & Real World! 🎢🔬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #00695c; /* Deep Teal */
+            --secondary-color: #00897b; /* Teal */
+            --accent-color: #ff7043; /* Coral */
+            --text-color: #37474f; /* Blue Grey */
+            --light-bg: #e0f2f1; /* Light Teal/Mint */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 22px;
+            --border-radius-inner: 14px;
+            --box-shadow-main: 0 12px 35px rgba(0, 0, 0, 0.12);
+            --box-shadow-light: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 900;
+            margin-bottom: 35px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 12px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.9em;
+            margin-top: 35px;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-top: 28px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 10px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #b2dfdb; /* Lighter Teal border */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 0.95em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #7f8c8d; font-style: italic; }
+        .token.keyword { color: #80cbc4; } /* Teal keyword */
+        .token.string { color: #a5d6a7; } /* Light Green string */
+        .token.number { color: #ffcc80; }
+        .token.boolean { color: #ef9a9a; } /* Light Red boolean */
+        .token.function { color: #ffd54f; } /* Amber function */
+        .token.operator { color: #ff8a65; } /* Light Coral operator */
+        .token.punctuation { color: #b0bec5; } /* Blue Grey punctuation */
+        .token.parameter { color: #ffab91; } /* Lighter Coral parameter */
+
+        .analogy-box {
+            background-color: #e0f2f1; /* Lightest Teal */
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 22px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #004d40; } /* Darkest Teal */
+        .analogy-box::before {
+            content: "\f522"; /* Cog icon for processing */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(0, 137, 123, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 28px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f111"; /* Circle icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900; /* Solid */
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 0.8em; /* Smaller circle */
+            top: 6px;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .highlight-red { background-color: #ffab91; color: #bf360c; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+        .highlight-green { background-color: #a5d6a7; color: #1b5e20; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
+
+
+        .button-style, .interactive-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button-style:hover, .interactive-button:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .interactive-button {
+            font-size: 0.9em;
+            padding: 8px 15px;
+            margin-right: 10px;
+        }
+        .output-area {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius-inner);
+            min-height: 40px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+
+
+        .diagram-container {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: var(--border-radius-inner);
+            margin: 25px 0;
+            border: 1px solid #bdc3c7;
+            overflow-x: auto;
+        }
+        .diagram-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            min-width: 550px; /* Adjusted for more complex diagrams */
+        }
+
+        .flow-box { stroke-width: 1.5px; rx: 8; ry: 8; }
+        .call-stack-box { fill: #a5d6a7; stroke: #388e3c; }
+        .web-apis-box { fill: #f8c471; stroke: #b9770e; }
+        .callback-queue-box { fill: #AED6F1; stroke: #2E86C1; }
+        .microtask-queue-box { fill: #d5a6bd; stroke: #884ea0; }
+        .event-loop-circle { fill: #ec7063; stroke: #af6060; }
+        .render-queue-box { fill: #cfd8dc; stroke: #546e7a; } /* For rendering */
+
+        .flow-text { font-family: 'Nunito', sans-serif; font-size: 12px; fill: var(--text-color); text-anchor: middle; } /* Slightly smaller base */
+        .flow-text-small { font-size: 10px; }
+        .flow-text-bold { font-weight: 700; }
+        .flow-line { stroke: var(--text-color); stroke-width: 1.5px; marker-end: url(#arrowhead); }
+        .flow-line-dashed { stroke-dasharray: 4, 2; }
+
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .analogy-box { padding: 10px; margin: 15px 0; }
+            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
+            ul li { padding-left: 22px; margin-bottom: 8px; }
+            ul li::before { font-size: 0.9em; }
+            .button-style, .interactive-button { padding: 10px 20px; font-size: 1em; }
+            .flow-text { font-size: 11px; }
+            .flow-text-small { font-size: 9px; }
+            .diagram-container svg { min-width: 450px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style, .interactive-button { width: 100%; text-align: center; margin-bottom: 10px; }
+            .flow-text { font-size: 10px; }
+            .flow-text-small { font-size: 8px; }
+            .diagram-container svg { min-width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-microscope emoji"></i>JavaScript Part 8: Event Loop Deep Dive <i class="fas fa-cogs emoji"></i></h1>
+        <p style="text-align:center; font-size: 1.1em;">Advanced Insights & Real-World Scenarios!</p>
+
+        <div class="section">
+            <h2><i class="fas fa-history"></i> Quick Recap: The Event Loop Basics</h2>
+            <p>In Part 7, we learned that JavaScript is single-threaded but uses the Event Loop mechanism to handle asynchronous tasks without freezing. Remember these key players?</p>
+            <ul>
+                <li><strong>Call Stack:</strong> The LIFO (Last-In, First-Out) structure that keeps track of function calls. Only one thing runs at a time here.</li>
+                <li><strong>Web APIs (Browser APIs):</strong> Handles tasks like `setTimeout`, DOM events, and `fetch` requests in the background.</li>
+                <li><strong>Microtask Queue:</strong> High-priority queue for Promise callbacks (`.then`, `.catch`, `await` continuations). Processed fully after each task on the Call Stack finishes.</li>
+                <li><strong>Callback Queue (Macrotask Queue):</strong> Standard queue for `setTimeout` callbacks, DOM event handlers, etc. One task is processed per Event Loop iteration after microtasks.</li>
+                <li><strong>Event Loop:</strong> The conductor! Constantly checks if the Call Stack is empty. If so, it moves tasks from the queues (Microtasks first!) to the Call Stack.</li>
+            </ul>
+            <div class="analogy-box">
+                <strong>The Chef Analogy Revisited:</strong> Our single chef (Call Stack) can ask assistants (Web APIs) to prepare ingredients. When an assistant is done, they place the prepared item on a "ready" counter. The chef, when free, first checks the "VIP ready" counter (Microtask Queue) and clears it, then checks the "regular ready" counter (Macrotask Queue) for one item.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-paint-roller"></i> Rendering and the Event Loop: When Does the Page Update?</h2>
+            <p>A common question is: when does the browser actually get a chance to repaint or update the screen with all the JavaScript changes we make to the DOM?</p>
+            <p>The browser's rendering engine also participates in the Event Loop. Generally, rendering updates (like repainting the screen) happen <strong class="highlight">after a Macrotask has finished and its associated Microtasks have also been processed</strong>, but before the next Macrotask is picked up from the queue.</p>
+            <ul>
+                <li>The browser tries to render updates smoothly, typically aiming for about 60 frames per second (roughly every 16.7 milliseconds).</li>
+                <li>If your synchronous JavaScript code, or a long chain of microtasks, takes too long, it can <strong class="highlight">delay rendering</strong>, leading to a janky or unresponsive page.</li>
+            </ul>
+            <div class="diagram-container">
+                 <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 8 3, 0 6" fill="var(--text-color)" />
+                        </marker>
+                    </defs>
+                    <text x="250" y="20" class="flow-text flow-text-bold">Simplified Event Loop with Rendering</text>
+
+                    <rect x="200" y="40" width="100" height="30" class="flow-box event-loop-circle" />
+                    <text x="250" y="60" class="flow-text flow-text-bold" fill="white">Event Loop</text>
+
+                    <path d="M250 70 V 90" class="flow-line" />
+                    <rect x="180" y="90" width="140" height="30" class="flow-box microtask-queue-box" />
+                    <text x="250" y="110" class="flow-text flow-text-small" fill="white">1. Process ALL Microtasks</text>
+
+                    <path d="M250 120 V 140" class="flow-line" />
+                    <rect x="180" y="140" width="140" height="30" class="flow-box render-queue-box" />
+                    <text x="250" y="160" class="flow-text flow-text-small">2. Rendering Updates (if needed)</text>
+
+                    <path d="M250 170 V 190" class="flow-line" />
+                    <rect x="180" y="190" width="140" height="30" class="flow-box callback-queue-box" />
+                    <text x="250" y="210" class="flow-text flow-text-small" fill="white">3. Process ONE Macrotask</text>
+                    
+                    <path d="M250 220 C250 250 200 250 200 220 C200 190 250 190 250 220 C250 250 300 250 300 220 C300 190 250 190 250 220 Z" fill="none" stroke="var(--primary-color)" stroke-width="1.5" stroke-dasharray="5,3" transform="translate(0, 30)"/>
+                     <text x="330" y="255" class="flow-text flow-text-small">Loop back</text>
+                </svg>
+            </div>
+            <div class="analogy-box">
+                <strong>Analogy: The Art Gallery Curator</strong> <span class="emoji">🖼️</span>
+                Imagine the Event Loop is a curator in an art gallery.
+                <ol>
+                    <li><strong>Synchronous Code:</strong> The curator is busy setting up a new exhibit (Call Stack).</li>
+                    <li><strong>Microtasks:</strong> After setting up, the curator quickly adjusts all the name plaques and spotlights for that exhibit (Microtask Queue). This must be done before anything else.</li>
+                    <li><strong>Rendering:</strong> The curator steps back and checks if the exhibit looks good to the public (Browser Rendering). If changes were made, the view is updated.</li>
+                    <li><strong>Macrotask:</strong> The curator then attends to ONE new visitor's request or starts setting up the next small display (Macrotask Queue).</li>
+                    <li>Then, back to checking plaques/spotlights (Microtasks) for that new display, then rendering, then the next visitor.</li>
+                </ol>
+                If adjusting plaques (Microtasks) takes too long, visitors (and rendering) have to wait!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Starvation: When Queues Get Out of Control!</h2>
+            <p>While the Event Loop tries to be fair, it's possible for one type of task to "starve" another.</p>
+            <h3><i class="fas fa-stop-circle"></i> Blocking with Long Synchronous Code (Recap)</h3>
+            <p>As we saw in Part 7, a very long piece of synchronous code on the Call Stack will block everything – no microtasks, no macrotasks, and no rendering can happen until it's done. This is the most common cause of frozen pages.</p>
+
+            <h3><i class="fas fa-infinity"></i> Microtask Queue Starvation</h3>
+            <p>Since <strong class="highlight">all</strong> microtasks in the queue are processed before the next macrotask or rendering, what happens if a microtask keeps adding another microtask to the queue?</p>
+            <pre><code class="language-javascript">
+console.log("Start");
+
+Promise.resolve().then(function microtask1() {
+  console.log("Microtask 1 running");
+  // This microtask adds another microtask!
+  Promise.resolve().then(function microtask2() {
+    console.log("Microtask 2 running (from Microtask 1)");
+     // And another one...
+     Promise.resolve().then(function microtask3() {
+        console.log("Microtask 3 running... this could go on!");
+        // If this pattern continues indefinitely, macrotasks and rendering might be starved.
+     });
+  });
+});
+
+setTimeout(() => {
+  console.log("setTimeout (Macrotask) - Will I ever run?");
+}, 0);
+
+console.log("End");
+
+// Output will be:
+// Start
+// End
+// Microtask 1 running
+// Microtask 2 running (from Microtask 1)
+// Microtask 3 running... this could go on!
+// (Eventually, if the microtask chain stops) setTimeout (Macrotask) - Will I ever run?
+            </code></pre>
+            <p>If microtasks continuously add more microtasks, they can keep the Microtask Queue full, delaying macrotasks (like `setTimeout` or user clicks) and rendering updates indefinitely. This leads to an unresponsive page, even though the Call Stack might be clearing between microtasks.</p>
+            <div class="analogy-box">
+                <strong>Analogy: The VIPs Who Invite More VIPs!</strong> <span class="emoji">👑</span>
+                Imagine the Fast Pass lane (Microtask Queue) at the amusement park. If every VIP getting off a ride immediately invites another VIP friend into the Fast Pass lane, the people in the regular line (Macrotask Queue) might never get a turn, and the park staff (Browser Rendering) won't get a chance to clean up or refresh the park!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-feather-alt"></i> `async/await` and the Microtask Queue Revisited</h2>
+            <p>We learned that `async` functions return Promises, and `await` pauses the `async` function until a Promise settles. The continuation of the `async` function (the code after `await`) is then scheduled as a <strong class="highlight">microtask</strong>.</p>
+
+            <h3><i class="fas fa-shoe-prints"></i> Step-by-Step with `async/await`</h3>
+            <pre><code class="language-javascript">
+async function fetchData() {
+  console.log("2: fetchData - Start (Sync part of async fn)"); // Runs when fetchData is called
+
+  const aPromise = new Promise(resolve => {
+    console.log("3: Promise constructor (Sync inside Promise)"); // Runs immediately
+    setTimeout(() => { // Web API handles this timer
+      console.log("6: setTimeout inside Promise (Macrotask's callback will run this)");
+      resolve("Data from server!");
+    }, 0);
+  });
+
+  console.log("4: fetchData - Before await (Sync part of async fn)");
+  let data = await aPromise; // Pauses fetchData here. Continuation is a microtask.
+  // --- Microtask starts here when aPromise resolves ---
+  console.log("7: fetchData - After await (Microtask part)");
+  console.log("8: Received data:", data);
+  return data;
+  // --- Microtask ends here ---
+}
+
+console.log("1: Script Start");
+fetchData().then(result => { // .then also queues a microtask
+  console.log("9: Final .then (Microtask from fetchData's returned promise)");
+  console.log("10: Result in final .then:", result);
+});
+console.log("5: Script End");
+
+// PREDICT THE OUTPUT ORDER!
+// (Scroll down for the answer)
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Predicted Output:</strong>
+                <ol>
+                    <li>1: Script Start</li>
+                    <li>2: fetchData - Start (Sync part of async fn)</li>
+                    <li>3: Promise constructor (Sync inside Promise)</li>
+                    <li>4: fetchData - Before await (Sync part of async fn)</li>
+                    <li>5: Script End</li>
+                    <li>7: fetchData - After await (Microtask part)  <em>(Microtask from `await aPromise`)</em></li>
+                    <li>8: Received data: Data from server! <em>(Same microtask)</em></li>
+                    <li>9: Final .then (Microtask from fetchData's returned promise) <em>(Microtask from `fetchData().then()`)</em></li>
+                    <li>10: Result in final .then: Data from server! <em>(Same microtask)</em></li>
+                    <li>6: setTimeout inside Promise (Macrotask's callback will run this) <em>(Macrotask)</em></li>
+                </ol>
+                <strong>Explanation:</strong>
+                1. Synchronous parts run first.
+                2. `await` makes `fetchData` pause. The code after `await` is scheduled as a microtask when `aPromise` resolves.
+                3. The `.then()` on `fetchData()` also schedules a microtask when `fetchData`'s implicit promise resolves (which happens when `fetchData` returns or its promise settles).
+                4. All microtasks run before any macrotask (like the `setTimeout` callback).
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-puzzle-piece"></i> Practical Scenario: Order of Execution Puzzles</h2>
+            <p>Understanding the Event Loop, Microtasks, and Macrotasks is crucial for predicting JavaScript execution order. Let's try a puzzle!</p>
+            <pre><code class="language-javascript">
+console.log('A: Synchronous');
+
+setTimeout(() => console.log('B: Macrotask (setTimeout 1)'), 0);
+
+Promise.resolve().then(() => {
+  console.log('C: Microtask 1 (from Promise 1)');
+  setTimeout(() => console.log('D: Macrotask (setTimeout 2, nested in Microtask 1)'), 0);
+});
+
+Promise.resolve().then(() => {
+  console.log('E: Microtask 2 (from Promise 2)');
+  Promise.resolve().then(() => console.log('F: Microtask 3 (nested in Microtask 2)'));
+});
+
+queueMicrotask(() => console.log('G: Microtask 4 (queueMicrotask)'));
+
+console.log('H: Synchronous');
+
+// What will be the output order?
+// Take a moment to think before checking the answer below!
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Puzzle Answer & Explanation:</strong>
+                <ol>
+                    <li><strong>A: Synchronous</strong> (Call Stack)</li>
+                    <li><strong>H: Synchronous</strong> (Call Stack)</li>
+                    <li><em>--- Call Stack empty, Microtask Queue processing begins ---</em></li>
+                    <li><strong>C: Microtask 1 (from Promise 1)</strong> (First microtask in queue)</li>
+                    <li><strong>E: Microtask 2 (from Promise 2)</strong> (Second microtask in queue)</li>
+                    <li><strong>G: Microtask 4 (queueMicrotask)</strong> (Third microtask in queue)</li>
+                    <li><strong>F: Microtask 3 (nested in Microtask 2)</strong> (This was added by Microtask E, so it runs before any macrotasks)</li>
+                    <li><em>--- Microtask Queue empty, Rendering might happen, Macrotask Queue processing begins ---</em></li>
+                    <li><strong>B: Macrotask (setTimeout 1)</strong> (First macrotask)</li>
+                    <li><em>--- Call Stack empty, Microtask Queue processing begins (it's empty) ---</em></li>
+                    <li><em>--- Microtask Queue empty, Rendering might happen, Macrotask Queue processing begins ---</em></li>
+                    <li><strong>D: Macrotask (setTimeout 2, nested in Microtask 1)</strong> (Second macrotask)</li>
+                </ol>
+                The key is that all currently queued microtasks (and any they add) run to completion before the next macrotask.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-tachometer-alt"></i> Why This Matters for Smooth Webpages</h2>
+            <p>Understanding the Event Loop helps you write JavaScript that doesn't block the main thread, leading to:</p>
+            <ul>
+                <li><strong class="highlight-green">Responsive User Interfaces:</strong> Buttons click immediately, scrolling is smooth.</li>
+                <li><strong class="highlight-green">Fluid Animations:</strong> Animations don't stutter or freeze.</li>
+                <li><strong class="highlight-green">Efficient Data Handling:</strong> Fetching data from servers doesn't lock up the page.</li>
+                <li><strong class="highlight-red">Avoiding "Unresponsive Script" Errors:</strong> By keeping tasks short and offloading long operations.</li>
+            </ul>
+            <p>If you have a task that might take a while (e.g., complex calculations, processing large data), consider breaking it into smaller chunks using `setTimeout` or using Web Workers (which run in a separate thread, a more advanced topic!).</p>
+        </div>
+
+
+        <div class="section">
+            <h2><i class="fas-solid fa-graduation-cap"></i> Event Loop Expert! (Part 8 Complete)</h2>
+            <p>Wow, you've dug deep into the heart of JavaScript's concurrency model! You now have advanced insights into:</p>
+            <ul>
+                <li>How browser rendering fits into the Event Loop cycle.</li>
+                <li>The dangers of "starvation" if synchronous code or microtasks run for too long.</li>
+                <li>A more detailed understanding of how `async/await` leverages the microtask queue.</li>
+                <li>The ability to predict complex execution orders involving various asynchronous patterns.</li>
+            </ul>
+            <p>This deep understanding is what separates good JavaScript developers from great ones. It allows you to write highly performant, responsive, and reliable web applications!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Continue the JS Journey! <i class="fas fa-space-shuttle"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            const outputBlocking = document.getElementById('output-blocking');
+            const outputNonBlocking = document.getElementById('output-non-blocking');
+            const clickableButton = document.getElementById('clickable-button');
+            const clickableButtonNonBlock = document.getElementById('clickable-button-nonblock');
+
+            let blockingButtonClicked = false;
+            let nonBlockingButtonClicked = false;
+
+            if(clickableButton) {
+                clickableButton.addEventListener('click', () => {
+                    blockingButtonClicked = true;
+                    outputBlocking.textContent = 'Clickable button was clicked DURING blocking loop execution (or just before/after if fast enough)!';
+                    console.log("Demo: Clickable button clicked (blocking test).");
+                });
+            }
+
+            if(document.getElementById('run-blocking-code')) {
+                document.getElementById('run-blocking-code').addEventListener('click', () => {
+                    blockingButtonClicked = false;
+                    outputBlocking.textContent = 'Running blocking loop... Try clicking the button!';
+                    console.log("Demo: Blocking loop started.");
+                    const startTime = Date.now();
+                    // Reduced loop for demo to prevent actual long freeze, but still demonstrate blocking
+                    for (let i = 0; i < 700000000; i++) { /* Loop */ }
+                    const endTime = Date.now();
+                    console.log(`Demo: Blocking loop finished in ${endTime - startTime}ms.`);
+                    if (!blockingButtonClicked) {
+                        outputBlocking.textContent = `Blocking loop finished in ${endTime - startTime}ms. Button was unresponsive.`;
+                    } else {
+                        outputBlocking.textContent += ` Blocking loop finished in ${endTime - startTime}ms.`;
+                    }
+                });
+            }
+
+            if(clickableButtonNonBlock) {
+                clickableButtonNonBlock.addEventListener('click', () => {
+                    nonBlockingButtonClicked = true;
+                    outputNonBlocking.textContent = 'Clickable button (non-block test) was clicked! Page is responsive!';
+                    console.log("Demo: Clickable button clicked (non-blocking test).");
+                });
+            }
+
+            if(document.getElementById('run-non-blocking-code')) {
+                document.getElementById('run-non-blocking-code').addEventListener('click', () => {
+                    nonBlockingButtonClicked = false;
+                    outputNonBlocking.textContent = 'Non-blocking loop scheduled with setTimeout... Try clicking!';
+                    console.log("Demo: Non-blocking loop scheduled.");
+                    
+                    setTimeout(function() {
+                        console.log("Demo: setTimeout callback - loop started.");
+                        outputNonBlocking.textContent = 'setTimeout callback: Running the loop now... UI might be less responsive during THIS part.';
+                        const startTime = Date.now();
+                        for (let i = 0; i < 700000000; i++) { /* Loop */ }
+                        const endTime = Date.now();
+                        outputNonBlocking.textContent = `setTimeout callback: Loop finished in ${endTime - startTime}ms!`;
+                        console.log(`Demo: setTimeout callback - loop finished in ${endTime - startTime}ms.`);
+                         if (nonBlockingButtonClicked) {
+                            outputNonBlocking.textContent += " (Button was clickable before this loop ran).";
+                        }
+                    }, 0);
+                    
+                    outputNonBlocking.textContent += ' Main script continued after scheduling setTimeout. Page should be responsive.';
+                    console.log("Demo: Main script continued after scheduling setTimeout.");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

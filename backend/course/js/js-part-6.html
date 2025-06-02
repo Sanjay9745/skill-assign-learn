@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 6: Memory Management & Object References! 🧠💾</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #6a11cb; /* Vibrant Purple */
+            --secondary-color: #2575fc; /* Bright Blue */
+            --accent-color: #ffde59; /* Sunny Yellow */
+            --success-color: #4caf50; /* Green */
+            --warning-color: #ff9800; /* Orange */
+            --danger-color: #f44336; /* Red */
+            --text-color: #34495e; /* Dark Slate Blue */
+            --light-bg: #f0f4f8; /* Light Sky Blue */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 20px;
+            --border-radius-inner: 12px;
+            --box-shadow-main: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --box-shadow-light: 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.7;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 10px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 8px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        h4 {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        h4 .fas, h4 .far {
+            margin-right: 6px;
+            font-size: 0.8em;
+            color: var(--primary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e0e0e0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #797979; font-style: italic; }
+        .token.keyword { color: #61dafb; }
+        .token.string { color: #90ee90; }
+        .token.number { color: #f08080; }
+        .token.boolean { color: #add8e6; }
+        .token.function { color: #ffd700; }
+        .token.operator { color: #f39c12; }
+        .token.punctuation { color: #ecf0f1; }
+
+        .analogy-box {
+            background-color: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #e65100; }
+        .analogy-box::before {
+            content: "\f0eb";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(255, 193, 7, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .warning-box {
+            background-color: #fff3e0;
+            border: 2px solid var(--warning-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .warning-box::before {
+            content: "\f071";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--warning-color);
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        .warning-box strong {
+            color: #e65100;
+        }
+
+        .success-box {
+            background-color: #e8f5e8;
+            border: 2px solid var(--success-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .success-box::before {
+            content: "\f058";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--success-color);
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        .success-box strong {
+            color: #2e7d32;
+        }
+
+        /* Memory Diagram Styles */
+        .memory-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: var(--border-radius-inner);
+            margin: 25px 0;
+            border: 2px solid var(--secondary-color);
+            box-shadow: var(--box-shadow-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .memory-diagram {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .stack-section, .heap-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .memory-title {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .stack-title {
+            background: linear-gradient(135deg, var(--primary-color), #5a0fc7);
+        }
+
+        .heap-title {
+            background: linear-gradient(135deg, var(--secondary-color), #1e6af8);
+        }
+
+        .stack-item, .heap-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stack-item {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .heap-item {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .variable-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        .memory-address {
+            font-family: 'Courier New', monospace;
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .object-content {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .arrow {
+            position: absolute;
+            color: var(--accent-color);
+            font-size: 1.5em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* Interactive Demo Styles */
+        .demo-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--box-shadow-light);
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            margin: 5px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .demo-button:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .comparison-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-light);
+        }
+
+        .comparison-primitive {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .comparison-reference {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f138";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 1em;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .button-style {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+        .button-style:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .solution-method {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f1f8f1 100%);
+            border: 2px solid var(--success-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .solution-method h4 {
+            color: var(--success-color);
+            margin-top: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 15px; margin-bottom: 10px; }
+            h4 { font-size: 1.1em; margin-top: 15px; margin-bottom: 8px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .memory-diagram { flex-direction: column; gap: 20px; }
+            .comparison-grid { grid-template-columns: 1fr; gap: 15px; }
+            .memory-container { min-height: 250px; padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            h4 { font-size: 1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, .warning-box, .success-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-brain emoji"></i>JavaScript Memory Management & Object References!<i class="fas fa-memory emoji"></i></h1>
+
+        <div class="section">
+            <h2><i class="fas fa-exclamation-triangle"></i> The Mysterious Case of Object Assignment</h2>
+            <p>Let's start with a puzzling scenario that often confuses JavaScript developers!</p>
+            
+            <div class="warning-box">
+                <strong>Watch this weird behavior:</strong> When you assign an object to a new variable, something unexpected happens!
+            </div>
+
+            <pre><code class="language-javascript">
+// Let's create a simple object
+let originalPlayer = {
+  name: "Alex",
+  score: 100,
+  level: 5
+};
+
+// Now let's "copy" it to a new variable
+let copiedPlayer = originalPlayer;
+
+// Let's change the copied player's name
+copiedPlayer.name = "Jordan";
+
+// What do you think originalPlayer.name is now?
+console.log(originalPlayer.name); // Output: "Jordan" 😱
+console.log(copiedPlayer.name);   // Output: "Jordan"
+
+// Wait... BOTH objects changed! Why?!
+            </code></pre>
+
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🏠</span>
+                Imagine you have a house with the address "123 Main Street". When you tell your friend the address:
+                <ul>
+                    <li>You're not giving them a new house</li>
+                    <li>You're giving them the <strong>address</strong> to the same house</li>
+                    <li>If your friend paints the house red, your house is also red!</li>
+                    <li>Because it's the <strong>same house</strong>, just two people know its address</li>
+                </ul>
+            </div>
+
+            <p>This happens because when you assign an object to a variable, JavaScript doesn't create a copy of the object. Instead, it stores a <strong class="highlight">reference</strong> (like an address) to where the object lives in memory!</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-database"></i> Understanding JavaScript Memory: Stack vs Heap</h2>
+            <p>To understand why this happens, we need to learn how JavaScript stores data in memory. JavaScript uses two main areas of memory:</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-item comparison-primitive">
+                    <h3><i class="fas fa-layer-group"></i> Stack Memory</h3>
+                    <ul>
+                        <li>Fast access</li>
+                        <li>Limited size</li>
+                        <li>Stores primitive values</li>
+                        <li>Stores references to objects</li>
+                        <li>LIFO (Last In, First Out)</li>
+                    </ul>
+                </div>
+                <div class="comparison-item comparison-reference">
+                    <h3><i class="fas fa-cubes"></i> Heap Memory</h3>
+                    <ul>
+                        <li>Slower access</li>
+                        <li>Larger size</li>
+                        <li>Stores actual objects</li>
+                        <li>Stores arrays (which are objects)</li>
+                        <li>Managed by garbage collector</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3><i class="fas fa-list-ol"></i> How Different Data Types are Stored</h3>
+            <pre><code class="language-javascript">
+// Primitive values - stored directly in STACK
+let playerName = "Alex";        // String stored in stack
+let playerScore = 100;          // Number stored in stack
+let isGameActive = true;        // Boolean stored in stack
+
+// Objects and Arrays - stored in HEAP (with reference in stack)
+let playerData = {              // Object stored in heap
+  name: "Alex",                 // Reference stored in stack
+  inventory: ["sword", "potion"] // Array also stored in heap
+};
+
+let gameItems = ["sword", "shield"]; // Array stored in heap, reference in stack
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-map-marked-alt"></i> Memory Diagram: The Complete Picture</h2>
+            <p>Let's visualize how JavaScript actually stores our data in memory:</p>
+
+            <div class="memory-container">
+                <div class="memory-diagram" id="memoryDiagram">
+                    <div class="stack-section">
+                        <div class="memory-title stack-title">
+                            <i class="fas fa-layer-group"></i> Stack Memory
+                        </div>
+                        <div class="stack-item">
+                            <div class="variable-name">playerName</div>
+                            <div style="font-family: 'Courier New', monospace; color: #27ae60;">"Alex"</div>
+                            <small>Primitive value stored directly</small>
+                        </div>
+                        <div class="stack-item">
+                            <div class="variable-name">playerScore</div>
+                            <div style="font-family: 'Courier New', monospace; color: #3498db;">100</div>
+                            <small>Primitive value stored directly</small>
+                        </div>
+                        <div class="stack-item">
+                            <div class="variable-name">playerData</div>
+                            <div class="memory-address">@0x1A2B3C</div>
+                            <small>Reference to heap object</small>
+                        </div>
+                        <div class="stack-item">
+                            <div class="variable-name">copiedPlayer</div>
+                            <div class="memory-address">@0x1A2B3C</div>
+                            <small>Same reference!</small>
+                        </div>
+                    </div>
+
+                    <div class="heap-section">
+                        <div class="memory-title heap-title">
+                            <i class="fas fa-cubes"></i> Heap Memory
+                        </div>
+                        <div class="heap-item">
+                            <div class="memory-address">Address: 0x1A2B3C</div>
+                            <div class="object-content">
+                                <div><strong>Object:</strong></div>
+                                <div>name: "Alex"</div>
+                                <div>score: 100</div>
+                                <div>level: 5</div>
+                                <div>inventory: @0x2B3C4D</div>
+                            </div>
+                        </div>
+                        <div class="heap-item">
+                            <div class="memory-address">Address: 0x2B3C4D</div>
+                            <div class="object-content">
+                                <div><strong>Array:</strong></div>
+                                <div>[0]: "sword"</div>
+                                <div>[1]: "potion"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow" style="top: 45%; left: 45%;">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <strong>Key Insight:</strong> When you assign <code>copiedPlayer = originalPlayer</code>, you're copying the <strong>address</strong>, not the actual object! Both variables point to the same location in heap memory.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-copy"></i> Interactive Demo: See the Reference in Action</h2>
+            <p>Let's demonstrate this behavior with an interactive example:</p>
+
+            <div class="demo-container">
+                <h4><i class="fas fa-play"></i> Reference Demo</h4>
+                <button class="demo-button" onclick="demonstrateReference()">
+                    <i class="fas fa-play"></i> Run Reference Demo
+                </button>
+                <button class="demo-button" onclick="clearDemo()">
+                    <i class="fas fa-eraser"></i> Clear Output
+                </button>
+                <pre id="demoOutput" style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; min-height: 100px; font-family: 'Courier New', monospace;"></pre>
+            </div>
+
+            <pre><code class="language-javascript">
+// This is what happens behind the scenes:
+function demonstrateReference() {
+  // Step 1: Create original object in heap
+  let car1 = {
+    brand: "Toyota",
+    color: "red",
+    year: 2020
+  };
+  
+  // Step 2: Copy the REFERENCE (not the object)
+  let car2 = car1; // car2 now points to the same object in heap
+  
+  // Step 3: Modify through car2
+  car2.color = "blue";
+  
+  // Step 4: Check both variables
+  console.log("car1.color:", car1.color); // "blue" - same object!
+  console.log("car2.color:", car2.color); // "blue"
+  console.log("Are they the same object?", car1 === car2); // true
+}
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-question-circle"></i> Wait, What About Arrays?</h2>
+            <p>Here's something important to remember: <strong class="highlight">Arrays are objects too!</strong> This means the same reference behavior applies to arrays.</p>
+
+            <div class="warning-box">
+                <strong>Important:</strong> In JavaScript, <code>typeof []</code> returns <code>"object"</code>! Arrays are just special objects with numeric indices.
+            </div>
+
+            <pre><code class="language-javascript">
+// Arrays behave exactly like objects!
+let originalList = ["apple", "banana", "cherry"];
+let copiedList = originalList; // This copies the REFERENCE
+
+// Modify the "copied" array
+copiedList.push("date");
+copiedList[0] = "avocado";
+
+console.log(originalList); // ["avocado", "banana", "cherry", "date"]
+console.log(copiedList);   // ["avocado", "banana", "cherry", "date"]
+
+// They're the same array in memory!
+console.log(originalList === copiedList); // true
+
+// Proof that arrays are objects:
+console.log(typeof originalList); // "object"
+console.log(Array.isArray(originalList)); // true (but still an object!)
+            </code></pre>
+
+            <div class="analogy-box">
+                <strong>Array Analogy:</strong> <span class="emoji">📝</span>
+                Think of an array like a shared grocery list on the fridge. If you and your roommate both have the same list:
+                <ul>
+                    <li>When you add "milk" to the list, your roommate sees it too</li>
+                    <li>When they cross out "bread", you see it crossed out</li>
+                    <li>You both have the same physical list, not separate copies!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-tools"></i> Solutions: How to Actually Copy Objects</h2>
+            <p>Now that we understand the problem, let's learn the solutions! There are several ways to create actual copies of objects:</p>
+
+            <div class="solution-method">
+                <h4><i class="fas fa-clone"></i> 1. Shallow Copy with Spread Operator (...)</h4>
+                <p>The modern and most popular way for simple objects:</p>
+                <pre><code class="language-javascript">
+let originalPlayer = {
+  name: "Alex",
+  score: 100,
+  level: 5
+};
+
+// Create a real copy using spread operator
+let copiedPlayer = { ...originalPlayer };
+
+// Now changes to copiedPlayer won't affect originalPlayer
+copiedPlayer.name = "Jordan";
+copiedPlayer.score = 200;
+
+console.log(originalPlayer.name); // "Alex" (unchanged!)
+console.log(copiedPlayer.name);   // "Jordan"
+console.log(originalPlayer === copiedPlayer); // false (different objects!)
+                </code></pre>
+            </div>
+
+            <div class="solution-method">
+                <h4><i class="fas fa-code"></i> 2. Object.assign() Method</h4>
+                <p>Another way to create shallow copies:</p>
+                <pre><code class="language-javascript">
+let originalCar = {
+  brand: "Honda",
+  model: "Civic",
+  year: 2021
+};
+
+// Create copy using Object.assign()
+let copiedCar = Object.assign({}, originalCar);
+
+copiedCar.brand = "Toyota";
+console.log(originalCar.brand); // "Honda" (unchanged!)
+console.log(copiedCar.brand);   // "Toyota"
+                </code></pre>
+            </div>
+
+            <div class="solution-method">
+                <h4><i class="fas fa-array"></i> 3. Array Copying with Spread or slice()</h4>
+                <p>For arrays, you can use spread operator or slice():</p>
+                <pre><code class="language-javascript">
+let originalColors = ["red", "green", "blue"];
+
+// Method 1: Spread operator
+let copiedColors1 = [...originalColors];
+
+// Method 2: slice() method
+let copiedColors2 = originalColors.slice();
+
+// Method 3: Array.from()
+let copiedColors3 = Array.from(originalColors);
+
+// Now modifications won't affect the original
+copiedColors1.push("yellow");
+console.log(originalColors); // ["red", "green", "blue"] (unchanged!)
+console.log(copiedColors1);  // ["red", "green", "blue", "yellow"]
+                </code></pre>
+            </div>
+
+            <div class="warning-box">
+                <strong>Shallow Copy Limitation:</strong> These methods only copy the first level! If your object contains nested objects or arrays, those will still be references.
+            </div>
+
+            <div class="solution-method">
+                <h4><i class="fas fa-layer-group"></i> 4. Deep Copy for Nested Objects</h4>
+                <p>When you have objects inside objects, you need a deep copy:</p>
+                <pre><code class="language-javascript">
+let complexPlayer = {
+  name: "Alex",
+  stats: {
+    health: 100,
+    mana: 50
+  },
+  inventory: ["sword", "potion"]
+};
+
+// SHALLOW COPY - nested objects are still references!
+let shallowCopy = { ...complexPlayer };
+shallowCopy.stats.health = 200; // This changes the original too! 😱
+
+// DEEP COPY - Method 1: JSON (simple but limited)
+let deepCopy1 = JSON.parse(JSON.stringify(complexPlayer));
+
+// DEEP COPY - Method 2: Using a library like Lodash
+// let deepCopy2 = _.cloneDeep(complexPlayer);
+
+// DEEP COPY - Method 3: structuredClone() (newer browsers)
+let deepCopy3 = structuredClone(complexPlayer);
+
+deepCopy1.stats.health = 300;
+deepCopy1.inventory.push("shield");
+
+console.log(complexPlayer.stats.health); // 100 (unchanged!)
+console.log(deepCopy1.stats.health);     // 300
+                </code></pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-balance-scale"></i> Primitive vs Reference Types: Side by Side</h2>
+            <p>Let's compare how primitive types and reference types behave differently:</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-item comparison-primitive">
+                    <h4><i class="fas fa-cube"></i> Primitive Types</h4>
+                    <div style="text-align: left;">
+                        <strong>Types:</strong> string, number, boolean, null, undefined, symbol, bigint
+                        <br><br>
+                        <strong>Storage:</strong> Value stored directly in stack
+                        <br><br>
+                        <strong>Assignment:</strong> Creates a new copy
+                        <br><br>
+                        <strong>Comparison:</strong> Compares actual values
+                    </div>
+                </div>
+                <div class="comparison-item comparison-reference">
+                    <h4><i class="fas fa-cubes"></i> Reference Types</h4>
+                    <div style="text-align: left;">
+                        <strong>Types:</strong> objects, arrays, functions, dates
+                        <br><br>
+                        <strong>Storage:</strong> Reference in stack, data in heap
+                        <br><br>
+                        <strong>Assignment:</strong> Copies the reference
+                        <br><br>
+                        <strong>Comparison:</strong> Compares references, not values
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+// PRIMITIVE BEHAVIOR
+let a = 5;
+let b = a;    // b gets a COPY of the value
+b = 10;       // Only b changes
+console.log(a); // 5 (unchanged)
+console.log(b); // 10
+
+// REFERENCE BEHAVIOR  
+let obj1 = { value: 5 };
+let obj2 = obj1;     // obj2 gets a COPY of the reference
+obj2.value = 10;     // Changes the shared object
+console.log(obj1.value); // 10 (changed!)
+console.log(obj2.value); // 10
+
+// COMPARISON DIFFERENCES
+let x = 5;
+let y = 5;
+console.log(x === y); // true (same value)
+
+let arr1 = [1, 2, 3];
+let arr2 = [1, 2, 3];
+console.log(arr1 === arr2); // false (different objects in memory!)
+
+let arr3 = arr1;
+console.log(arr1 === arr3); // true (same reference)
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-lightbulb"></i> Practical Tips & Best Practices</h2>
+            
+            <div class="success-box">
+                <strong>Best Practices for Memory Management:</strong>
+            </div>
+
+            <ul>
+                <li><strong>Be explicit about copying:</strong> When you need a copy, use spread operator or appropriate copy methods</li>
+                <li><strong>Understand shallow vs deep:</strong> Know when you need deep copying for nested objects</li>
+                <li><strong>Use const for objects:</strong> Even though the object can be modified, const prevents reassignment</li>
+                <li><strong>Check equality carefully:</strong> Remember that <code>===</code> compares references for objects</li>
+                <li><strong>Use functions to create objects:</strong> Factory functions can help avoid reference issues</li>
+            </ul>
+
+            <h3><i class="fas fa-wrench"></i> Helper Functions for Object Operations</h3>
+            <pre><code class="language-javascript">
+// Utility function to check if two objects have the same values
+function isEqual(obj1, obj2) {
+  return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
+
+// Factory function to create player objects
+function createPlayer(name, level = 1) {
+  return {
+    name: name,
+    level: level,
+    score: 0,
+    inventory: [],
+    // Method to get a copy of this player
+    clone() {
+      return { ...this, inventory: [...this.inventory] };
+    }
+  };
+}
+
+// Usage
+let player1 = createPlayer("Alex", 5);
+let player2 = player1.clone(); // Safe copy!
+
+player2.name = "Jordan";
+player2.inventory.push("sword");
+
+console.log(player1.name); // "Alex" (unchanged!)
+console.log(player2.name); // "Jordan"
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-trophy"></i> Memory Management Mastery Achieved!</h2>
+            <p>Congratulations! You now understand one of the most important concepts in JavaScript:</p>
+            
+            <ul>
+                <li>How JavaScript stores data in <strong>Stack</strong> (primitives & references) and <strong>Heap</strong> (objects & arrays)</li>
+                <li>Why object assignment creates references, not copies</li>
+                <li>The difference between primitive and reference types</li>
+                <li>How to create actual copies using spread operator, Object.assign(), and other methods</li>
+                <li>When you need shallow vs deep copying</li>
+                <li>That arrays are objects and follow the same reference rules</li>
+                <li>Best practices for avoiding common memory-related bugs</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>Remember:</strong> This knowledge will save you from countless bugs! Understanding references vs values is crucial for writing reliable JavaScript code.
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Ready for Advanced JavaScript Concepts! <i class="fas fa-rocket"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        // Interactive demo functions
+        function demonstrateReference() {
+            const output = document.getElementById('demoOutput');
+            
+            const steps = [
+                "🔧 Creating original object...",
+                "let car1 = { brand: 'Toyota', color: 'red', year: 2020 };",
+                "📋 car1: { brand: 'Toyota', color: 'red', year: 2020 }",
+                "",
+                "📎 Copying reference (not the object)...",
+                "let car2 = car1; // car2 points to SAME object in heap",
+                "",
+                "🎨 Modifying through car2...",
+                "car2.color = 'blue';",
+                "",
+                "🔍 Checking both variables...",
+                "car1.color: 'blue' ← SAME object was modified!",
+                "car2.color: 'blue'",
+                "car1 === car2: true ← Same reference!",
+                "",
+                "💡 Both variables point to the same object in heap memory!"
+            ];
+
+            let i = 0;
+            output.textContent = '';
+            
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    output.textContent += steps[i] + '\n';
+                    output.scrollTop = output.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        function clearDemo() {
+            document.getElementById('demoOutput').textContent = 'Click "Run Reference Demo" to see the demonstration...';
+        }
+
+        // Initialize demo output
+        document.addEventListener('DOMContentLoaded', () => {
+            clearDemo();
+            
+            // Initialize Prism for syntax highlighting
+            Prism.highlightAll();
+
+            // GSAP Animations
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Animate sections
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Animate memory diagram elements
+            gsap.utils.toArray('.stack-item, .heap-item').forEach((item, index) => {
+                gsap.fromTo(item,
+                    { autoAlpha: 0, x: index % 2 === 0 ? -30 : 30 },
+                    {
+                        autoAlpha: 1,
+                        x: 0,
+                        duration: 0.8,
+                        delay: index * 0.2,
+                        ease: "power2.out",
+                        scrollTrigger: {
+                            trigger: item.closest('.memory-container'),
+                            start: "top 80%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Animate comparison items
+            gsap.utils.toArray('.comparison-item').forEach((item, index) => {
+                gsap.fromTo(item,
+                    { autoAlpha: 0, scale: 0.9, y: 20 },
+                    {
+                        autoAlpha: 1,
+                        scale: 1,
+                        y: 0,
+                        duration: 0.5,
+                        delay: index * 0.3,
+                        ease: "back.out(1.7)",
+                        scrollTrigger: {
+                            trigger: item,
+                            start: "top 85%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Animate solution methods
+            gsap.utils.toArray('.solution-method').forEach((method, index) => {
+                gsap.fromTo(method,
+                    { autoAlpha: 0, y: 20 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        delay: index * 0.2,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: method,
+                            start: "top 90%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

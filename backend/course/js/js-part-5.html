@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 5: DOM Magic! ✨🏛️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #10b981; /* Emerald */
+            --secondary-color: #059669; /* Darker Emerald */
+            --accent-color: #f59e0b; /* Amber */
+            --text-color: #334155; /* Slate */
+            --light-bg: #f1f5f9; /* Lighter Slate */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 22px;
+            --border-radius-inner: 14px;
+            --box-shadow-main: 0 12px 35px rgba(0, 0, 0, 0.1);
+            --box-shadow-light: 0 6px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 900;
+            margin-bottom: 35px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 12px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.9em;
+            margin-top: 35px;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-top: 28px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 10px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e2e8f0; /* Lighter border */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 0.95em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #9ca3af; font-style: italic; } /* Grey for comments */
+        .token.keyword { color: #34d399; } /* Emerald for keywords */
+        .token.string { color: #a5b4fc; } /* Indigo for strings */
+        .token.number { color: #facc15; } /* Yellow for numbers */
+        .token.boolean { color: #f87171; } /* Red for booleans */
+        .token.function { color: #f59e0b; } /* Amber for functions */
+        .token.operator { color: #ec4899; } /* Pink for operators */
+        .token.punctuation { color: #e5e7eb; } /* Lightest grey for punctuation */
+        .token.parameter { color: #fb923c; } /* Orange for parameters */
+        .token.tag, .token.selector { color: #60a5fa; } /* Blue for tags/selectors */
+        .token.attr-name { color: #a78bfa; } /* Violet for attribute names */
+        .token.attr-value { color: #a5b4fc; } /* Indigo for attribute values */
+
+
+        .analogy-box {
+            background-color: #f0fdf4; /* Light Green */
+            border: 2px dashed #22c55e; /* Green dashed border */
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 22px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #047857; } /* Darker Green */
+        .analogy-box::before {
+            content: "\f5d2"; /* House icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(34, 197, 94, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 28px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f067"; /* Plus icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 1.05em;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .button-style, .interactive-button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button-style:hover, .interactive-button:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .interactive-button {
+            font-size: 0.9em;
+            padding: 8px 15px;
+            margin-right: 10px;
+        }
+
+        .interactive-area {
+            border: 2px dashed var(--accent-color);
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: var(--border-radius-inner);
+            background-color: var(--light-bg);
+        }
+        .interactive-area p { margin-bottom: 10px; }
+        .interactive-area input[type="text"] {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #cbd5e1; /* Slate border */
+            margin-right: 10px;
+            font-family: 'Nunito', sans-serif;
+        }
+
+
+        .diagram-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius-inner);
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+        .diagram-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            min-width: 300px; /* Ensure SVG has a minimum width */
+        }
+
+        .flow-rect { fill: #d1fae5; stroke: var(--secondary-color); stroke-width: 1.5px; rx: 8; ry: 8; } /* Light green */
+        .flow-diamond { fill: #fef3c7; stroke: var(--accent-color); stroke-width: 1.5px; } /* Light yellow */
+        .flow-oval { fill: #dbeafe; stroke: #60a5fa; stroke-width: 1.5px; rx:20; ry:20;} /* Light blue */
+        .flow-text { font-family: 'Nunito', sans-serif; font-size: 14px; fill: var(--text-color); text-anchor: middle; }
+        .flow-text-bold { font-weight: 700; }
+        .flow-line { stroke: var(--text-color); stroke-width: 1.5px; marker-end: url(#arrowhead); }
+        .flow-line-true { stroke: #10b981; }
+        .flow-line-false { stroke: #ef4444; } /* Red */
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .analogy-box { padding: 10px; margin: 15px 0; }
+            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
+            ul li { padding-left: 22px; margin-bottom: 8px; }
+            ul li::before { font-size: 0.9em; }
+            .button-style, .interactive-button { padding: 10px 20px; font-size: 1em; }
+            .flow-text { font-size: 12px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style, .interactive-button { width: 100%; text-align: center; margin-bottom: 10px; }
+            .interactive-area input[type="text"] { width: calc(100% - 20px); margin-bottom: 10px; }
+            .flow-text { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-magic emoji"></i>JavaScript Part 5: DOM Magic! <i class="fas fa-hat-wizard emoji"></i></h1>
+
+        <div class="section">
+            <h2><i class="fas fa-sitemap"></i> What is the DOM? The Webpage's Blueprint!</h2>
+            <p>Imagine your webpage is a big, awesome LEGO castle. The <strong>DOM (Document Object Model)</strong> is like the secret instruction booklet or blueprint for that castle! It shows how all the pieces (HTML elements like headings, paragraphs, images, buttons) are connected.</p>
+            <p>JavaScript can read this blueprint and, like a magic wand, change the castle! It can add new towers, change the color of bricks, make flags wave, or even make secret doors open when you click them!</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🗺️</span>
+                The DOM is like a treasure map for your webpage.
+                <ul>
+                    <li>Each location on the map is an <strong class="highlight">HTML element</strong> (a heading, a button, an image).</li>
+                    <li>JavaScript is your explorer that uses this map to find specific locations.</li>
+                    <li>Once found, JavaScript can change what's at that location (e.g., change the text, the color, or make it do something new!).</li>
+                </ul>
+            </div>
+            <h3><i class="fas fa-tree"></i> The DOM as a Tree</h3>
+            <p>The DOM sees your HTML as a tree structure, like a family tree:</p>
+            <ul>
+                <li>The main <code class="highlight">&lt;html&gt;</code> tag is the great-grandparent.</li>
+                <li><code class="highlight">&lt;head&gt;</code> and <code class="highlight">&lt;body&gt;</code> are its children.</li>
+                <li>Inside <code class="highlight">&lt;body&gt;</code>, you might have a <code class="highlight">&lt;div&gt;</code> (child of body), and inside that <code class="highlight">&lt;div&gt;</code>, a <code class="highlight">&lt;p&gt;</code> (child of div, grandchild of body).</li>
+            </ul>
+             <div class="diagram-container">
+                <svg viewBox="0 0 300 200" xmln="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 7 2.5, 0 5" fill="var(--text-color)" />
+                        </marker>
+                    </defs>
+                    <g class="flow-text" font-size="10">
+                        <rect x="120" y="10" width="60" height="20" class="flow-oval" fill="#fecaca"/> <text x="150" y="24">HTML</text>
+                        <line x1="150" y1="30" x2="100" y2="50" class="flow-line"/>
+                        <line x1="150" y1="30" x2="200" y2="50" class="flow-line"/>
+
+                        <rect x="70" y="50" width="60" height="20" class="flow-oval" fill="#fed7aa"/> <text x="100" y="64">HEAD</text>
+                        <rect x="170" y="50" width="60" height="20" class="flow-oval" fill="#fed7aa"/> <text x="200" y="64">BODY</text>
+                        <line x1="100" y1="70" x2="100" y2="90" class="flow-line"/>
+                        <line x1="200" y1="70" x2="160" y2="90" class="flow-line"/>
+                        <line x1="200" y1="70" x2="240" y2="90" class="flow-line"/>
+
+                        <rect x="70" y="90" width="60" height="20" class="flow-oval" fill="#fef08a"/> <text x="100" y="104">TITLE</text>
+                        <rect x="130" y="90" width="60" height="20" class="flow-oval" fill="#d9f99d"/> <text x="160" y="104">H1</text>
+                        <rect x="210" y="90" width="60" height="20" class="flow-oval" fill="#d9f99d"/> <text x="240" y="104">P</text>
+
+                        <line x1="100" y1="110" x2="100" y2="130" class="flow-line"/>
+                        <rect x="70" y="130" width="60" height="20" class="flow-rect" fill="#bfdbfe"/> <text x="100" y="144">"My Page"</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-search-location"></i> Finding Things: Selecting Elements</h2>
+            <p>To change something on your webpage, JavaScript first needs to find it! Here are the common ways:</p>
+
+            <div id="example-html-structure" style="padding:10px; border:1px solid #eee; margin-bottom:15px; border-radius:var(--border-radius-inner); background-color:var(--light-bg);">
+                <h3 id="main-title" style="margin-top:0; border:none; color:var(--text-color);">My Awesome Webpage</h3>
+                <p class="intro-paragraph">Welcome to this page about DOM!</p>
+                <div class="content-box">
+                    <p>First item in box.</p>
+                    <button class="action-button">Click Me</button>
+                </div>
+                <div class="content-box">
+                    <p>Second item in box.</p>
+                    <button class="action-button">No, Click Me!</button>
+                </div>
+                <img src="https://placehold.co/100x50/059669/white?text=LOGO" alt="logo image" id="logo">
+            </div>
+
+            <ul>
+                <li>
+                    <strong><i class="fas fa-id-card"></i> By its ID:</strong> <code class="highlight">document.getElementById('yourElementId')</code>
+                    <p>Analogy: Like finding a specific student in a school by their unique student ID number. IDs should be unique on a page!</p>
+                    <pre><code class="language-javascript">
+// Finds the element with id="main-title"
+let pageTitle = document.getElementById('main-title');
+console.log(pageTitle.textContent); // "My Awesome Webpage"
+                    </code></pre>
+                </li>
+                <li>
+                    <strong><i class="fas fa-bullseye"></i> By a CSS Selector (first match):</strong> <code class="highlight">document.querySelector('yourCssSelector')</code>
+                    <p>Analogy: Like using a magic spyglass that finds the VERY FIRST thing matching your description (e.g., "the first red brick").</p>
+                    <pre><code class="language-javascript">
+// Finds the first paragraph with class="intro-paragraph"
+let intro = document.querySelector('.intro-paragraph');
+console.log(intro.textContent); // "Welcome to this page about DOM!"
+
+// Finds the first button with class="action-button"
+let firstButton = document.querySelector('.action-button');
+console.log(firstButton.textContent); // "Click Me"
+                    </code></pre>
+                </li>
+                <li>
+                    <strong><i class="fas fa-list-ul"></i> By a CSS Selector (all matches):</strong> <code class="highlight">document.querySelectorAll('yourCssSelector')</code>
+                    <p>Analogy: Like casting a magic net that catches ALL things matching your description (e.g., "all blue bricks"). This gives you a list (NodeList) of elements.</p>
+                    <pre><code class="language-javascript">
+// Finds ALL elements with class="content-box"
+let allBoxes = document.querySelectorAll('.content-box');
+console.log(allBoxes.length); // Output: 2 (because there are two such divs)
+allBoxes.forEach(box => {
+  console.log(box.querySelector('p').textContent);
+});
+// Output:
+// First item in box.
+// Second item in box.
+                    </code></pre>
+                </li>
+                 <li>
+                    <strong><i class="fas fa-users"></i> By Class Name:</strong> <code class="highlight">document.getElementsByClassName('yourClassName')</code>
+                    <p>Analogy: Finding all toys that belong to a certain brand (e.g., "all LEGO brand toys"). This also gives you a list (HTMLCollection).</p>
+                    <pre><code class="language-javascript">
+// Finds ALL elements with class="action-button"
+let allActionButtons = document.getElementsByClassName('action-button');
+console.log(allActionButtons.length); // Output: 2
+for (let i = 0; i < allActionButtons.length; i++) {
+    console.log(allActionButtons[i].textContent);
+}
+                    </code></pre>
+                </li>
+                <li>
+                    <strong><i class="fas fa-tag"></i> By Tag Name:</strong> <code class="highlight">document.getElementsByTagName('yourTagName')</code>
+                    <p>Analogy: Finding all items of a certain type (e.g., "all actual LEGO bricks", not Duplo). Gives you a list (HTMLCollection).</p>
+                    <pre><code class="language-javascript">
+// Finds ALL <p> (paragraph) elements
+let allParagraphs = document.getElementsByTagName('p');
+console.log(allParagraphs.length); // Output: 3 (in our example HTML)
+                    </code></pre>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-pencil-ruler"></i> Changing What's Inside: Modifying Content</h2>
+            <p>Once you've found an element, you can change what it says!</p>
+            <ul>
+                <li>
+                    <strong><code class="highlight">element.textContent</code></strong>: Changes only the text. It's like rewriting the words on a sign. (Safer!)
+                    <pre><code class="language-javascript">
+let pageTitle = document.getElementById('main-title');
+pageTitle.textContent = "My SUPER Awesome Webpage! ✨";
+                    </code></pre>
+                </li>
+                <li>
+                    <strong><code class="highlight">element.innerHTML</code></strong>: Changes everything inside, including HTML tags. It's like completely redecorating a room, furniture and all. (Powerful, but use with care if the content comes from users, as it can be a security risk).
+                    <pre><code class="language-javascript">
+let firstBox = document.querySelector('.content-box');
+firstBox.innerHTML = "&lt;h4&gt;New Content!&lt;/h4&gt;&lt;p&gt;This box was changed!&lt;/p&gt;";
+                    </code></pre>
+                </li>
+            </ul>
+            <div class="interactive-area">
+                <p id="changeable-text">This text can be changed!</p>
+                <input type="text" id="new-text-input" placeholder="Enter new text">
+                <button class="interactive-button" id="btn-change-text">Change Text</button>
+                <button class="interactive-button" id="btn-change-html">Change HTML</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-cogs"></i> Changing Labels & Features: Modifying Attributes</h2>
+            <p>HTML elements have attributes (like <code class="highlight">src</code> for images, or <code class="highlight">href</code> for links, or <code class="highlight">class</code> for styling). JavaScript can read and change these!</p>
+            <ul>
+                <li><code class="highlight">element.getAttribute('attributeName')</code>: Reads the value of an attribute. (Like reading the label on a toy box).</li>
+                <li><code class="highlight">element.setAttribute('attributeName', 'newValue')</code>: Sets or changes the value of an attribute. (Like putting a new label on the box).</li>
+                <li><code class="highlight">element.removeAttribute('attributeName')</code>: Removes an attribute completely.</li>
+            </ul>
+            <pre><code class="language-javascript">
+let logoImage = document.getElementById('logo');
+console.log(logoImage.getAttribute('src')); // Shows current image source
+
+// Let's change the image!
+logoImage.setAttribute('src', 'https://placehold.co/100x50/f59e0b/white?text=NEW+LOGO');
+logoImage.setAttribute('alt', 'This is the new logo');
+
+// You can also access some common attributes directly as properties
+console.log(logoImage.alt); // "This is the new logo"
+logoImage.id = 'new-logo-id';
+            </code></pre>
+             <div class="interactive-area">
+                <img id="interactive-image" src="https://placehold.co/150x75/10b981/white?text=Image+1" alt="Interactive Image" style="display:block; margin-bottom:10px;">
+                <button class="interactive-button" id="btn-change-image-src">Change Image</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-paint-brush"></i> Changing How Things Look: Modifying Styles</h2>
+            <p>You can change the CSS styles of an element directly with JavaScript using <code class="highlight">element.style.propertyName</code>.</p>
+            <p>Note: CSS property names with hyphens (like <code class="highlight">background-color</code>) become camelCase in JavaScript (like <code class="highlight">backgroundColor</code>).</p>
+            <pre><code class="language-javascript">
+let pageTitle = document.getElementById('main-title');
+pageTitle.style.color = 'purple';
+pageTitle.style.backgroundColor = '#e0e0e0'; // Light grey background
+pageTitle.style.padding = '10px';
+pageTitle.style.borderRadius = '5px';
+            </code></pre>
+            <div class="interactive-area">
+                <p id="styleable-text" style="transition: all 0.3s ease;">Style me with JavaScript!</p>
+                <button class="interactive-button" id="btn-style-text">Make it Fancy!</button>
+                <button class="interactive-button" id="btn-reset-style">Reset Style</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-plus-circle"></i><i class="fas fa-minus-circle"></i> Adding & Removing Things: Creating and Deleting Elements</h2>
+            <p>JavaScript can create brand new HTML elements and add them to the page, or remove existing ones.</p>
+            <ul>
+                <li><code class="highlight">document.createElement('tagName')</code>: Builds a new LEGO piece (e.g., 'p', 'div', 'img').</li>
+                <li><code class="highlight">parentElement.appendChild(newElement)</code>: Adds your new piece to the end of a parent element (like adding it to your LEGO castle).</li>
+                <li><code class="highlight">element.remove()</code>: Removes the element itself. (Modern and easy!)</li>
+                <li><code class="highlight">parentElement.removeChild(childElement)</code>: The older way to remove a specific child.</li>
+            </ul>
+            <pre><code class="language-javascript">
+// Let's add a new paragraph to the first content box
+let firstBox = document.querySelector('.content-box');
+
+// 1. Create a new paragraph element
+let newParagraph = document.createElement('p');
+
+// 2. Give it some text
+newParagraph.textContent = "This paragraph was added by JavaScript! 🪄";
+newParagraph.style.color = 'green';
+
+// 3. Add it to the box
+firstBox.appendChild(newParagraph);
+
+// Let's remove the second button
+let secondButton = document.querySelectorAll('.action-button')[1];
+if (secondButton) {
+  // secondButton.remove(); // Modern way
+  // Or:
+  // secondButton.parentElement.removeChild(secondButton); // Older way
+}
+            </code></pre>
+            <div class="interactive-area">
+                <div id="element-playground" style="border: 1px solid #ccc; padding: 10px; min-height: 50px;">Playground</div>
+                <button class="interactive-button" id="btn-add-element">Add Item</button>
+                <button class="interactive-button" id="btn-remove-last-element">Remove Last Item</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-hand-pointer"></i> Making Things React: Basic Event Handling</h2>
+            <p>Events are actions that happen on a webpage, like a mouse click, a key press, or the page finishing loading. JavaScript can "listen" for these events and run code when they happen!</p>
+            <p>The most common way is <code class="highlight">element.addEventListener('eventName', functionToRun)</code>.</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🔔</span>
+                Think of `addEventListener` as setting up a doorbell.
+                <ul>
+                    <li>`element`: The door.</li>
+                    <li>`'click'`: The event (someone pressing the doorbell button).</li>
+                    <li>`functionToRun`: What happens when the doorbell rings (e.g., you go open the door).</li>
+                </ul>
+            </div>
+            <pre><code class="language-javascript">
+let myButton = document.getElementById('logo'); // Let's use the logo image as a button
+
+if (myButton) {
+  myButton.addEventListener('click', function() {
+    alert("You clicked the logo! DOM Magic!");
+    myButton.style.border = "3px solid red";
+  });
+
+  myButton.addEventListener('mouseover', function() {
+    myButton.style.opacity = "0.7";
+  });
+  myButton.addEventListener('mouseout', function() {
+    myButton.style.opacity = "1";
+  });
+}
+            </code></pre>
+            <div class="interactive-area">
+                <button class="interactive-button" id="event-demo-button">Click Me for an Event!</button>
+                <p id="event-output-text" style="margin-top:10px;"></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-puzzle-piece"></i> Putting It All Together: A Mini Example</h2>
+            <p>Let's make a simple interactive element. When you type in the box and click "Update Title", the main page title will change!</p>
+            <div class="interactive-area">
+                <input type="text" id="title-changer-input" placeholder="Enter new page title...">
+                <button class="interactive-button" id="btn-update-page-title">Update Page Title</button>
+            </div>
+            <pre><code class="language-javascript">
+// (Assuming this code runs after the HTML elements are on the page)
+let titleInput = document.getElementById('title-changer-input');
+let updateButton = document.getElementById('btn-update-page-title');
+let mainPageTitle = document.getElementById('main-title'); // From our example HTML
+
+if (updateButton && titleInput && mainPageTitle) {
+  updateButton.addEventListener('click', function() {
+    let newTitleText = titleInput.value;
+    if (newTitleText.trim() !== "") { // Only update if not empty
+      mainPageTitle.textContent = newTitleText + " (Changed by JS!)";
+      titleInput.value = ""; // Clear the input
+    } else {
+      alert("Please enter some text for the title!");
+    }
+  });
+}
+            </code></pre>
+        </div>
+
+
+        <div class="section">
+            <h2><i class="fas fa-trophy"></i> DOM Wizardry Unlocked! (Part 5 Complete)</h2>
+            <p>Incredible! You've learned the secrets of DOM Manipulation:</p>
+            <ul>
+                <li>Understanding what the DOM is (the webpage's blueprint).</li>
+                <li>Finding any element on your page using various selection methods.</li>
+                <li>Changing the text and HTML content of elements.</li>
+                <li>Modifying attributes like image sources or link destinations.</li>
+                <li>Changing the style (colors, sizes, etc.) of elements.</li>
+                <li>Magically creating new elements and adding them to your page, or making them disappear!</li>
+                <li>Making your page react to user clicks with event listeners.</li>
+            </ul>
+            <p>With these powers, you can now make your webpages truly dynamic and interactive. This is a huge step in becoming a web developer!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">What's Next in JavaScript? <i class="fas fa-question-circle"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Interactive Demos Setup
+            // Change Text/HTML Demo
+            const changeableText = document.getElementById('changeable-text');
+            const newTextInput = document.getElementById('new-text-input');
+            if (document.getElementById('btn-change-text') && changeableText && newTextInput) {
+                document.getElementById('btn-change-text').addEventListener('click', () => {
+                    if (newTextInput.value.trim() !== "") {
+                        changeableText.textContent = newTextInput.value;
+                    } else {
+                        changeableText.textContent = "Text changed by JS!";
+                    }
+                });
+            }
+            if (document.getElementById('btn-change-html') && changeableText && newTextInput) {
+                document.getElementById('btn-change-html').addEventListener('click', () => {
+                     if (newTextInput.value.trim() !== "") {
+                        changeableText.innerHTML = `&lt;strong&gt;${newTextInput.value}&lt;/strong&gt; &lt;em&gt;(HTML changed!)&lt;/em&gt;`;
+                    } else {
+                        changeableText.innerHTML = "&lt;strong&gt;HTML&lt;/strong&gt; &lt;em&gt;was changed!&lt;/em&gt; 🎉";
+                    }
+                });
+            }
+
+            // Change Image Src Demo
+            const interactiveImage = document.getElementById('interactive-image');
+            let imageToggle = false;
+            if (document.getElementById('btn-change-image-src') && interactiveImage) {
+                document.getElementById('btn-change-image-src').addEventListener('click', () => {
+                    if (imageToggle) {
+                        interactiveImage.setAttribute('src', 'https://placehold.co/150x75/10b981/white?text=Image+1');
+                        interactiveImage.setAttribute('alt', 'Image 1');
+                    } else {
+                        interactiveImage.setAttribute('src', 'https://placehold.co/150x75/f59e0b/black?text=Image+2');
+                        interactiveImage.setAttribute('alt', 'Image 2');
+                    }
+                    imageToggle = !imageToggle;
+                });
+            }
+
+            // Style Text Demo
+            const styleableText = document.getElementById('styleable-text');
+            if (document.getElementById('btn-style-text') && styleableText) {
+                document.getElementById('btn-style-text').addEventListener('click', () => {
+                    styleableText.style.color = 'var(--primary-color)';
+                    styleableText.style.fontSize = '1.5em';
+                    styleableText.style.fontWeight = 'bold';
+                    styleableText.style.transform = 'rotate(-5deg)';
+                });
+            }
+            if (document.getElementById('btn-reset-style') && styleableText) {
+                document.getElementById('btn-reset-style').addEventListener('click', () => {
+                    styleableText.style.color = '';
+                    styleableText.style.fontSize = '';
+                    styleableText.style.fontWeight = '';
+                     styleableText.style.transform = '';
+                });
+            }
+
+            // Add/Remove Element Demo
+            const playground = document.getElementById('element-playground');
+            let itemCount = 0;
+            if (document.getElementById('btn-add-element') && playground) {
+                document.getElementById('btn-add-element').addEventListener('click', () => {
+                    itemCount++;
+                    const newItem = document.createElement('div');
+                    newItem.textContent = `Item ${itemCount}`;
+                    newItem.style.backgroundColor = `hsl(${itemCount * 40}, 70%, 80%)`;
+                    newItem.style.padding = '5px';
+                    newItem.style.margin = '5px';
+                    newItem.style.borderRadius = '4px';
+                    playground.appendChild(newItem);
+                });
+            }
+            if (document.getElementById('btn-remove-last-element') && playground) {
+                document.getElementById('btn-remove-last-element').addEventListener('click', () => {
+                    if (playground.lastElementChild && playground.lastElementChild !== playground.firstChild) { // Check if it's not the initial "Playground" text
+                        playground.removeChild(playground.lastElementChild);
+                         if(itemCount > 0) itemCount--;
+                    } else if (playground.children.length > 1) { // handles case where only "Playground" text and one item is left
+                         playground.removeChild(playground.lastElementChild);
+                         if(itemCount > 0) itemCount--;
+                    }
+                });
+            }
+
+            // Event Demo Button
+            const eventDemoButton = document.getElementById('event-demo-button');
+            const eventOutputText = document.getElementById('event-output-text');
+            if(eventDemoButton && eventOutputText) {
+                eventDemoButton.addEventListener('click', () => {
+                    eventOutputText.textContent = 'Button Clicked! You triggered an event! 🎉';
+                    eventDemoButton.style.backgroundColor = '#f59e0b'; // Change color on click
+                    setTimeout(() => {
+                         eventDemoButton.style.backgroundColor = ''; // Reset color
+                         eventOutputText.textContent = '';
+                    }, 1500);
+                });
+            }
+
+            // Title Changer Demo
+            let titleInput = document.getElementById('title-changer-input');
+            let updateButton = document.getElementById('btn-update-page-title');
+            let mainPageTitle = document.getElementById('main-title');
+
+            if (updateButton && titleInput && mainPageTitle) {
+              updateButton.addEventListener('click', function() {
+                let newTitleText = titleInput.value;
+                if (newTitleText.trim() !== "") {
+                  mainPageTitle.textContent = newTitleText + " (Changed by JS!)";
+                  titleInput.value = "";
+                } else {
+                  alert("Please enter some text for the title!");
+                }
+              });
+            }
+        });
+    </script>
+</body>
+</html>

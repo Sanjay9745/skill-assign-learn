@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 1: The Awesome Basics! 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #6a11cb; /* Vibrant Purple */
+            --secondary-color: #2575fc; /* Bright Blue */
+            --accent-color: #ffde59; /* Sunny Yellow */
+            --text-color: #34495e; /* Dark Slate Blue */
+            --light-bg: #f0f4f8; /* Light Sky Blue */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d; /* Prism Tomorrow Night background */
+            --border-radius-main: 20px;
+            --border-radius-inner: 12px;
+            --box-shadow-main: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --box-shadow-light: 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        /* General body and typography */
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px; /* Reduced padding for mobile */
+            line-height: 1.7; /* Slightly increased for readability */
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px; /* Base font size */
+        }
+
+        .main-container {
+            max-width: 950px;
+            margin: 20px auto; /* Reduced margin for mobile */
+            padding: 15px; /* Reduced padding for mobile */
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly more opaque */
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        /* Headings */
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word; /* Prevent overflow */
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5em; /* Base size */
+            font-weight: 900;
+            margin-bottom: 30px; /* Reduced margin */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow title to wrap if too long */
+        }
+        h1 .fas {
+            margin: 0 10px; /* Adjusted margin */
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em; /* Base size */
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 0.9em; /* Ensure icon is not too large */
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.4em; /* Base size */
+            margin-top: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 8px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        /* Sections */
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner); /* Slightly smaller radius for inner elements */
+            padding: 20px; /* Base padding */
+            margin: 20px 0; /* Base margin */
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e0e0e0;
+            opacity: 0; /* For GSAP animation */
+            transform: translateY(20px); /* For GSAP animation */
+        }
+
+        /* Code Blocks with Prism.js */
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 15px; /* Base padding */
+            margin: 15px 0;
+            font-size: 0.9em; /* Base size */
+            border: 1px solid var(--accent-color); /* Thinner border */
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto; /* Ensure horizontal scroll on small screens */
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal; /* Prevent wrapping inside code blocks */
+            white-space: pre; /* Maintain whitespace and allow scrolling */
+        }
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+            color: #797979;
+            font-style: italic;
+        }
+        .token.keyword { color: #61dafb; }
+        .token.string { color: #90ee90; }
+        .token.number { color: #f08080; }
+        .token.boolean { color: #add8e6; }
+        .token.function { color: #ffd700; }
+        .token.operator { color: #f39c12; }
+        .token.punctuation { color: #ecf0f1; }
+
+        /* Analogy Boxes */
+        .analogy-box {
+            background-color: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: var(--border-radius-inner);
+            padding: 15px; /* Base padding */
+            margin: 20px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #e65100; }
+        .analogy-box::before {
+            content: "\f0eb";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(255, 193, 7, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        /* General Emoji Styling */
+        .emoji {
+            font-size: 1.2em; /* Base size */
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* Lists */
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul li {
+            margin-bottom: 10px; /* Base margin */
+            padding-left: 25px; /* Base padding */
+            position: relative;
+        }
+        ul li::before {
+            content: "\f138";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 1em; /* Base size */
+        }
+
+        /* Highlighted Text */
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Buttons */
+        .button-style {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px; /* Base padding */
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em; /* Base size */
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block; /* Ensure it behaves well in flow */
+        }
+        .button-style:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Tables */
+        .table-wrapper { /* Added wrapper for horizontal scroll */
+            overflow-x: auto;
+            margin: 25px 0;
+            border-radius: var(--border-radius-inner);
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e0e0e0; /* Add a subtle border to the wrapper */
+        }
+        table {
+            width: 100%;
+            min-width: 600px; /* Ensure table has a minimum width before scrolling */
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px; /* Base padding */
+            text-align: left;
+            vertical-align: top; /* Better for cells with more content */
+        }
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-size: 1.05em; /* Base size */
+            font-weight: 700;
+            position: sticky; /* Make headers sticky if table scrolls vertically (though this table is horizontal) */
+            top: 0;
+            z-index: 1;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8f9fa;
+        }
+         tr:hover td {
+            background-color: #e9ecef;
+        }
+        td pre[class*="language-"], td code[class*="language-"] { /* Code inside table cells */
+            margin: 0;
+            padding: 8px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            background-color: var(--code-bg) !important; /* Ensure dark bg */
+            border: none;
+            box-shadow: none;
+        }
+        td code { /* Non-Prism code inside table cells */
+            background-color: #e9ecef;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                font-size: 15px; /* Slightly smaller base for mobile */
+            }
+            .main-container {
+                margin: 10px auto;
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2em; /* Smaller for mobile */
+                margin-bottom: 25px;
+            }
+            h1 .fas {
+                margin: 0 8px;
+            }
+            h2 {
+                font-size: 1.6em; /* Smaller for mobile */
+                margin-bottom: 15px;
+            }
+            h3 {
+                font-size: 1.25em; /* Smaller for mobile */
+                margin-top: 15px;
+                margin-bottom: 10px;
+            }
+            .section {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            pre[class*="language-"] {
+                padding: 10px;
+                font-size: 0.85em; /* Smaller code font on mobile */
+            }
+            .analogy-box {
+                padding: 10px;
+                margin: 15px 0;
+            }
+            .analogy-box::before {
+                font-size: 35px;
+                top: -10px;
+                left: -8px;
+            }
+            ul li {
+                padding-left: 22px;
+                margin-bottom: 8px;
+            }
+            ul li::before {
+                font-size: 0.9em;
+            }
+            .button-style {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            th, td {
+                padding: 10px; /* Smaller padding for table cells */
+            }
+            th {
+                font-size: 1em;
+            }
+            td pre[class*="language-"], td code[class*="language-"] {
+                 font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] {
+                padding: 10px;
+            }
+             pre[class*="language-"] {
+                font-size: 0.8em;
+            }
+            .button-style {
+                width: 100%; /* Full width buttons on very small screens */
+                text-align: center;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-rocket emoji"></i>JavaScript Part 1: The Awesome Basics!<i class="fas fa-star emoji"></i></h1>
+
+        <div class="section">
+            <h2><i class="fas fa-question-circle"></i> What is JavaScript?</h2>
+            <p>JavaScript (often shortened to JS) is a programming language that makes websites interactive! If HTML is the skeleton of a webpage and CSS is its clothes, then JavaScript is its brain and muscles – making things happen!</p>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🎮</span> Imagine a video game character.
+                <ul>
+                    <li>HTML is the character's basic shape.</li>
+                    <li>CSS is how the character looks (colors, outfit).</li>
+                    <li>JavaScript is what makes the character jump, run, and interact when you press buttons!</li>
+                </ul>
+            </div>
+            <h3><i class="fas fa-lightbulb"></i> Why Learn JavaScript?</h3>
+            <ul>
+                <li>To make websites dynamic and fun! (Animations, pop-ups, games)</li>
+                <li>It's used almost everywhere on the web.</li>
+                <li>You can build web apps, mobile apps, and even server-side applications with it!</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-box-open"></i> Variables: Storing Your Stuff!</h2>
+            <p>Variables are like labeled boxes where you can store information (data) that your program can use and change.</p>
+
+            <h3><i class="fas fa-tags"></i> Declaring Variables</h3>
+            <p>In modern JavaScript, we mainly use <code class="highlight">let</code> and <code class="highlight">const</code>.</p>
+            <ul>
+                <li><code class="highlight">let</code>: Use this when the value of the variable might change.</li>
+                <li><code class="highlight">const</code>: Use this for values that will not change (constants).</li>
+            </ul>
+            <pre><code class="language-javascript">
+// Using let (can be changed)
+let playerScore = 0;
+playerScore = 10;
+console.log(playerScore); // Output: 10
+
+// Using const (cannot be changed once set)
+const gameTitle = "Adventure Quest";
+// gameTitle = "New Game"; // This would cause an error!
+console.log(gameTitle); // Output: Adventure Quest
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🎁</span>
+                <ul>
+                    <li>A <code class="highlight">let</code> variable is like a whiteboard where you can write a score, erase it, and write a new one.</li>
+                    <li>A <code class="highlight">const</code> variable is like your birthday – it’s fixed and doesn’t change!</li>
+                </ul>
+            </div>
+            <h3><i class="fas fa-pencil-alt"></i> Naming Variables</h3>
+            <p>Good names make your code easier to understand!</p>
+            <ul>
+                <li>Start with a letter, underscore (_), or dollar sign ($).</li>
+                <li>Can contain letters, numbers, underscores, or dollar signs.</li>
+                <li>Use "camelCase" for multiple words (e.g., <code class="highlight">myAwesomeVariable</code>).</li>
+                <li>Names are case-sensitive (<code class="highlight">myVariable</code> is different from <code class="highlight">MyVariable</code>).</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-shapes"></i> Data Types: The Kinds of Info</h2>
+            <p>JavaScript variables can hold different types of data. JS is <strong class="highlight">dynamically typed</strong>, meaning you don't have to declare the type of a variable; it figures it out automatically!</p>
+
+            <h3><i class="fas fa-cube"></i> Primitive Data Types</h3>
+            <div class="table-wrapper"> <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-tag"></i> Type</th>
+                            <th><i class="fas fa-info-circle"></i> Description</th>
+                            <th><i class="fas fa-code"></i> Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>String</strong></td>
+                            <td>Text, like words or sentences. Always in quotes.</td>
+                            <td><pre><code class="language-javascript">let playerName = "SuperCoder15";</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Number</strong></td>
+                            <td>Numbers, both whole (integers) and decimal (floats).</td>
+                            <td><pre><code class="language-javascript">let score = 100;\nlet price = 19.99;</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Boolean</strong></td>
+                            <td>Represents true or false. Great for decisions!</td>
+                            <td><pre><code class="language-javascript">let isGameOver = false;\nlet hasKey = true;</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Undefined</strong></td>
+                            <td>A variable that has been declared but not given a value yet.</td>
+                            <td><pre><code class="language-javascript">let bonusItem;\nconsole.log(bonusItem); // undefined</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Null</strong></td>
+                            <td>Represents the intentional absence of any object value. It means "nothing".</td>
+                            <td><pre><code class="language-javascript">let selectedCharacter = null;</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Symbol</strong> <small>(Advanced)</small></td>
+                            <td>A unique and immutable value. Used for unique identifiers.</td>
+                            <td><pre><code class="language-javascript">const uniqueID = Symbol('id');</code></pre></td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigInt</strong> <small>(Advanced)</small></td>
+                            <td>For very, very large whole numbers.</td>
+                            <td><pre><code class="language-javascript">const largeNum = 12345n;</code></pre></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3><i class="fas fa-magic"></i> Dynamic Typing Explained</h3>
+            <p>You can change the type of data stored in a <code class="highlight">let</code> variable.</p>
+            <pre><code class="language-javascript">
+let myBox = "Hello"; // myBox is a String
+console.log(myBox, typeof myBox); // "Hello" string
+
+myBox = 123; // Now myBox is a Number!
+console.log(myBox, typeof myBox); // 123 number
+
+myBox = true; // Now myBox is a Boolean!
+console.log(myBox, typeof myBox); // true boolean
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">🥤</span>
+                Dynamic typing is like having a magic cup. You can pour juice in it (String), then empty it and pour water (Number), then milk (Boolean). The cup itself doesn't change, but its contents (and type of contents) can!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-list-ol"></i> Arrays: Lists of Things!</h2>
+            <p>Arrays are used to store a list of items in a single variable. Think of them as a numbered list or a shelf with many compartments.</p>
+            <h3><i class="fas fa-plus-square"></i> Creating Arrays</h3>
+            <pre><code class="language-javascript">
+// An array of strings (favorite games)
+let favoriteGames = ["Minecraft", "Zelda", "Stardew Valley"];
+
+// An array of numbers (high scores)
+let highScores = [1000, 850, 700, 1200];
+
+// An array with mixed data types (not always recommended, but possible)
+let mixedStuff = ["Hello", 42, true, null];
+
+// An empty array
+let inventory = [];
+            </code></pre>
+            <h3><i class="fas fa-hand-point-right"></i> Accessing Array Elements</h3>
+            <p>Array elements are accessed by their <strong class="highlight">index</strong> (position). Indexing starts at <strong class="highlight">0</strong>!</p>
+            <pre><code class="language-javascript">
+let colors = ["Red", "Green", "Blue"];
+console.log(colors[0]); // Output: "Red" (first item)
+console.log(colors[1]); // Output: "Green" (second item)
+console.log(colors[2]); // Output: "Blue" (third item)
+console.log(colors[3]); // Output: undefined (no item at index 3)
+            </code></pre>
+            <h3><i class="fas fa-ruler-combined"></i> Array Length</h3>
+            <p>The <code class="highlight">.length</code> property tells you how many items are in an array.</p>
+            <pre><code class="language-javascript">
+let fruits = ["Apple", "Banana", "Cherry"];
+console.log(fruits.length); // Output: 3
+            </code></pre>
+            <h3><i class="fas fa-cogs"></i> Basic Array Methods</h3>
+            <ul>
+                <li><code class="highlight">push()</code>: Adds an item to the end of the array.</li>
+                <li><code class="highlight">pop()</code>: Removes the last item from the array.</li>
+                <li><code class="highlight">unshift()</code>: Adds an item to the beginning of the array.</li>
+                <li><code class="highlight">shift()</code>: Removes the first item from the array.</li>
+            </ul>
+            <pre><code class="language-javascript">
+let partyGuests = ["Alex", "Sam"];
+console.log(partyGuests); // ["Alex", "Sam"]
+
+partyGuests.push("Jordan"); // Add to end
+console.log(partyGuests); // ["Alex", "Sam", "Jordan"]
+
+let removedGuest = partyGuests.pop(); // Remove from end
+console.log(removedGuest); // "Jordan"
+console.log(partyGuests); // ["Alex", "Sam"]
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">📚</span>
+                An array is like a bookshelf. Each book has a position (index).
+                <ul>
+                    <li><code class="highlight">colors[0]</code> is like taking the first book.</li>
+                    <li><code class="highlight">fruits.length</code> is like counting how many books are on the shelf.</li>
+                    <li><code class="highlight">push()</code> is like adding a new book to the right end.</li>
+                    <li><code class="highlight">pop()</code> is like taking the rightmost book off.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-user-astronaut"></i> Objects: Collections of Properties</h2>
+            <p>Objects are used to group related data and functions. They are made of <strong class="highlight">key-value pairs</strong>. Think of them like a dictionary or a real-world object with characteristics.</p>
+            <h3><i class="fas fa-tools"></i> Creating Objects</h3>
+            <pre><code class="language-javascript">
+// An object representing a game character
+let character = {
+  name: "Pixel Knight",
+  level: 5,
+  hp: 100,
+  weapon: "Shiny Sword",
+  attack: function() { // This is a method (a function inside an object)
+    console.log(this.name + " attacks with " + this.weapon + "!");
+  }
+};
+            </code></pre>
+            <h3><i class="fas fa-search"></i> Accessing Object Properties</h3>
+            <p>You can access properties using dot notation (<code class="highlight">.</code>) or bracket notation (<code class="highlight">[]</code>).</p>
+            <pre><code class="language-javascript">
+console.log(character.name); // Output: "Pixel Knight" (dot notation)
+console.log(character["level"]); // Output: 5 (bracket notation)
+
+character.attack(); // Calls the method: "Pixel Knight attacks with Shiny Sword!"
+
+// You can also change property values
+character.level = 6;
+character.weapon = "Magic Wand";
+console.log(character.level); // Output: 6
+character.attack(); // "Pixel Knight attacks with Magic Wand!"
+            </code></pre>
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">👤</span>
+                An object is like a profile card for a person.
+                <ul>
+                    <li><strong>Keys</strong> are like the labels (Name, Age, Hobby).</li>
+                    <li><strong>Values</strong> are the actual information (John Doe, 15, Gaming).</li>
+                    <li>A <strong>method</strong> is like an action the person can do (e.g., `person.greet()`).</li>
+                </ul>
+            </div>
+        </div>
+
+         <div class="section">
+            <h2><i class="fas fa-flag-checkered"></i> That's a Wrap for Part 1!</h2>
+            <p>Awesome job! You've learned the very basics of JavaScript:</p>
+            <ul>
+                <li>What JavaScript is and why it's cool!</li>
+                <li>How to use variables (<code class="highlight">let</code>, <code class="highlight">const</code>) to store info.</li>
+                <li>The main data types (String, Number, Boolean, etc.).</li>
+                <li>How to make lists with Arrays.</li>
+                <li>How to group related data with Objects.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Prism for syntax highlighting after content is loaded
+            Prism.highlightAll();
+
+            // GSAP Animations - Only scroll-triggered for sections
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 }, // Start slightly lower and faded out
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6, // Slightly faster, more subtle
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%", // Trigger when 88% of the section is visible
+                            toggleActions: "play none none none",
+                            // markers: true, // Uncomment for debugging ScrollTrigger
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

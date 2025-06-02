@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js Part 1: JavaScript's Superpowered Adventure! 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #33691e; /* Dark Green (Node.js like) */
+            --secondary-color: #558b2f; /* Medium Green */
+            --accent-color: #ffca28; /* Amber/Yellow */
+            --text-color: #212121; /* Black */
+            --light-bg: #f1f8e9; /* Light Green */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d; /* Dark background for code */
+            --border-radius-main: 22px;
+            --border-radius-inner: 14px;
+            --box-shadow-main: 0 12px 35px rgba(0, 0, 0, 0.12);
+            --box-shadow-light: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 900;
+            margin-bottom: 35px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas, h1 .fab { /* Added .fab for Node.js icon */
+            margin: 0 12px;
+            font-size: 0.8em;
+            color: var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.9em;
+            margin-top: 35px;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far, h2 .fab { /* Added .fab */
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-top: 28px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 10px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #c5e1a5; /* Light Green border */
+            opacity: 0; /* For GSAP animation */
+            transform: translateY(20px); /* For GSAP animation */
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 0.95em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        /* Prism Tomorrow Theme Colors (adjust if needed) */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #708090; font-style: italic; }
+        .token.punctuation { color: #999; }
+        .token.namespace { opacity: .7; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #f08d49; } /* Orange for values */
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #a5c261; } /* Green for strings */
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #ffcb6b; } /* Yellow for operators */
+        .token.atrule, .token.attr-value, .token.keyword { color: #c792ea; } /* Purple for keywords */
+        .token.function, .token.class-name { color: #82aaff; } /* Blue for functions */
+        .token.regex, .token.important, .token.variable { color: #f78c6c; } /* Salmon for variables */
+
+
+        .analogy-box {
+            background-color: #e8f5e9; /* Very Light Green */
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 18px;
+            margin: 22px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #1b5e20; } /* Darkest Green */
+        .analogy-box::before {
+            content: "\f0eb"; /* Lightbulb icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(85, 139, 47, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 28px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f058"; /* Check-circle icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900; /* Solid */
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            top: 6px;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95em;
+            box-shadow: var(--box-shadow-light);
+        }
+        th, td {
+            border: 1px solid #aed581; /* Light green border for table */
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        tbody tr:nth-of-type(even) {
+            background-color: #f9fbe7; /* Even lighter green for alternate rows */
+        }
+
+        .button-style {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button-style:hover {
+            transform: scale(1.03) translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .analogy-box { padding: 10px; margin: 15px 0; }
+            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
+            ul li { padding-left: 22px; margin-bottom: 8px; }
+            ul li::before { font-size: 0.9em; }
+            .button-style { padding: 10px 20px; font-size: 1em; }
+            table { font-size: 0.9em; }
+            th, td { padding: 8px 10px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .button-style { width: 100%; text-align: center; margin-bottom: 10px; }
+            table { display: block; overflow-x: auto; } /* Make table scrollable on small screens */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fab fa-node-js emoji"></i>Node.js Part 1: JavaScript's Superpowered Adventure! <i class="fas fa-rocket emoji"></i></h1>
+        <p style="text-align:center; font-size: 1.1em;">
+            Hey there, future coder! You've probably heard about JavaScript and how it makes websites interactive and cool.
+            But what if I told you JavaScript could do even <em>more</em>? What if it could power the hidden parts of websites,
+            build apps, and even control robots? That's where <strong>Node.js</strong> comes in!
+        </p>
+        <p style="text-align:center; font-size: 1.1em;">
+            Think of JavaScript as a talented chef. In the browser, the chef works in a specific kitchen.
+            With Node.js, that chef can step out and manage the entire restaurant!
+        </p>
+
+        <div class="section">
+            <h2><i class="fas fa-question-circle"></i> So, What Exactly IS Node.js?</h2>
+            <p>Node.js is a <strong>JavaScript runtime environment</strong>.</p>
+            <ul>
+                <li><strong>Runtime Environment:</strong> Think of it as a special place where JavaScript code can live and run. Just like a fish needs water to swim, JavaScript code needs a runtime environment to execute.</li>
+                <li><strong>Built on Chrome's V8 Engine:</strong> It uses the same powerful JavaScript engine that Google Chrome uses. This means it's fast and efficient!</li>
+                <li><strong>Lets You Run JavaScript on the Server-Side:</strong> This is the big one! Traditionally, JavaScript was only for the "front-end" (what you see and interact with in your browser). Node.js allows developers to use JavaScript for the "back-end" (the hidden machinery that makes websites and apps work).</li>
+            </ul>
+            <p><strong>In simple terms:</strong> Node.js is a way to run JavaScript code on your computer or a server, not just in a web browser.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-cogs"></i> Why Do People Use Node.js? What's It Good For?</h2>
+            <p>Node.js is super popular for a bunch of reasons:</p>
+            <ul>
+                <li><strong>Building Web Servers & APIs <i class="fas fa-server"></i>:</strong> This is its most common use. It can create the back-end logic for websites and web applications. APIs (Application Programming Interfaces) are like waiters in a restaurant; Node.js is great for building these.</li>
+                <li><strong>Creating Command-Line Tools <i class="fas fa-terminal"></i>:</strong> Build tools that automate tasks, manage files, etc., directly from your terminal.</li>
+                <li><strong>Real-time Applications (like Chat Apps) <i class="fas fa-comments"></i>:</strong> Excellent for apps where information needs to be updated instantly for many users, like live chats or online games.</li>
+                <li><strong>Microservices <i class="fas fa-cubes"></i>:</strong> Build smaller, independent services that work together, rather than one giant application.</li>
+                <li><strong>JavaScript Everywhere! <i class="fas fa-infinity"></i>:</strong> Use the same language for both front-end and back-end development.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-exchange-alt"></i> Node.js vs. Browser JavaScript: Key Differences</h2>
+            <p>While both use the JavaScript language, running JS in Node.js is different from running it in a browser.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Browser JavaScript <i class="fab fa-chrome"></i></th>
+                        <th>Node.js <i class="fab fa-node"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Main Goal</strong></td>
+                        <td>Make web pages interactive, manipulate the DOM.</td>
+                        <td>Server-side logic, file access, networking, system tasks.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Global Object</strong></td>
+                        <td><code>window</code></td>
+                        <td><code>global</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DOM Access</strong></td>
+                        <td>Yes (e.g., <code>document.getElementById</code>)</td>
+                        <td>No DOM. You can't directly change web page elements.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>File System</strong></td>
+                        <td>No direct access (for security reasons).</td>
+                        <td>Yes! Can read, write, and manage files on the server.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modules</strong></td>
+                        <td>ES6 Modules (<code>import</code>/<code>export</code>) are common.</td>
+                        <td>Primarily CommonJS modules (<code>require</code>/<code>module.exports</code>). ES6 Modules also supported.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>APIs Available</strong></td>
+                        <td>Browser APIs (Fetch, LocalStorage, Geolocation, etc.)</td>
+                        <td>Node.js APIs (<code>fs</code> for files, <code>http</code> for servers, <code>path</code>, etc.)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Running Code</strong></td>
+                        <td>Inside <code>&lt;script&gt;</code> tags in an HTML page.</td>
+                        <td>From the terminal using the <code>node</code> command (e.g., <code>node app.js</code>).</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="analogy-box">
+                <strong>Analogy: Superheroes with a Twist!</strong> <span class="emoji">🦸</span>
+                Imagine two superheroes with the same basic powers (JavaScript language):
+                <ul>
+                    <li><strong>Browser-Man:</strong> Operates in WebCity (the browser). His powers are focused on interacting with the city's buildings (web pages) and citizens (users). He can't leave WebCity.</li>
+                    <li><strong>Node-Man:</strong> Can operate anywhere! He can build new cities (servers), manage the infrastructure (file systems, databases), and communicate with other dimensions (other services via networks).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-laptop-code"></i> Your First Node.js Program: "Hello, Node!"</h2>
+            <p>Let's write a super simple Node.js program.</p>
+            <ol>
+                <li><strong>Create a file:</strong> Open a text editor and save a file as <code>hello.js</code>.</li>
+                <li><strong>Write the code:</strong>
+                    <pre><code class="language-javascript">
+// hello.js
+console.log("Hello from Node.js! 👋");
+
+const message = "Node.js is pretty cool!";
+console.log(message);
+                    </code></pre>
+                </li>
+                <li><strong>Open your terminal/command prompt.</strong></li>
+                <li><strong>Navigate to where you saved the file:</strong> Use the <code>cd</code> command. For example: <code>cd Desktop/NodeProjects</code></li>
+                <li><strong>Run the file:</strong> Type <code>node hello.js</code> and press Enter.</li>
+                <li><strong>See the output!</strong> You should see this in your terminal:
+                    <pre><code class="language-bash">
+Hello from Node.js! 👋
+Node.js is pretty cool!
+                    </code></pre>
+                </li>
+            </ol>
+            <p>Woohoo! You've just run your first Node.js program! Notice how <code>console.log()</code> works just like it does in the browser, but the output appears in your terminal.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-puzzle-piece"></i> Modules: JavaScript's Building Blocks</h2>
+            <p>Imagine you're building a giant LEGO castle. You wouldn't try to make every single brick from scratch, right? You'd use pre-made LEGO bricks. In Node.js, <strong>modules</strong> are like those LEGO bricks. They are reusable pieces of code that perform specific tasks.</p>
+            <h3><i class="fas fa-question"></i> Why use modules?</h3>
+            <ul>
+                <li><strong>Organization:</strong> Keep your code neat and tidy.</li>
+                <li><strong>Reusability:</strong> Write code once, use it many times.</li>
+                <li><strong>Collaboration:</strong> Different people can work on different modules.</li>
+            </ul>
+            <p>Node.js has a built-in module system called <strong>CommonJS</strong>.</p>
+            <h3><i class="fas fa-sign-out-alt"></i> Exporting from a module:</h3>
+            <p>To make functions, objects, or variables available from a module, you use <code>module.exports</code>.</p>
+            <pre><code class="language-javascript">
+// myMathModule.js
+const add = (a, b) => a + b;
+const subtract = (a, b) => a - b;
+
+module.exports = {
+  add,
+  subtract
+};
+            </code></pre>
+            <h3><i class="fas fa-sign-in-alt"></i> Importing (requiring) a module:</h3>
+            <p>To use code from another module, you use the <code>require()</code> function.</p>
+            <pre><code class="language-javascript">
+// app.js
+const math = require('./myMathModule.js'); // './' means look in the current directory
+
+console.log(math.add(5, 3));       // Output: 8
+console.log(math.subtract(10, 4)); // Output: 6
+            </code></pre>
+            <p>Node.js also comes with many <strong>core modules</strong> built-in, like <code>fs</code> (File System), <code>http</code> (for servers), and <code>path</code> (for file paths).</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-archive"></i> NPM: The Node Package Manager - Your Giant LEGO Store!</h2>
+            <p>If modules are LEGO bricks, then <strong>NPM (Node Package Manager)</strong> is like a GIGANTIC online LEGO store!</p>
+            <ul>
+                <li>NPM is the world's largest software registry. It contains hundreds of thousands of free, reusable code packages (modules or libraries).</li>
+                <li>When you install Node.js, NPM is installed automatically.</li>
+                <li>You use NPM via the command line to:
+                    <ul>
+                        <li><strong>Install packages:</strong> <code>npm install &lt;package-name&gt;</code></li>
+                        <li><strong>Manage project dependencies:</strong> It uses a file called <code>package.json</code>.</li>
+                        <li><strong>Run scripts.</strong></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="analogy-box">
+                <strong>NPM is like a Chef's Ingredient Supplier!</strong> <span class="emoji">🚚</span>
+                Imagine our Node.js chef needs special, exotic ingredients (code packages) for a new dish. Instead of making them from scratch, they can order them from NPM, a massive supplier that has almost everything a chef could need!
+            </div>
+            <p>We'll dive deeper into NPM in a later part, but for now, just know it's your go-to place for finding and using code written by others.</p>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-check-double"></i> Part 1 Complete! What's Next?</h2>
+            <p>Excellent work! You've taken your first big step into the world of Node.js. You've learned:</p>
+            <ul>
+                <li>What Node.js is (JavaScript outside the browser!).</li>
+                <li>Why it's used (servers, APIs, tools, and more!).</li>
+                <li>How it's different from browser JavaScript.</li>
+                <li>How to run a basic Node.js program.</li>
+                <li>The basics of modules (<code>require</code> and <code>module.exports</code>).</li>
+                <li>What NPM is (a huge library of code!).</li>
+            </ul>
+            <p>In Part 2, we'll explore some of these concepts, like core modules (especially the File System module) and NPM, in more detail and start building more interesting things! Keep experimenting! 🎉</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button-style">Continue to Node.js Part 2! <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            // GSAP Animations for sections (like in the reference)
+            if (typeof gsap !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.utils.toArray('.section').forEach(section => {
+                    gsap.fromTo(section,
+                        { autoAlpha: 0, y: 30 },
+                        {
+                            autoAlpha: 1,
+                            y: 0,
+                            duration: 0.6,
+                            ease: "power1.out",
+                            scrollTrigger: {
+                                trigger: section,
+                                start: "top 88%", // When the top of the section is 88% from the top of the viewport
+                                toggleActions: "play none none none", // Play animation once when it enters viewport
+                            }
+                        }
+                    );
+                });
+            } else {
+                // Fallback if GSAP fails to load - make sections visible
+                gsap.utils.toArray('.section').forEach(section => {
+                    section.style.opacity = 1;
+                    section.style.transform = 'translateY(0)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

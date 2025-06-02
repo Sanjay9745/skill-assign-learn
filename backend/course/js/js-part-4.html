@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Part 4: Arrays - Your Data Collection Toolkit! 📦🎯</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #6a1b9a; /* Deep Purple */
+            --secondary-color: #00acc1; /* Cyan */
+            --accent-color: #ff6f00; /* Orange */
+            --success-color: #4caf50; /* Green */
+            --warning-color: #ff9800; /* Amber */
+            --danger-color: #f44336; /* Red */
+            --text-color: #37474f; /* Blue Grey */
+            --light-bg: #f5f5f5; /* Lighter Grey */
+            --white-bg: #ffffff;
+            --code-bg: #2d2d2d;
+            --border-radius-main: 20px;
+            --border-radius-inner: 12px;
+            --box-shadow-main: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --box-shadow-light: 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-main);
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        h1 .fas {
+            margin: 0 10px;
+            font-size: 0.8em;
+            color: var(--accent-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 .fas, h2 .far {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        h3 .fas, h3 .far {
+            margin-right: 8px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        h4 {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        h4 .fas, h4 .far {
+            margin-right: 6px;
+            font-size: 0.8em;
+            color: var(--primary-color);
+        }
+
+        .section {
+            background-color: var(--white-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid #e0e0e0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        pre[class*="language-"] {
+            background: var(--code-bg);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            overflow-x: auto;
+        }
+        code[class*="language-"] {
+            font-family: 'Courier New', Courier, monospace;
+            word-wrap: normal;
+            white-space: pre;
+        }
+        .token.comment { color: #797979; font-style: italic; }
+        .token.keyword { color: #00e0e0; }
+        .token.string { color: #9ef080; }
+        .token.number { color: #ffb880; }
+        .token.boolean { color: #80dfff; }
+        .token.function { color: #ffd700; }
+        .token.operator { color: #ff8c00; }
+        .token.punctuation { color: #f0f0f0; }
+
+        .analogy-box {
+            background-color: #e6fffa;
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+        .analogy-box strong { color: #00796b; }
+        .analogy-box::before {
+            content: "\f1e6"; /* Paper plane icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 40px;
+            color: rgba(0, 172, 193, 0.15);
+            transform: rotate(-15deg);
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            box-shadow: var(--box-shadow-light);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .method-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .method-name {
+            color: var(--primary-color);
+            font-weight: 800;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .method-name .fas {
+            margin-right: 8px;
+            color: var(--accent-color);
+            font-size: 0.9em;
+        }
+
+        .method-description {
+            color: var(--text-color);
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .method-example {
+            background-color: #f1f3f4;
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #333;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .category-box {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f00 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin: 15px 0;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(255, 111, 0, 0.3);
+        }
+
+        .visual-array {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .array-element {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #00b8cc 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            min-width: 50px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(0, 172, 193, 0.3);
+            position: relative;
+        }
+
+        .array-index {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        ul { list-style-type: none; padding-left: 0; }
+        ul li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        ul li::before {
+            content: "\f058";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-size: 1em;
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .tip-box {
+            background-color: #fff3e0;
+            border: 2px solid var(--warning-color);
+            border-radius: var(--border-radius-inner);
+            padding: 15px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .tip-box::before {
+            content: "\f0eb"; /* Lightbulb icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--warning-color);
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        .tip-box strong {
+            color: #e65100;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 5px; font-size: 15px; }
+            .main-container { margin: 10px auto; padding: 10px; }
+            h1 { font-size: 2em; margin-bottom: 25px; }
+            h2 { font-size: 1.6em; margin-bottom: 15px; }
+            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
+            h4 { font-size: 1.1em; margin-top: 15px; margin-bottom: 8px; }
+            .section { padding: 15px; margin: 15px 0; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            .method-grid { grid-template-columns: 1fr; gap: 10px; }
+            .method-card { padding: 12px; }
+            .visual-array { gap: 3px; }
+            .array-element { padding: 8px 12px; min-width: 40px; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            h4 { font-size: 1em; }
+            body { font-size: 14px; }
+            .section, .analogy-box, .tip-box, pre[class*="language-"] { padding: 10px; }
+            pre[class*="language-"] { font-size: 0.8em; }
+            .array-element { padding: 6px 10px; min-width: 35px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1><i class="fas fa-layer-group emoji"></i>JavaScript Arrays: Your Data Collection Toolkit!<i class="fas fa-list-ul emoji"></i></h1>
+
+        <div class="section">
+            <h2><i class="fas fa-info-circle"></i> What Are Arrays?</h2>
+            <p>Arrays are like <strong class="highlight">organized containers</strong> that can hold multiple values in a single variable. Think of them as lists where each item has a specific position (index).</p>
+            
+            <div class="analogy-box">
+                <strong>Analogy Time!</strong> <span class="emoji">📚</span> An array is like a bookshelf where:
+                <ul>
+                    <li>Each shelf slot can hold one book (value)</li>
+                    <li>Each slot has a number starting from 0 (index)</li>
+                    <li>You can easily add, remove, or rearrange books</li>
+                    <li>You can quickly find any book by its slot number</li>
+                </ul>
+            </div>
+
+            <h3><i class="fas fa-eye"></i> Visual Array Representation</h3>
+            <div class="visual-array">
+                <div class="array-element">
+                    <div class="array-index">0</div>
+                    "Apple"
+                </div>
+                <div class="array-element">
+                    <div class="array-index">1</div>
+                    "Banana"
+                </div>
+                <div class="array-element">
+                    <div class="array-index">2</div>
+                    "Cherry"
+                </div>
+                <div class="array-element">
+                    <div class="array-index">3</div>
+                    "Date"
+                </div>
+            </div>
+
+            <h3><i class="fas fa-code"></i> Creating Arrays</h3>
+            <pre><code class="language-javascript">
+// Method 1: Array literal (most common)
+let fruits = ["apple", "banana", "cherry"];
+let numbers = [1, 2, 3, 4, 5];
+let mixed = ["hello", 42, true, null]; // Arrays can hold different data types!
+
+// Method 2: Array constructor
+let emptyArray = new Array(); // Creates empty array
+let sizedArray = new Array(5); // Creates array with 5 empty slots
+let constructorArray = new Array("a", "b", "c"); // Creates ["a", "b", "c"]
+
+// Method 3: Array.from()
+let fromString = Array.from("hello"); // Creates ["h", "e", "l", "l", "o"]
+let fromRange = Array.from({length: 5}, (v, i) => i); // Creates [0, 1, 2, 3, 4]
+
+console.log(fruits); // Output: ["apple", "banana", "cherry"]
+console.log(numbers.length); // Output: 5 (length property)
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-tools"></i> Array Properties & Basic Operations</h2>
+            
+            <h3><i class="fas fa-ruler"></i> Length Property</h3>
+            <pre><code class="language-javascript">
+let colors = ["red", "green", "blue"];
+console.log(colors.length); // Output: 3
+
+// You can modify length (careful!)
+colors.length = 2; // Truncates array to ["red", "green"]
+colors.length = 5; // Extends with empty slots: ["red", "green", , , ]
+            </code></pre>
+
+            <h3><i class="fas fa-search"></i> Accessing Elements</h3>
+            <pre><code class="language-javascript">
+let animals = ["cat", "dog", "bird", "fish"];
+
+// Access by index (0-based)
+console.log(animals[0]); // Output: "cat"
+console.log(animals[2]); // Output: "bird"
+console.log(animals[10]); // Output: undefined (doesn't exist)
+
+// Access first and last elements
+console.log(animals[0]); // First element
+console.log(animals[animals.length - 1]); // Last element ("fish")
+
+// Using at() method (newer)
+console.log(animals.at(0)); // Output: "cat"
+console.log(animals.at(-1)); // Output: "fish" (negative indexing!)
+console.log(animals.at(-2)); // Output: "bird"
+            </code></pre>
+
+            <h3><i class="fas fa-edit"></i> Modifying Elements</h3>
+            <pre><code class="language-javascript">
+let games = ["chess", "checkers", "backgammon"];
+
+// Change existing element
+games[1] = "scrabble";
+console.log(games); // Output: ["chess", "scrabble", "backgammon"]
+
+// Add element beyond current length
+games[5] = "monopoly"; // Creates: ["chess", "scrabble", "backgammon", , , "monopoly"]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-plus-circle"></i> Adding Elements to Arrays</h2>
+            
+            <div class="category-box">
+                <i class="fas fa-arrow-right"></i> Adding to End
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-plus"></i> push()</div>
+                    <div class="method-description">Adds one or more elements to the end of array. Returns new length.</div>
+                    <div class="method-example">
+arr.push("new item")<br>
+// Modifies original array
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let stack = ["bottom"];
+
+// Add single element
+stack.push("middle");
+console.log(stack); // Output: ["bottom", "middle"]
+
+// Add multiple elements
+stack.push("top1", "top2");
+console.log(stack); // Output: ["bottom", "middle", "top1", "top2"]
+
+// push() returns the new length
+let newLength = stack.push("final");
+console.log(newLength); // Output: 5
+            </code></pre>
+
+            <div class="category-box">
+                <i class="fas fa-arrow-left"></i> Adding to Beginning
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-step-backward"></i> unshift()</div>
+                    <div class="method-description">Adds one or more elements to the beginning of array. Returns new length.</div>
+                    <div class="method-example">
+arr.unshift("first item")<br>
+// Modifies original array
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let queue = ["second", "third"];
+
+// Add to beginning
+queue.unshift("first");
+console.log(queue); // Output: ["first", "second", "third"]
+
+// Add multiple to beginning
+queue.unshift("zero", "negative");
+console.log(queue); // Output: ["zero", "negative", "first", "second", "third"]
+            </code></pre>
+
+            <div class="category-box">
+                <i class="fas fa-crosshairs"></i> Adding at Specific Position
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-cut"></i> splice()</div>
+                    <div class="method-description">Adds/removes elements at any position. Very versatile!</div>
+                    <div class="method-example">
+arr.splice(index, deleteCount, item1, item2...)<br>
+// Modifies original array
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let letters = ["a", "c", "d"];
+
+// Insert "b" at index 1, delete 0 elements
+letters.splice(1, 0, "b");
+console.log(letters); // Output: ["a", "b", "c", "d"]
+
+// Insert multiple elements at index 2
+letters.splice(2, 0, "x", "y");
+console.log(letters); // Output: ["a", "b", "x", "y", "c", "d"]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-minus-circle"></i> Removing Elements from Arrays</h2>
+            
+            <div class="category-box">
+                <i class="fas fa-arrow-right"></i> Removing from End
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-minus"></i> pop()</div>
+                    <div class="method-description">Removes and returns the last element from array.</div>
+                    <div class="method-example">
+let removed = arr.pop()<br>
+// Modifies original array
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let snacks = ["chips", "cookies", "candy"];
+
+let lastSnack = snacks.pop();
+console.log(lastSnack); // Output: "candy"
+console.log(snacks); // Output: ["chips", "cookies"]
+
+// pop() on empty array returns undefined
+let empty = [];
+console.log(empty.pop()); // Output: undefined
+            </code></pre>
+
+            <div class="category-box">
+                <i class="fas fa-arrow-left"></i> Removing from Beginning
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-step-forward"></i> shift()</div>
+                    <div class="method-description">Removes and returns the first element from array.</div>
+                    <div class="method-example">
+let removed = arr.shift()<br>
+// Modifies original array
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let priorities = ["urgent", "high", "medium", "low"];
+
+let mostUrgent = priorities.shift();
+console.log(mostUrgent); // Output: "urgent"
+console.log(priorities); // Output: ["high", "medium", "low"]
+            </code></pre>
+
+            <div class="category-box">
+                <i class="fas fa-crosshairs"></i> Removing from Specific Position
+            </div>
+
+            <pre><code class="language-javascript">
+let items = ["keep1", "remove1", "remove2", "keep2"];
+
+// Remove 2 elements starting at index 1
+let removed = items.splice(1, 2);
+console.log(removed); // Output: ["remove1", "remove2"]
+console.log(items); // Output: ["keep1", "keep2"]
+
+// Remove and replace in one operation
+let words = ["hello", "old", "world"];
+words.splice(1, 1, "beautiful"); // Remove "old", add "beautiful"
+console.log(words); // Output: ["hello", "beautiful", "world"]
+            </code></pre>
+
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Use <code>delete arr[index]</code> sparingly - it leaves undefined holes in your array! splice() is usually better.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-search"></i> Finding Elements in Arrays</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-map-marker-alt"></i> indexOf()</div>
+                    <div class="method-description">Returns first index of element, or -1 if not found.</div>
+                    <div class="method-example">
+arr.indexOf(searchElement, startIndex)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-map-marker"></i> lastIndexOf()</div>
+                    <div class="method-description">Returns last index of element, or -1 if not found.</div>
+                    <div class="method-example">
+arr.lastIndexOf(searchElement, startIndex)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-check-circle"></i> includes()</div>
+                    <div class="method-description">Returns true if element exists in array, false otherwise.</div>
+                    <div class="method-example">
+arr.includes(searchElement, startIndex)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-filter"></i> find()</div>
+                    <div class="method-description">Returns first element that matches the test function.</div>
+                    <div class="method-example">
+arr.find(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-crosshairs"></i> findIndex()</div>
+                    <div class="method-description">Returns index of first element that matches the test function.</div>
+                    <div class="method-example">
+arr.findIndex(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-search-plus"></i> findLast()</div>
+                    <div class="method-description">Returns last element that matches the test function (newer method).</div>
+                    <div class="method-example">
+arr.findLast(callback)
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let numbers = [1, 3, 5, 3, 7, 3, 9];
+
+// Basic searching
+console.log(numbers.indexOf(3)); // Output: 1 (first occurrence)
+console.log(numbers.lastIndexOf(3)); // Output: 5 (last occurrence)
+console.log(numbers.includes(5)); // Output: true
+console.log(numbers.includes(4)); // Output: false
+
+// Advanced searching with functions
+let people = [
+  { name: "Alice", age: 25 },
+  { name: "Bob", age: 30 },
+  { name: "Charlie", age: 25 }
+];
+
+// Find first person aged 25
+let youngPerson = people.find(person => person.age === 25);
+console.log(youngPerson); // Output: { name: "Alice", age: 25 }
+
+// Find index of Bob
+let bobIndex = people.findIndex(person => person.name === "Bob");
+console.log(bobIndex); // Output: 1
+
+// Check if anyone is over 35
+let hasOldPerson = people.find(person => person.age > 35);
+console.log(hasOldPerson); // Output: undefined (not found)
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-copy"></i> Copying & Combining Arrays</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-clone"></i> slice()</div>
+                    <div class="method-description">Returns a shallow copy of a portion of array. Doesn't modify original.</div>
+                    <div class="method-example">
+arr.slice(start, end)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-link"></i> concat()</div>
+                    <div class="method-description">Combines arrays into a new array. Doesn't modify originals.</div>
+                    <div class="method-example">
+arr1.concat(arr2, arr3...)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-expand-arrows-alt"></i> Spread (...)</div>
+                    <div class="method-description">Modern way to copy and combine arrays.</div>
+                    <div class="method-example">
+[...arr1, ...arr2]
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-copy"></i> Array.from()</div>
+                    <div class="method-description">Creates new array from array-like or iterable object.</div>
+                    <div class="method-example">
+Array.from(arrayLike)
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let original = [1, 2, 3, 4, 5];
+
+// Copying with slice()
+let fullCopy = original.slice(); // Copy entire array
+let partialCopy = original.slice(1, 4); // Copy elements 1-3: [2, 3, 4]
+let fromIndex2 = original.slice(2); // From index 2 to end: [3, 4, 5]
+
+console.log(fullCopy); // Output: [1, 2, 3, 4, 5]
+console.log(original === fullCopy); // Output: false (different arrays)
+
+// Combining with concat()
+let arr1 = ["a", "b"];
+let arr2 = ["c", "d"];
+let arr3 = ["e", "f"];
+
+let combined = arr1.concat(arr2, arr3);
+console.log(combined); // Output: ["a", "b", "c", "d", "e", "f"]
+
+// Modern way with spread operator
+let modernCombined = [...arr1, ...arr2, ...arr3];
+console.log(modernCombined); // Output: ["a", "b", "c", "d", "e", "f"]
+
+// Copy with spread
+let spreadCopy = [...original];
+console.log(spreadCopy); // Output: [1, 2, 3, 4, 5]
+
+// Array.from() examples
+let fromString = Array.from("hello"); // ["h", "e", "l", "l", "o"]
+let fromSet = Array.from(new Set([1, 2, 2, 3])); // [1, 2, 3]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-magic"></i> Array Transformation Methods</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-map"></i> map()</div>
+                    <div class="method-description">Creates new array by transforming each element with a function.</div>
+                    <div class="method-example">
+arr.map(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-filter"></i> filter()</div>
+                    <div class="method-description">Creates new array with elements that pass a test function.</div>
+                    <div class="method-example">
+arr.filter(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-compress-arrows-alt"></i> reduce()</div>
+                    <div class="method-description">Reduces array to single value by applying function to each element.</div>
+                    <div class="method-example">
+arr.reduce(callback, initialValue)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-layer-group"></i> flat()</div>
+                    <div class="method-description">Flattens nested arrays into a single array.</div>
+                    <div class="method-example">
+arr.flat(depth)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-project-diagram"></i> flatMap()</div>
+                    <div class="method-description">Maps each element then flattens result by one level.</div>
+                    <div class="method-example">
+arr.flatMap(callback)
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let numbers = [1, 2, 3, 4, 5];
+
+// map() - Transform each element
+let doubled = numbers.map(num => num * 2);
+console.log(doubled); // Output: [2, 4, 6, 8, 10]
+
+let squared = numbers.map(num => num ** 2);
+console.log(squared); // Output: [1, 4, 9, 16, 25]
+
+// filter() - Keep elements that pass test
+let evenNumbers = numbers.filter(num => num % 2 === 0);
+console.log(evenNumbers); // Output: [2, 4]
+
+let largeNumbers = numbers.filter(num => num > 3);
+console.log(largeNumbers); // Output: [4, 5]
+
+// reduce() - Combine all elements into single value
+let sum = numbers.reduce((total, num) => total + num, 0);
+console.log(sum); // Output: 15
+
+let product = numbers.reduce((total, num) => total * num, 1);
+console.log(product); // Output: 120
+
+// Real-world example with objects
+let students = [
+  { name: "Alice", grade: 85 },
+  { name: "Bob", grade: 92 },
+  { name: "Charlie", grade: 78 }
+];
+
+// Get array of names
+let names = students.map(student => student.name);
+console.log(names); // Output: ["Alice", "Bob", "Charlie"]
+
+// Get students with grade > 80
+let goodStudents = students.filter(student => student.grade > 80);
+console.log(goodStudents); // Output: [{ name: "Alice", grade: 85 }, { name: "Bob", grade: 92 }]
+
+// Calculate average grade
+let averageGrade = students.reduce((sum, student) => sum + student.grade, 0) / students.length;
+console.log(averageGrade); // Output: 85
+
+// flat() - Flatten nested arrays
+let nested = [1, [2, 3], [4, [5, 6]]];
+console.log(nested.flat()); // Output: [1, 2, 3, 4, [5, 6]] (one level)
+console.log(nested.flat(2)); // Output: [1, 2, 3, 4, 5, 6] (two levels)
+
+// flatMap() - Map then flatten
+let sentences = ["hello world", "javascript rocks"];
+let words = sentences.flatMap(sentence => sentence.split(" "));
+console.log(words); // Output: ["hello", "world", "javascript", "rocks"]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-sort"></i> Sorting & Reversing Arrays</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-sort-alpha-down"></i> sort()</div>
+                    <div class="method-description">Sorts array elements in place. Modifies original array.</div>
+                    <div class="method-example">
+arr.sort(compareFunction)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-undo"></i> reverse()</div>
+                    <div class="method-description">Reverses array elements in place. Modifies original array.</div>
+                    <div class="method-example">
+arr.reverse()
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-sort"></i> toSorted()</div>
+                    <div class="method-description">Returns new sorted array. Doesn't modify original (newer method).</div>
+                    <div class="method-example">
+arr.toSorted(compareFunction)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-redo"></i> toReversed()</div>
+                    <div class="method-description">Returns new reversed array. Doesn't modify original (newer method).</div>
+                    <div class="method-example">
+arr.toReversed()
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+// Basic sorting (converts to strings!)
+let fruits = ["banana", "apple", "cherry"];
+fruits.sort();
+console.log(fruits); // Output: ["apple", "banana", "cherry"]
+
+let numbers = [10, 5, 40, 25, 1000, 1];
+numbers.sort(); // Careful! Sorts as strings
+console.log(numbers); // Output: [1, 10, 1000, 25, 40, 5] (wrong!)
+
+// Proper number sorting
+let properNumbers = [10, 5, 40, 25, 1000, 1];
+properNumbers.sort((a, b) => a - b); // Ascending order
+console.log(properNumbers); // Output: [1, 5, 10, 25, 40, 1000]
+
+// Descending order
+let descending = [10, 5, 40, 25, 1000, 1];
+descending.sort((a, b) => b - a);
+console.log(descending); // Output: [1000, 40, 25, 10, 5, 1]
+
+// Sorting objects
+let people = [
+  { name: "Charlie", age: 25 },
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 20 }
+];
+
+// Sort by age
+people.sort((a, b) => a.age - b.age);
+console.log(people); // Sorted by age: Bob(20), Charlie(25), Alice(30)
+
+// Sort by name
+people.sort((a, b) => a.name.localeCompare(b.name));
+console.log(people); // Sorted alphabetically: Alice, Bob, Charlie
+
+// Reverse
+let letters = ["a", "b", "c", "d"];
+letters.reverse();
+console.log(letters); // Output: ["d", "c", "b", "a"]
+
+// Non-mutating methods (newer)
+let original = [3, 1, 4, 1, 5];
+let sorted = original.toSorted((a, b) => a - b); // If available
+let reversed = original.toReversed(); // If available
+console.log(original); // Output: [3, 1, 4, 1, 5] (unchanged)
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-check-double"></i> Testing Array Contents</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-check-circle"></i> every()</div>
+                    <div class="method-description">Returns true if ALL elements pass the test function.</div>
+                    <div class="method-example">
+arr.every(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-question-circle"></i> some()</div>
+                    <div class="method-description">Returns true if AT LEAST ONE element passes the test function.</div>
+                    <div class="method-example">
+arr.some(callback)
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let ages = [25, 30, 35, 40];
+let mixedAges = [15, 25, 30, 35];
+
+// every() - All elements must pass
+let allAdults = ages.every(age => age >= 18);
+console.log(allAdults); // Output: true
+
+let allSeniors = ages.every(age => age >= 65);
+console.log(allSeniors); // Output: false
+
+// some() - At least one element must pass
+let hasAdult = mixedAges.some(age => age >= 18);
+console.log(hasAdult); // Output: true
+
+let hasChild = ages.some(age => age < 18);
+console.log(hasChild); // Output: false
+
+// Real-world examples
+let products = [
+  { name: "Laptop", price: 1000, inStock: true },
+  { name: "Mouse", price: 25, inStock: true },
+  { name: "Monitor", price: 300, inStock: false }
+];
+
+// Are all products under $2000?
+let affordable = products.every(product => product.price < 2000);
+console.log(affordable); // Output: true
+
+// Are any products out of stock?
+let hasOutOfStock = products.some(product => !product.inStock);
+console.log(hasOutOfStock); // Output: true
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-random"></i> Iteration Methods</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-sync"></i> forEach()</div>
+                    <div class="method-description">Executes function for each array element. Doesn't return anything.</div>
+                    <div class="method-example">
+arr.forEach(callback)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-list"></i> entries()</div>
+                    <div class="method-description">Returns iterator with [index, value] pairs.</div>
+                    <div class="method-example">
+arr.entries()
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-hashtag"></i> keys()</div>
+                    <div class="method-description">Returns iterator with array indices.</div>
+                    <div class="method-example">
+arr.keys()
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-list-alt"></i> values()</div>
+                    <div class="method-description">Returns iterator with array values.</div>
+                    <div class="method-example">
+arr.values()
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let colors = ["red", "green", "blue"];
+
+// forEach() - Execute function for each element
+colors.forEach((color, index) => {
+  console.log(`${index}: ${color}`);
+});
+// Output:
+// 0: red
+// 1: green
+// 2: blue
+
+// entries() - Get [index, value] pairs
+for (let [index, color] of colors.entries()) {
+  console.log(`Index ${index}: ${color}`);
+}
+
+// keys() - Get indices
+for (let index of colors.keys()) {
+  console.log(`Index: ${index}`);
+}
+
+// values() - Get values
+for (let color of colors.values()) {
+  console.log(`Color: ${color}`);
+}
+
+// Modern for...of loop (most common)
+for (let color of colors) {
+  console.log(color); // red, green, blue
+}
+
+// Traditional for loop (when you need index)
+for (let i = 0; i < colors.length; i++) {
+  console.log(`${i}: ${colors[i]}`);
+}
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-exchange-alt"></i> Converting Arrays</h2>
+            
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-font"></i> join()</div>
+                    <div class="method-description">Converts array to string with specified separator.</div>
+                    <div class="method-example">
+arr.join(separator)
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-file-code"></i> toString()</div>
+                    <div class="method-description">Converts array to comma-separated string.</div>
+                    <div class="method-example">
+arr.toString()
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-name"><i class="fas fa-language"></i> toLocaleString()</div>
+                    <div class="method-description">Converts array to locale-specific string.</div>
+                    <div class="method-example">
+arr.toLocaleString()
+                    </div>
+                </div>
+            </div>
+
+            <pre><code class="language-javascript">
+let fruits = ["apple", "banana", "cherry"];
+let numbers = [1000, 2000, 3000];
+
+// join() - Custom separator
+console.log(fruits.join()); // Output: "apple,banana,cherry"
+console.log(fruits.join(" - ")); // Output: "apple - banana - cherry"
+console.log(fruits.join("")); // Output: "applebananacherry"
+console.log(fruits.join(" and ")); // Output: "apple and banana and cherry"
+
+// toString() - Default comma separation
+console.log(fruits.toString()); // Output: "apple,banana,cherry"
+
+// toLocaleString() - Locale-aware formatting
+console.log(numbers.toLocaleString()); // Output depends on locale, e.g., "1,000,2,000,3,000"
+
+// Converting strings back to arrays
+let csvData = "apple,banana,cherry";
+let backToArray = csvData.split(",");
+console.log(backToArray); // Output: ["apple", "banana", "cherry"]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-star"></i> Advanced Array Techniques</h2>
+            
+            <h3><i class="fas fa-random"></i> Array Destructuring</h3>
+            <pre><code class="language-javascript">
+let coordinates = [10, 20, 30];
+
+// Old way
+let x = coordinates[0];
+let y = coordinates[1];
+let z = coordinates[2];
+
+// Modern destructuring
+let [a, b, c] = coordinates;
+console.log(a, b, c); // Output: 10 20 30
+
+// Skip elements
+let [first, , third] = coordinates;
+console.log(first, third); // Output: 10 30
+
+// Default values
+let [p, q, r, s = 0] = coordinates;
+console.log(s); // Output: 0 (default value)
+
+// Rest operator
+let [head, ...tail] = coordinates;
+console.log(head); // Output: 10
+console.log(tail); // Output: [20, 30]
+            </code></pre>
+
+            <h3><i class="fas fa-code-branch"></i> Array Methods Chaining</h3>
+            <pre><code class="language-javascript">
+let transactions = [
+  { type: "income", amount: 1000 },
+  { type: "expense", amount: -200 },
+  { type: "income", amount: 500 },
+  { type: "expense", amount: -300 },
+  { type: "income", amount: 800 }
+];
+
+// Chain multiple array methods
+let totalIncome = transactions
+  .filter(transaction => transaction.type === "income") // Get only income
+  .map(transaction => transaction.amount) // Extract amounts
+  .reduce((sum, amount) => sum + amount, 0); // Sum them up
+
+console.log(totalIncome); // Output: 2300
+
+// More complex chaining
+let processedData = transactions
+  .filter(t => Math.abs(t.amount) > 250) // Significant transactions
+  .map(t => ({ 
+    ...t, 
+    description: t.type === "income" ? "Large Income" : "Large Expense" 
+  }))
+  .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount)); // Sort by amount
+
+console.log(processedData);
+            </code></pre>
+
+            <h3><i class="fas fa-layer-group"></i> Multi-dimensional Arrays</h3>
+            <pre><code class="language-javascript">
+// 2D Array (Matrix)
+let matrix = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
+
+// Access elements
+console.log(matrix[1][2]); // Output: 6 (row 1, column 2)
+
+// Iterate through 2D array
+for (let row = 0; row < matrix.length; row++) {
+  for (let col = 0; col < matrix[row].length; col++) {
+    console.log(`[${row}][${col}] = ${matrix[row][col]}`);
+  }
+}
+
+// Modern way with forEach
+matrix.forEach((row, rowIndex) => {
+  row.forEach((value, colIndex) => {
+    console.log(`[${rowIndex}][${colIndex}] = ${value}`);
+  });
+});
+
+// Flatten 2D array
+let flattened = matrix.flat();
+console.log(flattened); // Output: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            </code></pre>
+
+            <div class="tip-box">
+                <strong>Performance Tip:</strong> For very large arrays, consider using <code>for</code> loops instead of methods like <code>forEach</code> for better performance. Array methods are more readable but slightly slower.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-lightbulb"></i> Common Array Patterns & Use Cases</h2>
+            
+            <h3><i class="fas fa-trash-alt"></i> Remove Duplicates</h3>
+            <pre><code class="language-javascript">
+let withDuplicates = [1, 2, 2, 3, 3, 3, 4];
+
+// Method 1: Using Set
+let unique1 = [...new Set(withDuplicates)];
+console.log(unique1); // Output: [1, 2, 3, 4]
+
+// Method 2: Using filter with indexOf
+let unique2 = withDuplicates.filter((item, index) => withDuplicates.indexOf(item) === index);
+console.log(unique2); // Output: [1, 2, 3, 4]
+
+// For objects (remove by property)
+let people = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 1, name: "Alice" }, // duplicate
+  { id: 3, name: "Charlie" }
+];
+
+let uniquePeople = people.filter((person, index, arr) => 
+  arr.findIndex(p => p.id === person.id) === index
+);
+console.log(uniquePeople); // Removes duplicate Alice
+            </code></pre>
+
+            <h3><i class="fas fa-chart-bar"></i> Group Array Elements</h3>
+            <pre><code class="language-javascript">
+let students = [
+  { name: "Alice", grade: "A", subject: "Math" },
+  { name: "Bob", grade: "B", subject: "Math" },
+  { name: "Charlie", grade: "A", subject: "Science" },
+  { name: "David", grade: "B", subject: "Science" }
+];
+
+// Group by grade
+let groupedByGrade = students.reduce((groups, student) => {
+  let grade = student.grade;
+  if (!groups[grade]) {
+    groups[grade] = [];
+  }
+  groups[grade].push(student);
+  return groups;
+}, {});
+
+console.log(groupedByGrade);
+// Output: {
+//   A: [{ name: "Alice", grade: "A", subject: "Math" }, { name: "Charlie", grade: "A", subject: "Science" }],
+//   B: [{ name: "Bob", grade: "B", subject: "Math" }, { name: "David", grade: "B", subject: "Science" }]
+// }
+            </code></pre>
+
+            <h3><i class="fas fa-random"></i> Shuffle Array</h3>
+            <pre><code class="language-javascript">
+function shuffleArray(array) {
+  let shuffled = [...array]; // Don't modify original
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap elements
+  }
+  return shuffled;
+}
+
+let cards = ["A", "K", "Q", "J", "10", "9", "8", "7"];
+let shuffledCards = shuffleArray(cards);
+console.log(shuffledCards); // Random order each time
+            </code></pre>
+
+            <h3><i class="fas fa-divide"></i> Chunk Array</h3>
+            <pre><code class="language-javascript">
+function chunkArray(array, chunkSize) {
+  let chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let chunked = chunkArray(numbers, 3);
+console.log(chunked); // Output: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
+            </code></pre>
+        </div>
+
+        <div class="section">
+            <h2><span class="emoji">🏆</span> Array Mastery Achieved!</h2>
+            <p>Congratulations! You've now mastered the complete toolkit of JavaScript arrays. You've learned:</p>
+            <ul>
+                <li>Creating and manipulating arrays in multiple ways</li>
+                <li>Adding and removing elements with various methods</li>
+                <li>Searching and finding elements efficiently</li>
+                <li>Transforming data with map, filter, and reduce</li>
+                <li>Sorting, reversing, and organizing arrays</li>
+                <li>Testing array contents with every() and some()</li>
+                <li>Converting between arrays and other data types</li>
+                <li>Advanced techniques like destructuring and chaining</li>
+                <li>Common patterns for real-world programming</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Practice these methods with real data! Try building projects like todo lists, shopping carts, or data dashboards. Arrays are fundamental to almost every JavaScript application you'll build.
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <div class="visual-array">
+                    <div class="array-element">
+                        <div class="array-index">📚</div>
+                        Arrays
+                    </div>
+                    <div class="array-element">
+                        <div class="array-index">✅</div>
+                        Mastered
+                    </div>
+                    <div class="array-element">
+                        <div class="array-index">🚀</div>
+                        Ready for More!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Prism.highlightAll();
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Animate sections
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Animate method cards
+            gsap.utils.toArray('.method-card').forEach((card, index) => {
+                gsap.fromTo(card,
+                    { autoAlpha: 0, y: 20, scale: 0.95 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.4,
+                        delay: index * 0.1,
+                        ease: "power1.out",
+                        scrollTrigger: {
+                            trigger: card,
+                            start: "top 90%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+
+            // Animate visual array elements
+            gsap.utils.toArray('.array-element').forEach((element, index) => {
+                gsap.fromTo(element,
+                    { autoAlpha: 0, scale: 0.8, y: 20 },
+                    {
+                        autoAlpha: 1,
+                        scale: 1,
+                        y: 0,
+                        duration: 0.5,
+                        delay: index * 0.2,
+                        ease: "back.out(1.7)",
+                        scrollTrigger: {
+                            trigger: element.parentElement,
+                            start: "top 85%",
+                            toggleActions: "play none none none",
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

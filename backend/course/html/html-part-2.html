@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Tables - Organizing Data Neatly</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; 
+            margin: 30px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff; /* AliceBlue background */
+        }
+        h1, h2, h3 { 
+            color: #1565c0; /* Blue for HTML theme */
+            border-bottom: 2px solid #42a5f5; /* Lighter Blue for underline */
+            padding-bottom: 5px;
+        }
+        h4 {
+             color: #1976d2; 
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .diagram { 
+            margin: 30px 0; 
+            text-align: center;
+            overflow-x: auto; /* Ensure diagrams don't break layout */
+        }
+        .diagram svg { 
+            background: #f8fbff; 
+            border-radius: 10px;
+            border: 1px solid #ccc; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 500px; /* Minimum width for clarity */
+        }
+        .analogy {
+            background: #e3f2fd; /* Light Blue */
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3; /* Blue border */
+        }
+        .analogy-title {
+            font-weight: bold;
+            color: #0d47a1; /* Darker Blue */
+            margin-bottom: 5px;
+        }
+        .code-example { /* Apply to the <pre> tag */
+            background: #f5f5f5;
+            border-left: 4px solid #42a5f5;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            overflow-x: auto;
+            padding: 15px;
+        }
+        .code-example code {
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .line-numbers .line-numbers-rows {
+            padding-top: 15px; 
+            border-right: 1px solid #ddd;
+        }
+        pre[class*="language-"].line-numbers {
+            padding-left: 3.8em;
+        }
+        .highlight {
+            background: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: Consolas, 'Courier New', monospace;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .table-section { /* Custom section style for this lesson */
+            background: #e0f2f7; /* Light cyan/blue */
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #00bcd4; /* Cyan border */
+        }
+        .accessibility-section {
+            background: #e8f5e9; /* Light green for accessibility */
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50; /* Green border */
+        }
+        .styled-table-example table {
+            width: 100%;
+            border-collapse: collapse; /* Important for table borders */
+            margin-top: 10px;
+        }
+        .styled-table-example th, .styled-table-example td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .styled-table-example th {
+            background-color: #42a5f5;
+            color: white;
+        }
+        .styled-table-example tr:nth-child(even) {
+            background-color: #f2f2f2; /* Zebra striping */
+        }
+        .styled-table-example caption {
+            caption-side: bottom;
+            font-style: italic;
+            margin-top: 8px;
+            color: #555;
+        }
+         .mindblown {
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+            text-align: center;
+        }
+        .step-by-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTML Tables - Organizing Data Neatly 📊</h1>
+        <p>
+            Welcome, data organizer! You've learned how to structure content with HTML. Now, let's explore how to present <strong>tabular data</strong> – information best displayed in rows and columns – using HTML tables. Think spreadsheets, price lists, schedules, or any data that fits a grid.
+        </p>
+        <p>
+            ⚠️ <strong>Important Note:</strong> In the early days of the web, tables were often used for page layout (positioning headers, sidebars, content). This is now considered bad practice! Use CSS for layout (like Flexbox or Grid). HTML tables are strictly for displaying tabular data.
+        </p>
+
+        <div class="analogy">
+            <div class="analogy-title">📉 Real-life Analogy: A Spreadsheet</div>
+            <p>
+                Think of an HTML table like a spreadsheet (e.g., Microsoft Excel or Google Sheets). 
+                It has rows, columns, and cells where you put your data. Headers at the top of columns or the side of rows tell you what the data in those columns/rows represents. HTML provides tags to create this same structure on a web page.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Basic Table Structure: The Core Elements 🧱</h2>
+        <p>The fundamental building blocks of an HTML table are:</p>
+        <ul>
+            <li><code class="highlight">&lt;table&gt;</code>: The wrapper for the entire table.</li>
+            <li><code class="highlight">&lt;tr&gt;</code>: Defines a <strong>table row</strong>.</li>
+            <li><code class="highlight">&lt;th&gt;</code>: Defines a <strong>table header</strong> cell. Text in <code class="highlight">&lt;th&gt;</code> is typically bold and centered by default. It's crucial for accessibility.</li>
+            <li><code class="highlight">&lt;td&gt;</code>: Defines a <strong>table data</strong> cell. This is where your actual data goes.</li>
+        </ul>
+
+        <div class="table-section">
+            <h4>Example: A Simple Fruit Table</h4>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table border="1"&gt; &lt;!-- 'border="1"' is for quick visual, CSS is better --&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Fruit Name&lt;/th&gt;
+    &lt;th&gt;Color&lt;/th&gt;
+    &lt;th&gt;Price (per kg)&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Apple&lt;/td&gt;
+    &lt;td&gt;Red&lt;/td&gt;
+    &lt;td&gt;$2.00&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Banana&lt;/td&gt;
+    &lt;td&gt;Yellow&lt;/td&gt;
+    &lt;td&gt;$1.50&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Orange&lt;/td&gt;
+    &lt;td&gt;Orange&lt;/td&gt;
+    &lt;td&gt;$3.00&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+            </code></pre>
+            <p><strong>Rendered Output (conceptual):</strong></p>
+            <div class="styled-table-example">
+                <table> 
+                  <tr>
+                    <th>Fruit Name</th>
+                    <th>Color</th>
+                    <th>Price (per kg)</th>
+                  </tr>
+                  <tr>
+                    <td>Apple</td>
+                    <td>Red</td>
+                    <td>$2.00</td>
+                  </tr>
+                  <tr>
+                    <td>Banana</td>
+                    <td>Yellow</td>
+                    <td>$1.50</td>
+                  </tr>
+                  <tr>
+                    <td>Orange</td>
+                    <td>Orange</td>
+                    <td>$3.00</td>
+                  </tr>
+                </table>
+            </div>
+            <p><small>Note: The <code class="highlight">border="1"</code> attribute on the <code class="highlight">&lt;table&gt;</code> tag is an old way to add borders. For modern web design, you should use CSS for all styling, including borders.</small></p>
+        </div>
+        <div class="diagram">
+            <svg width="600" height="350">
+                <title>Basic HTML Table Structure</title>
+                <text x="300" y="30" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Basic HTML Table Structure</text>
+
+                <rect x="20" y="50" width="560" height="280" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="10"/>
+                <text x="50" y="70" font-size="14" fill="#0d47a1">&lt;table&gt;</text>
+
+                <rect x="40" y="90" width="520" height="80" fill="#cceeff" stroke="#42a5f5" stroke-width="1.5" rx="5"/>
+                <text x="70" y="110" font-size="14" fill="#0d47a1">&lt;tr&gt;</text>
+                
+                <rect x="60" y="120" width="150" height="40" fill="#b3e0ff" stroke="#2196f3" rx="3"/>
+                <text x="135" y="145" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;th&gt;Header 1&lt;/th&gt;</text>
+                <rect x="225" y="120" width="150" height="40" fill="#b3e0ff" stroke="#2196f3" rx="3"/>
+                <text x="300" y="145" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;th&gt;Header 2&lt;/th&gt;</text>
+                <rect x="390" y="120" width="150" height="40" fill="#b3e0ff" stroke="#2196f3" rx="3"/>
+                <text x="465" y="145" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;th&gt;Header 3&lt;/th&gt;</text>
+                <text x="530" y="165" font-size="14" fill="#0d47a1">&lt;/tr&gt;</text>
+
+                <rect x="40" y="180" width="520" height="60" fill="#cceeff" stroke="#42a5f5" stroke-width="1.5" rx="5"/>
+                <text x="70" y="200" font-size="14" fill="#0d47a1">&lt;tr&gt;</text>
+                <rect x="60" y="190" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="135" y="215" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data A1&lt;/td&gt;</text>
+                <rect x="225" y="190" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="300" y="215" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data B1&lt;/td&gt;</text>
+                <rect x="390" y="190" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="465" y="215" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data C1&lt;/td&gt;</text>
+                <text x="530" y="235" font-size="14" fill="#0d47a1">&lt;/tr&gt;</text>
+
+                <rect x="40" y="250" width="520" height="60" fill="#cceeff" stroke="#42a5f5" stroke-width="1.5" rx="5"/>
+                <text x="70" y="270" font-size="14" fill="#0d47a1">&lt;tr&gt;</text>
+                <rect x="60" y="260" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="135" y="285" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data A2&lt;/td&gt;</text>
+                <rect x="225" y="260" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="300" y="285" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data B2&lt;/td&gt;</text>
+                <rect x="390" y="260" width="150" height="40" fill="#e0f7fa" stroke="#2196f3" rx="3"/>
+                <text x="465" y="285" font-size="12" text-anchor="middle" fill="#0d47a1">&lt;td&gt;Data C2&lt;/td&gt;</text>
+                <text x="530" y="305" font-size="14" fill="#0d47a1">&lt;/tr&gt;</text>
+
+                <text x="530" y="325" font-size="14" fill="#0d47a1">&lt;/table&gt;</text>
+            </svg>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Table Sections: <code class="highlight">&lt;thead&gt;</code>, <code class="highlight">&lt;tbody&gt;</code>, and <code class="highlight">&lt;tfoot&gt;</code> 📖</h2>
+        <p>For more complex or semantically structured tables, you can group rows into header, body, and footer sections:</p>
+        <ul>
+            <li><code class="highlight">&lt;thead&gt;</code>: Groups the header content in a table. Contains one or more <code class="highlight">&lt;tr&gt;</code> elements with <code class="highlight">&lt;th&gt;</code> cells.</li>
+            <li><code class="highlight">&lt;tbody&gt;</code>: Groups the main body content in a table. Contains one or more <code class="highlight">&lt;tr&gt;</code> elements with <code class="highlight">&lt;td&gt;</code> cells.</li>
+            <li><code class="highlight">&lt;tfoot&gt;</code>: Groups the footer content in a table. Contains one or more <code class="highlight">&lt;tr&gt;</code> elements, often for summaries or totals.</li>
+        </ul>
+        <p><strong>Benefits:</strong></p>
+        <ul>
+            <li><strong>Semantics:</strong> Clearly defines the different parts of your table.</li>
+            <li><strong>Styling:</strong> Allows you to apply specific styles to the header, body, or footer.</li>
+            <li><strong>Functionality:</strong> When printing long tables, browsers can repeat the <code class="highlight">&lt;thead&gt;</code> and <code class="highlight">&lt;tfoot&gt;</code> content on each page. Also useful if the table body needs to scroll independently.</li>
+        </ul>
+
+        <div class="table-section">
+            <h4>Example: Sales Report with Sections</h4>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table border="1"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Month&lt;/th&gt;
+      &lt;th&gt;Sales&lt;/th&gt;
+      &lt;th&gt;Expenses&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;January&lt;/td&gt;
+      &lt;td&gt;$10,000&lt;/td&gt;
+      &lt;td&gt;$4,000&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;February&lt;/td&gt;
+      &lt;td&gt;$12,000&lt;/td&gt;
+      &lt;td&gt;$4,500&lt;/td&gt;
+    &lt;/tr&gt;
+     &lt;tr&gt;
+      &lt;td&gt;March&lt;/td&gt;
+      &lt;td&gt;$15,000&lt;/td&gt;
+      &lt;td&gt;$5,000&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+  &lt;tfoot&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Total Q1&lt;/td&gt;
+      &lt;td&gt;$37,000&lt;/td&gt;
+      &lt;td&gt;$13,500&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tfoot&gt;
+&lt;/table&gt;
+            </code></pre>
+             <div class="styled-table-example">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Sales</th>
+                      <th>Expenses</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>January</td>
+                      <td>$10,000</td>
+                      <td>$4,000</td>
+                    </tr>
+                    <tr>
+                      <td>February</td>
+                      <td>$12,000</td>
+                      <td>$4,500</td>
+                    </tr>
+                     <tr>
+                      <td>March</td>
+                      <td>$15,000</td>
+                      <td>$5,000</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td>Total Q1</td>
+                      <td>$37,000</td>
+                      <td>$13,500</td>
+                    </tr>
+                  </tfoot>
+                </table>
+            </div>
+            <p><small>Note: Even if <code class="highlight">&lt;tfoot&gt;</code> appears before <code class="highlight">&lt;tbody&gt;</code> in the HTML source, browsers will render it at the bottom of the table.</small></p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Spanning Rows and Columns: <code class="highlight">colspan</code> & <code class="highlight">rowspan</code> ↔️↕️</h2>
+        <p>Sometimes, a cell needs to extend across multiple columns or rows. HTML provides attributes for this:</p>
+        <ul>
+            <li><code class="highlight">colspan="number"</code>: Allows a <code class="highlight">&lt;td&gt;</code> or <code class="highlight">&lt;th&gt;</code> cell to span across a specified <code class="highlight">number</code> of columns.</li>
+            <li><code class="highlight">rowspan="number"</code>: Allows a <code class="highlight">&lt;td&gt;</code> or <code class="highlight">&lt;th&gt;</code> cell to span across a specified <code class="highlight">number</code> of rows.</li>
+        </ul>
+
+        <div class="table-section">
+            <h4>Example: Timetable with Spans</h4>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table border="1"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Time&lt;/th&gt;
+      &lt;th&gt;Monday&lt;/th&gt;
+      &lt;th&gt;Tuesday&lt;/th&gt;
+      &lt;th&gt;Wednesday&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;9:00 - 10:00&lt;/td&gt;
+      &lt;td&gt;Math&lt;/td&gt;
+      &lt;td rowspan="2"&gt;Science Lab&lt;/td&gt; &lt;!-- Spans 2 rows --&gt;
+      &lt;td&gt;English&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;10:00 - 11:00&lt;/td&gt;
+      &lt;td&gt;History&lt;/td&gt;
+      &lt;!-- Science Lab from above continues here --&gt;
+      &lt;td&gt;Music&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;11:00 - 12:00&lt;/td&gt;
+      &lt;td colspan="3"&gt;Lunch Break&lt;/td&gt; &lt;!-- Spans 3 columns --&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+            </code></pre>
+            <div class="styled-table-example">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Monday</th>
+                      <th>Tuesday</th>
+                      <th>Wednesday</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>9:00 - 10:00</td>
+                      <td>Math</td>
+                      <td rowspan="2" style="background-color:#f9f9a2; vertical-align:middle; text-align:center;">Science Lab</td> 
+                      <td>English</td>
+                    </tr>
+                    <tr>
+                      <td>10:00 - 11:00</td>
+                      <td>History</td>
+                      <td>Music</td>
+                    </tr>
+                    <tr>
+                      <td>11:00 - 12:00</td>
+                      <td colspan="3" style="background-color:#a2f9a9; text-align:center;">Lunch Break</td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="diagram">
+            <svg width="600" height="300">
+                <title>Colspan and Rowspan Illustration</title>
+                 <text x="300" y="30" font-size="18" text-anchor="middle" fill="#1565c0" font-weight="bold">Colspan & Rowspan</text>
+                <rect x="50" y="50" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="150" y="50" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="250" y="50" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="350" y="50" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+
+                <rect x="50" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="250" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="350" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+
+                <rect x="50" y="150" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="250" y="150" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="350" y="150" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                
+                <rect x="50" y="50" width="200" height="50" stroke="#0d47a1" stroke-width="2" fill="#e3f2fd"/>
+                <text x="150" y="80" font-size="12" text-anchor="middle" fill="#0d47a1">colspan="2"</text>
+
+                <rect x="150" y="100" width="100" height="100" stroke="#0d47a1" stroke-width="2" fill="#e3f2fd"/>
+                <text x="200" y="155" font-size="12" text-anchor="middle" fill="#0d47a1">rowspan="2"</text>
+                
+                <text x="300" y="80" font-size="12" text-anchor="middle" fill="#333">Cell C1</text>
+                <text x="400" y="80" font-size="12" text-anchor="middle" fill="#333">Cell D1</text>
+
+                <text x="100" y="130" font-size="12" text-anchor="middle" fill="#333">Cell A2</text>
+                <text x="300" y="130" font-size="12" text-anchor="middle" fill="#333">Cell C2</text>
+                <text x="400" y="130" font-size="12" text-anchor="middle" fill="#333">Cell D2</text>
+
+                <text x="100" y="180" font-size="12" text-anchor="middle" fill="#333">Cell A3</text>
+                <text x="300" y="180" font-size="12" text-anchor="middle" fill="#333">Cell C3</text>
+                <text x="400" y="180" font-size="12" text-anchor="middle" fill="#333">Cell D3</text>
+
+                <text x="70" y="230" font-size="12" fill="#0d47a1">Cell (0,0) spans 2 columns.</text>
+                <text x="70" y="250" font-size="12" fill="#0d47a1">Cell (1,1) spans 2 rows.</text>
+            </svg>
+        </div>
+    </div>
+
+     <div class="container">
+        <h2>Table Captions: <code class="highlight">&lt;caption&gt;</code> <caption>🏷️</caption></h2>
+        <p>The <code class="highlight">&lt;caption&gt;</code> tag defines a table caption or title. It should be the <strong>first child</strong> of a <code class="highlight">&lt;table&gt;</code> element.</p>
+        <p>A caption helps users understand the context of the table data, especially important for accessibility.</p>
+        <div class="table-section">
+            <h4>Example: Table with a Caption</h4>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table border="1"&gt;
+  &lt;caption&gt;Monthly Gym Membership Prices&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Plan&lt;/th&gt;
+      &lt;th&gt;Features&lt;/th&gt;
+      &lt;th&gt;Price&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Basic&lt;/td&gt;
+      &lt;td&gt;Gym Access&lt;/td&gt;
+      &lt;td&gt;$30/month&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Premium&lt;/td&gt;
+      &lt;td&gt;Gym Access, Classes, Pool&lt;/td&gt;
+      &lt;td&gt;$50/month&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+            </code></pre>
+            <div class="styled-table-example">
+                 <table>
+                  <caption style="caption-side:top; font-weight:bold; margin-bottom:8px;">Monthly Gym Membership Prices</caption>
+                  <thead>
+                    <tr>
+                      <th>Plan</th>
+                      <th>Features</th>
+                      <th>Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Basic</td>
+                      <td>Gym Access</td>
+                      <td>$30/month</td>
+                    </tr>
+                    <tr>
+                      <td>Premium</td>
+                      <td>Gym Access, Classes, Pool</td>
+                      <td>$50/month</td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+            <p><small>By default, captions are usually centered above the table. You can change their position and styling with CSS (e.g., <code class="highlight">caption-side: bottom;</code>).</small></p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Styling Tables with CSS (A Quick Peek) 🎨</h2>
+        <p>While HTML defines the structure of your table, CSS is used to make it look good and readable. Here are a few common CSS properties for tables:</p>
+        <ul>
+            <li><code class="highlight">border</code>: Adds borders to table, th, td.</li>
+            <li><code class="highlight">border-collapse</code>: Specifies whether table borders should be collapsed into a single border or separated (values: <code class="highlight">collapse</code> or <code class="highlight">separate</code>). <code class="highlight">collapse</code> is very common.</li>
+            <li><code class="highlight">padding</code>: Adds space inside <code class="highlight">&lt;th&gt;</code> and <code class="highlight">&lt;td&gt;</code> cells.</li>
+            <li><code class="highlight">text-align</code>: Aligns text within cells (e.g., <code class="highlight">left</code>, <code class="highlight">right</code>, <code class="highlight">center</code>).</li>
+            <li><code class="highlight">width</code> / <code class="highlight">height</code>: Sets dimensions for the table or cells.</li>
+            <li><code class="highlight">background-color</code>: To style cells or rows (e.g., for "zebra striping" with <code class="highlight">:nth-child(even)</code> or <code class="highlight">:nth-child(odd)</code> selectors on <code class="highlight">&lt;tr&gt;</code> elements).</li>
+        </ul>
+        <div class="table-section">
+            <h4>Example: Basic CSS for the Fruit Table</h4>
+            <pre class="code-example line-numbers"><code class="language-css">
+/* Apply these styles in a &lt;style&gt; tag or an external CSS file */
+table.fruit-table {
+  width: 80%; /* Make table 80% of its container's width */
+  margin: 20px auto; /* Center the table */
+  border-collapse: collapse; /* Merge cell borders */
+  font-family: Arial, sans-serif;
+}
+
+table.fruit-table th, table.fruit-table td {
+  border: 1px solid #ddd; /* Light grey border */
+  padding: 10px; /* Space inside cells */
+  text-align: left; /* Align text to the left */
+}
+
+table.fruit-table th {
+  background-color: #4CAF50; /* Green background for headers */
+  color: white; /* White text for headers */
+}
+
+table.fruit-table tr:nth-child(even) {
+  background-color: #f2f2f2; /* Light grey for even rows (zebra striping) */
+}
+
+table.fruit-table tr:hover {
+  background-color: #ddd; /* Highlight row on hover */
+}
+
+table.fruit-table caption {
+  caption-side: top;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+            </code></pre>
+            <p>To use this CSS, you would add the class <code class="highlight">fruit-table</code> to your fruit table HTML:</p>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table class="fruit-table"&gt;
+  &lt;caption&gt;Available Fruits and Prices&lt;/caption&gt;
+  &lt;!-- ... rest of the fruit table HTML from before ... --&gt;
+&lt;/table&gt;
+            </code></pre>
+            <p>This CSS would make the table much more presentable than the default browser styling or the basic <code class="highlight">border="1"</code> attribute.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Accessibility for Tables ♿</h2>
+        <p>Making tables accessible is crucial for users who rely on assistive technologies like screen readers.</p>
+        <div class="accessibility-section">
+            <h4>Key Accessibility Practices:</h4>
+            <ul>
+                <li><strong>Use <code class="highlight">&lt;caption&gt;</code>:</strong> Provide a clear title for your table.</li>
+                <li><strong>Use <code class="highlight">&lt;th&gt;</code> for Headers:</strong> Properly identify header cells.</li>
+                <li><strong>The <code class="highlight">scope</code> Attribute:</strong> For <code class="highlight">&lt;th&gt;</code> elements, use the <code class="highlight">scope</code> attribute to explicitly associate header cells with the data cells they relate to.
+                    <ul>
+                        <li><code class="highlight">scope="col"</code>: The header applies to all cells in that column.</li>
+                        <li><code class="highlight">scope="row"</code>: The header applies to all cells in that row.</li>
+                    </ul>
+                </li>
+                <li><strong>Logical Order:</strong> Ensure the data makes sense when read linearly (as a screen reader would).</li>
+                <li><strong>Avoid Tables for Layout:</strong> As mentioned, use CSS for page layout. Screen readers can get confused trying to interpret layout tables as data tables.</li>
+                <li><strong>Simplicity:</strong> For very complex data, consider if multiple simpler tables or a different presentation might be more accessible.</li>
+            </ul>
+            <h4>Example with <code class="highlight">scope</code> Attribute:</h4>
+            <pre class="code-example line-numbers"><code class="language-html">
+&lt;table border="1"&gt;
+  &lt;caption&gt;Student Grades&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th scope="col"&gt;Student Name&lt;/th&gt;
+      &lt;th scope="col"&gt;Math Grade&lt;/th&gt;
+      &lt;th scope="col"gt;Science Grade&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;th scope="row"&gt;Alice&lt;/th&gt; &lt;!-- This is a row header --&gt;
+      &lt;td&gt;A&lt;/td&gt;
+      &lt;td&gt;B+&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th scope="row"&gt;Bob&lt;/th&gt;
+      &lt;td&gt;B&lt;/td&gt;
+      &lt;td&gt;A-&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+            </code></pre>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <h2>Key Takeaways: Mastering HTML Tables 🎓</h2>
+        <div class="step-by-step">
+            <h3>What You've Learned:</h3>
+            <ul>
+                <li><strong>Purpose:</strong> HTML tables are for displaying <strong>tabular data</strong>, not for page layout.</li>
+                <li><strong>Core Structure:</strong> <code class="highlight">&lt;table&gt;</code> wraps rows (<code class="highlight">&lt;tr&gt;</code>), which contain header cells (<code class="highlight">&lt;th&gt;</code>) or data cells (<code class="highlight">&lt;td&gt;</code>).</li>
+                <li><strong>Semantic Sections:</strong> Use <code class="highlight">&lt;thead&gt;</code>, <code class="highlight">&lt;tbody&gt;</code>, and <code class="highlight">&lt;tfoot&gt;</code> to structure complex tables logically.</li>
+                <li><strong>Spanning Cells:</strong> <code class="highlight">colspan</code> and <code class="highlight">rowspan</code> attributes allow cells to extend across multiple columns or rows.</li>
+                <li><strong>Captions:</strong> The <code class="highlight">&lt;caption&gt;</code> element provides a title or description for the table.</li>
+                <li><strong>Accessibility:</strong> Using <code class="highlight">&lt;th&gt;</code> with the <code class="highlight">scope</code> attribute and providing a <code class="highlight">&lt;caption&gt;</code> are vital for users with assistive technologies.</li>
+                <li><strong>Styling:</strong> CSS is essential for making tables visually appealing and readable (borders, padding, colors, etc.).</li>
+            </ul>
+        </div>
+
+        <div class="mindblown">
+            <h3>🤯 The Unsung Hero of Data Display!</h3>
+            <p style="font-size: 16px; margin: 20px 0;">
+                Tables might seem simple, but they are incredibly powerful for organizing and presenting complex information in a clear, understandable format. Mastering their structure and semantic use is a key skill for any web developer!
+            </p>
+        </div>
+
+        <div class="analogy">
+            <div class="analogy-title">🚀 What's Next? Forms & More CSS!</div>
+            <p>
+                You're building a solid HTML foundation! Next up, you might explore:
+                <br>• <strong>HTML Forms:</strong> Learn how to create interactive forms for user input (text fields, buttons, checkboxes, etc.).
+                <br>• <strong>More Advanced CSS:</strong> Dive deeper into styling techniques, including more advanced selectors and properties specifically for tables to create truly professional-looking data displays.
+                <br>• <strong>CSS Layouts:</strong> Master Flexbox and Grid for modern webpage layouts (and remember, not tables for layout!).
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+</body>
+</html>
