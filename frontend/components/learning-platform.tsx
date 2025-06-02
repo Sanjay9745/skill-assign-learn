@@ -648,15 +648,25 @@ export default function LearningPlatform() {
             children: [],
           },
         ],
-      }
+      },
+      {
+        name: "Certificate",
+        progress: 0,
+        description: "Earn your completion certificate.",
+        icon: "certificate",
+        href: "/certificate",
+        children: [],
+      },
     ]
     const stored = typeof window !== "undefined" ? localStorage.getItem("sidebarData") : null
     if (stored) {
       setSidebarState(JSON.parse(stored))
-      setSelectedItem(JSON.parse(stored)[0]?.children?.[0] || JSON.parse(stored)[0])
+      // Show the first parent item instead of first child
+      setSelectedItem(JSON.parse(stored)[0])
     } else {
       setSidebarState(defaultSidebarData)
-      setSelectedItem(defaultSidebarData[0]?.children?.[0] || defaultSidebarData[0])
+      // Show the first parent item instead of first child
+      setSelectedItem(defaultSidebarData[0])
     }
   }, [])
 
@@ -784,7 +794,82 @@ export default function LearningPlatform() {
     setIsLoading(true)
     try {
       const res = await axios.get(`${cdnUrl}/page?coursePage=${item.href}`, { responseType: "text" })
-      const blob = new Blob([res.data], { type: "text/html" })
+      
+      // Inject viewport meta tags and zoom styles into the HTML content
+      let htmlContent = res.data
+      
+      // Check if viewport meta tags already exist
+      if (!htmlContent.includes('name="viewport"')) {
+        // Find the head tag and inject viewport meta tags and zoom styles
+        const headMatch = htmlContent.match(/<head[^>]*>/i)
+        if (headMatch) {
+          const headTag = headMatch[0]
+          const viewportMetasAndStyles = `
+    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        zoom: 0.9;
+        -webkit-transform: scale(0.9);
+        -webkit-transform-origin: 0 0;
+        -moz-transform: scale(0.9);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.9);
+        -o-transform-origin: 0 0;
+        transform: scale(0.9);
+        transform-origin: 0 0;
+      }
+      @media (max-width: 768px) {
+        body {
+          zoom: 0.7;
+          -webkit-transform: scale(0.7);
+          -moz-transform: scale(0.7);
+          -o-transform: scale(0.7);
+          transform: scale(0.7);
+        }
+      }
+    </style>`
+          
+          htmlContent = htmlContent.replace(headTag, headTag + viewportMetasAndStyles)
+        } else {
+          // If no head tag found, add it with viewport meta tags and zoom styles
+          const htmlMatch = htmlContent.match(/<html[^>]*>/i)
+          if (htmlMatch) {
+            const htmlTag = htmlMatch[0]
+            const headWithViewportAndStyles = `
+  <head>
+    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        zoom: 0.9;
+        -webkit-transform: scale(0.9);
+        -webkit-transform-origin: 0 0;
+        -moz-transform: scale(0.9);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.9);
+        -o-transform-origin: 0 0;
+        transform: scale(0.9);
+        transform-origin: 0 0;
+      }
+      @media (max-width: 768px) {
+        body {
+          zoom: 0.7;
+          -webkit-transform: scale(0.7);
+          -moz-transform: scale(0.7);
+          -o-transform: scale(0.7);
+          transform: scale(0.7);
+        }
+      }
+    </style>
+  </head>`
+            
+            htmlContent = htmlContent.replace(htmlTag, htmlTag + headWithViewportAndStyles)
+          }
+        }
+      }
+      
+      const blob = new Blob([htmlContent], { type: "text/html" })
       const url = URL.createObjectURL(blob)
       setIframeUrl(url)
     } catch {
@@ -960,7 +1045,7 @@ export default function LearningPlatform() {
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 p-8 overflow-auto">
+          <div className="flex-1 p-4 md:p-8 overflow-auto">
             <Card className="h-full shadow-xl border-0 overflow-hidden">
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative min-h-[500px]">
@@ -968,32 +1053,31 @@ export default function LearningPlatform() {
                   {isFullscreen && (
                     <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
                       {/* Controls */}
-                      <div className="absolute top-4 right-4 z-50 flex gap-2">
+                      <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex gap-1 md:gap-2">
                         <Button
                           size="icon"
                           variant="secondary"
-                          className="rounded-full shadow-lg"
+                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
                           onClick={() => setIsFullscreen(false)}
                           aria-label="Exit Fullscreen"
                         >
-                          <Minimize2 className="w-6 h-6" />
+                          <Minimize2 className="w-4 h-4 md:w-6 md:h-6" />
                         </Button>
                         <Button
                           size="icon"
                           variant={autoScroll ? "default" : "secondary"}
-                          className="rounded-full shadow-lg"
+                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
                           onClick={() => setAutoScroll(!autoScroll)}
                           aria-label="Auto Scroll"
                         >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                             <path d="M12 5v14m0 0l-4-4m4 4l4-4" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </Button>
                         <select
-                          className="rounded-lg px-2 py-1 bg-white text-sm border border-gray-300 focus:outline-none"
+                          className="rounded-lg px-1 py-1 md:px-2 md:py-1 bg-white text-xs md:text-sm border border-gray-300 focus:outline-none h-8 md:h-10"
                           value={scrollSpeed}
                           onChange={e => setScrollSpeed(Number(e.target.value))}
-                          style={{ height: 40 }}
                           aria-label="Scroll Speed"
                         >
                           <option value={0.5}>0.5x</option>
@@ -1005,11 +1089,11 @@ export default function LearningPlatform() {
                           <Button
                             size="icon"
                             variant="secondary"
-                            className="rounded-full shadow-lg"
+                            className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
                             onClick={handleFullscreenNext}
                             aria-label="Next Lesson"
                           >
-                            <ChevronRight className="w-6 h-6" />
+                            <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
                           </Button>
                         )}
                         {/* Certificate unlocked in fullscreen */}
@@ -1017,32 +1101,36 @@ export default function LearningPlatform() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="rounded-full shadow-lg border-green-500 text-green-700 bg-green-50 hover:bg-green-100"
+                            className="rounded-full shadow-lg border-green-500 text-green-700 bg-green-50 hover:bg-green-100 w-8 h-8 md:w-10 md:h-10"
                             onClick={handleCertificateClick}
                             aria-label="Certificate"
                           >
-                            <Award className="w-6 h-6" />
+                            <Award className="w-4 h-4 md:w-6 md:h-6" />
                           </Button>
                         )}
                       </div>
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-full h-full flex items-center justify-center p-0">
                         {iframeUrl ? (
                           <iframe
                             src={iframeUrl}
                             className="w-full h-full fullscreen-iframe"
                             title={selectedItem?.name}
-                            style={{ border: "none" }}
+                            style={{ 
+                              border: "none",
+                              width: "100vw",
+                              height: "100vh"
+                            }}
                           />
                         ) : (
-                          <div className="flex items-center justify-center h-full p-12 bg-gradient-to-br from-slate-50 to-blue-50 w-full">
+                          <div className="flex items-center justify-center h-full p-6 md:p-12 bg-gradient-to-br from-slate-50 to-blue-50 w-full">
                             <div className="text-center max-w-lg">
-                              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
-                                <Play className="w-12 h-12 text-white" />
+                              <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-2xl">
+                                <Play className="w-8 h-8 md:w-12 md:h-12 text-white" />
                               </div>
-                              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 md:mb-4">
                                 {selectedItem?.name || "Ready to Learn?"}
                               </h3>
-                              <p className="text-slate-600 text-lg leading-relaxed mb-8">
+                              <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8">
                                 {selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}
                               </p>
                             </div>
@@ -1054,15 +1142,15 @@ export default function LearningPlatform() {
 
                   {/* Fullscreen button (only show if iframe is present and not already fullscreen) */}
                   {!isFullscreen && iframeUrl && (
-                    <div className="absolute top-4 right-4 z-20">
+                    <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
                       <Button
                         size="icon"
                         variant="secondary"
-                        className="rounded-full shadow"
+                        className="rounded-full shadow w-8 h-8 md:w-10 md:h-10"
                         onClick={() => setIsFullscreen(true)}
                         aria-label="Fullscreen"
                       >
-                        <Maximize2 className="w-5 h-5" />
+                        <Maximize2 className="w-4 h-4 md:w-5 md:h-5" />
                       </Button>
                     </div>
                   )}
@@ -1070,8 +1158,8 @@ export default function LearningPlatform() {
                   {isLoading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm">
                       <div className="text-center">
-                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-                        <p className="text-slate-600 text-lg font-medium">Loading lesson...</p>
+                        <div className="w-8 h-8 md:w-12 md:h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4 md:mb-6"></div>
+                        <p className="text-slate-600 text-base md:text-lg font-medium">Loading lesson...</p>
                       </div>
                     </div>
                   ) : (
@@ -1081,27 +1169,31 @@ export default function LearningPlatform() {
                           src={iframeUrl}
                           className="w-full h-full"
                           title={selectedItem.name}
+                          style={{ 
+                            border: "none",
+                            minHeight: "500px"
+                          }}
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full p-12 bg-gradient-to-br from-slate-50 to-blue-50">
+                        <div className="flex items-center justify-center h-full p-6 md:p-12 bg-gradient-to-br from-slate-50 to-blue-50">
                           <div className="text-center max-w-lg">
-                            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
-                              <Play className="w-12 h-12 text-white" />
+                            <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-2xl">
+                              <Play className="w-8 h-8 md:w-12 md:h-12 text-white" />
                             </div>
-                            <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                            <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 md:mb-4">
                               {selectedItem?.name || "Ready to Learn?"}
                             </h3>
-                            <p className="text-slate-600 text-lg leading-relaxed mb-8">
+                            <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8">
                               {selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}
                             </p>
                             <div className="flex items-center justify-center gap-4 text-slate-500">
                               <div className="flex items-center gap-2">
-                                <Clock className="w-5 h-5" />
-                                <span className="font-medium">Interactive Content</span>
+                                <Clock className="w-4 h-4 md:w-5 md:h-5" />
+                                <span className="font-medium text-sm md:text-base">Interactive Content</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Star className="w-5 h-5" />
-                                <span className="font-medium">Expert-Crafted</span>
+                                <Star className="w-4 h-4 md:w-5 md:h-5" />
+                                <span className="font-medium text-sm md:text-base">Expert-Crafted</span>
                               </div>
                             </div>
                           </div>
@@ -1111,27 +1203,27 @@ export default function LearningPlatform() {
                   )}
                 </div>
 
-                <div className="p-8 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
+                <div className="p-4 md:p-8 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 md:gap-6">
+                    <div className="flex items-center gap-3 md:gap-4">
                       {nextLesson ? (
                         <>
-                          <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-white" />
+                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center">
+                            <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-900 mb-1">Up Next</p>
-                            <p className="text-lg text-slate-700 font-medium">{nextLesson.name}</p>
+                            <p className="text-xs md:text-sm font-bold text-slate-900 mb-1">Up Next</p>
+                            <p className="text-base md:text-lg text-slate-700 font-medium">{nextLesson.name}</p>
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-white" />
+                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
-                            <p className="text-lg text-slate-700 font-medium">Course Complete</p>
+                            <p className="text-xs md:text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
+                            <p className="text-base md:text-lg text-slate-700 font-medium">Course Complete</p>
                           </div>
                         </>
                       )}
@@ -1139,10 +1231,10 @@ export default function LearningPlatform() {
                     <Button
                       onClick={handleNextLesson}
                       disabled={isLoading}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 md:px-8 py-2 md:py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-sm md:text-base"
                     >
                       {nextLesson ? 'Continue Learning' : 'Course Complete'}
-                      <ArrowRight className="ml-2 w-5 h-5" />
+                      <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                     </Button>
                   </div>
                 </div>
