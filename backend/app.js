@@ -33,6 +33,15 @@ app.get('/page', async (req, res, next) => {
     next(); // File does not exist, continue to next middleware
   }
 });
+app.get('/audio', async (req, res, next) => {
+  try {
+    const courseFile = path.join(__dirname, 'course', req.query.courseAudio + '.wav');
+    await fs.promises.access(courseFile, fs.constants.F_OK);
+    res.sendFile(courseFile);
+  } catch (err) {
+    next(); // File does not exist, continue to next middleware
+  }
+});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
