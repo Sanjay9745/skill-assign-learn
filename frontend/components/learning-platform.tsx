@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Lock,
-  Unlock,
   Network,
   Globe,
   Shield,
@@ -38,6 +37,12 @@ import {
   Sparkles,
   Maximize2,
   Minimize2,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Pause,
+  Music4,
+  ArrowDownToLine,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import cdnUrl from "@/api/cdnUrl"
@@ -61,9 +66,9 @@ function ProgressCircle({
   progress,
   size = 48,
   showLabel = true,
-}: { 
-  progress: number; 
-  size?: number; 
+}: {
+  progress: number;
+  size?: number;
   showLabel?: boolean;
 }) {
   const strokeWidth = size <= 32 ? 3 : 4
@@ -76,22 +81,18 @@ function ProgressCircle({
     if (progress >= 100) return {
       color: "#059669",
       bgColor: "#d1fae5",
-      glowColor: "rgba(5, 150, 105, 0.2)",
     }
     if (progress >= 80) return {
       color: "#2563eb",
-      bgColor: "#dbeafe", 
-      glowColor: "rgba(37, 99, 235, 0.2)",
+      bgColor: "#dbeafe",
     }
     if (progress >= 50) return {
       color: "#d97706",
       bgColor: "#fef3c7",
-      glowColor: "rgba(217, 119, 6, 0.2)",
     }
     return {
       color: "#dc2626",
       bgColor: "#fee2e2",
-      glowColor: "rgba(220, 38, 38, 0.2)",
     }
   }
 
@@ -100,15 +101,6 @@ function ProgressCircle({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
-        <defs>
-          <filter id={`glow-${size}`}>
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge> 
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -128,7 +120,6 @@ function ProgressCircle({
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           className="transition-all duration-700 ease-out"
-          filter={`url(#glow-${size})`}
         />
       </svg>
       {showLabel && (
@@ -149,33 +140,33 @@ function ProgressCircle({
 // Enhanced Overall Progress Display
 function OverallProgressDisplay({ progress, onCertificateClick }: { progress: number, onCertificateClick?: () => void }) {
   const getProgressLevel = () => {
-    if (progress >= 90) return { 
-      label: "Expert", 
-      color: "text-purple-700", 
+    if (progress >= 90) return {
+      label: "Expert",
+      color: "text-purple-700",
       bg: "bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200",
       icon: GraduationCap
     }
     if (progress >= 75) return {
-      label: "Advanced", 
-      color: "text-blue-700", 
+      label: "Advanced",
+      color: "text-blue-700",
       bg: "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200",
       icon: Target
     }
-    if (progress >= 50) return { 
-      label: "Intermediate", 
-      color: "text-emerald-700", 
+    if (progress >= 50) return {
+      label: "Intermediate",
+      color: "text-emerald-700",
       bg: "bg-gradient-to-r from-emerald-50 to-emerald-100 border-emerald-200",
       icon: Brain
     }
-    if (progress >= 25) return { 
-      label: "Beginner", 
-      color: "text-amber-700", 
+    if (progress >= 25) return {
+      label: "Beginner",
+      color: "text-amber-700",
       bg: "bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200",
       icon: Sparkles
     }
-    return { 
-      label: "Getting Started", 
-      color: "text-slate-700", 
+    return {
+      label: "Getting Started",
+      color: "text-slate-700",
       bg: "bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200",
       icon: Play
     }
@@ -194,7 +185,6 @@ function OverallProgressDisplay({ progress, onCertificateClick }: { progress: nu
             <LevelIcon className="w-3 h-3 mr-1" />
             {level.label}
           </Badge>
-          {/* Certificate unlocked badge */}
           {progress > 50 && (
             <Button
               size="sm"
@@ -203,7 +193,7 @@ function OverallProgressDisplay({ progress, onCertificateClick }: { progress: nu
               onClick={onCertificateClick}
             >
               <Award className="w-4 h-4" />
-              Certificate Unlocked
+              Certificate
             </Button>
           )}
         </div>
@@ -235,7 +225,6 @@ function SidebarItem({
   const isSelected = selectedItem?.name === item.name
 
   const isCertificate = item.icon === "certificate"
-  // If parent is unlocked, all children should be unlocked too
   const childrenUnlocked = isUnlocked || item.progress >= 70 || isCertificate
 
   const handleClick = () => {
@@ -266,7 +255,6 @@ function SidebarItem({
               ) : (
                 <Lock className="w-5 h-5 text-gray-400" />
               )}
-              
               {isUnlocked && item.progress === 100 && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
                   <CheckCircle className="w-2.5 h-2.5 text-white" />
@@ -287,8 +275,8 @@ function SidebarItem({
                     className={cn(
                       "h-1.5 rounded-full transition-all duration-500",
                       item.progress >= 100 ? "bg-green-500" :
-                      item.progress >= 80 ? "bg-blue-500" :
-                      item.progress >= 50 ? "bg-yellow-500" : "bg-red-500"
+                        item.progress >= 80 ? "bg-blue-500" :
+                          item.progress >= 50 ? "bg-yellow-500" : "bg-red-500"
                     )}
                     style={{ width: `${item.progress}%` }}
                   />
@@ -325,28 +313,17 @@ function SidebarItem({
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
             )}
           </div>
-
           <div className="flex-1 min-w-0">
-            <h3
-              className={cn(
-                "font-semibold text-sm truncate transition-colors",
-                isSelected ? "text-white" : "text-slate-900 group-hover:text-slate-700",
-                !isUnlocked && "text-slate-500",
-              )}
-            >
+            <h3 className={cn("font-semibold text-sm truncate transition-colors", isSelected ? "text-white" : "text-slate-900 group-hover:text-slate-700", !isUnlocked && "text-slate-500")}>
               {item.name}
             </h3>
             {level === 0 && (
-              <p className={cn(
-                "text-xs truncate mt-1 transition-colors", 
-                isSelected ? "text-blue-100" : "text-slate-500"
-              )}>
+              <p className={cn("text-xs truncate mt-1 transition-colors", isSelected ? "text-blue-100" : "text-slate-500")}>
                 {item.description}
               </p>
             )}
           </div>
         </div>
-
         <div className="flex items-center gap-2 flex-shrink-0">
           {isUnlocked && level === 0 && typeof item.progress === "number" && (
             <div className="flex items-center gap-2">
@@ -355,8 +332,8 @@ function SidebarItem({
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-500",
                     item.progress >= 100 ? "bg-green-400" :
-                    item.progress >= 80 ? "bg-blue-400" :
-                    item.progress >= 50 ? "bg-yellow-400" : "bg-red-400"
+                      item.progress >= 80 ? "bg-blue-400" :
+                        item.progress >= 50 ? "bg-yellow-400" : "bg-red-400"
                   )}
                   style={{ width: `${item.progress}%` }}
                 />
@@ -366,7 +343,6 @@ function SidebarItem({
               </span>
             </div>
           )}
-          
           {hasChildren && (
             <div className="ml-2">
               {isExpanded ? (
@@ -378,15 +354,14 @@ function SidebarItem({
           )}
         </div>
       </div>
-
       {hasChildren && isExpanded && !isCollapsed && (
         <div className="mt-1 space-y-1">
-          {item.children.map((child: any, index: number) => (
+          {item.children.map((child: any) => (
             <SidebarItem
               key={child.name}
               item={child}
               level={level + 1}
-              isUnlocked={isUnlocked} // Pass parent's unlock status to children
+              isUnlocked={childrenUnlocked}
               onSelect={onSelect}
               selectedItem={selectedItem}
               isCollapsed={isCollapsed}
@@ -402,896 +377,610 @@ function SidebarItem({
 function findNextLesson(currentItem: any, data: any[]): any | null {
   const flattenItems = (items: any[]): any[] => {
     return items.reduce((acc: any[], item) => {
-      acc.push(item)
+      acc.push(item);
       if (item.children && item.children.length > 0) {
-        acc.push(...flattenItems(item.children))
+        acc.push(...flattenItems(item.children));
       }
-      return acc
-    }, [])
-  }
+      return acc;
+    }, []);
+  };
 
-  const allItems = flattenItems(data)
-  const currentIndex = allItems.findIndex((item) => item.name === currentItem.name)
+  const allItems = flattenItems(data);
+  const currentIndex = allItems.findIndex((item) => item.name === currentItem?.name);
 
   if (currentIndex !== -1 && currentIndex < allItems.length - 1) {
-    return allItems[currentIndex + 1]
+    return allItems[currentIndex + 1];
+  }
+  return null;
+}
+
+// Compact, reusable Audio Player Component
+function AudioPlayer({
+  isPlaying,
+  progress,
+  currentTime,
+  duration,
+  playbackRate,
+  onPlayPause,
+  onSeek,
+  onRateChange,
+  onToggleAutoScroll,
+  isAutoScrollOn,
+  lessonName,
+  isCompact = false,
+  onClose,
+}: {
+  isPlaying: boolean;
+  progress: number;
+  currentTime: number;
+  duration: number;
+  playbackRate: number;
+  onPlayPause: () => void;
+  onSeek: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRateChange: (rate: number) => void;
+  onToggleAutoScroll?: () => void;
+  isAutoScrollOn?: boolean;
+  lessonName?: string;
+  isCompact?: boolean;
+  onClose?: () => void;
+}) {
+
+  const formatTime = (time: number) => {
+    if (isNaN(time) || time === 0) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  if (isCompact) {
+    return (
+        <div className="flex items-center gap-3">
+          <Button size="icon" variant={isPlaying ? "default" : "secondary"} className="w-8 h-8 rounded-full flex-shrink-0" onClick={onPlayPause}>
+            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </Button>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-medium truncate">{lessonName}</span>
+              <span className="text-xs opacity-75 flex-shrink-0">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            </div>
+            <input type="range" min="0" max="100" value={progress} onChange={onSeek} className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider-compact" />
+          </div>
+           <div className="flex items-center gap-1 flex-shrink-0">
+            {[1, 1.5, 2].map((rate) => (
+              <Button key={rate} size="sm" variant={playbackRate === rate ? "default" : "ghost"} className="px-2 py-1 text-xs h-6 min-w-[30px]" onClick={() => onRateChange(rate)}>{rate}x</Button>
+            ))}
+          </div>
+        </div>
+    )
   }
 
-  return null
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3">
+        <Button size="icon" variant={isPlaying ? "default" : "secondary"} className="w-10 h-10 rounded-full flex-shrink-0" onClick={onPlayPause}>
+            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+        </Button>
+        <div className="w-full flex-1 sm:mx-3">
+            <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-sm font-medium text-gray-700 truncate">{lessonName}</span>
+                <span className="text-xs text-gray-500 flex-shrink-0">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            </div>
+            <input type="range" min="0" max="100" value={progress} onChange={onSeek} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"/>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+            {onToggleAutoScroll && (
+              <TooltipProvider><Tooltip><TooltipTrigger asChild>
+                 <Button size="icon" variant={isAutoScrollOn ? "default" : "ghost"} className="w-9 h-9 rounded-full" onClick={onToggleAutoScroll}><ArrowDownToLine className="w-4 h-4" /></Button>
+              </TooltipTrigger><TooltipContent><p>Toggle Auto-Scroll</p></TooltipContent></Tooltip></TooltipProvider>
+            )}
+            <div className="flex items-center gap-1">
+                {[0.5, 1, 1.5, 2].map(rate => (
+                    <Button key={rate} size="sm" variant={playbackRate === rate ? "default" : "ghost"} className="px-2 py-1 text-xs h-7 min-w-[35px]" onClick={() => onRateChange(rate)}>{rate}x</Button>
+                ))}
+            </div>
+            {onClose && <Button size="icon" variant="ghost" className="w-8 h-8 rounded-full" onClick={onClose}><X className="w-4 h-4" /></Button>}
+        </div>
+    </div>
+  )
 }
+
 
 export default function LearningPlatform() {
   const [sidebarState, setSidebarState] = useState<any[]>([])
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0)
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
   const [isLoading, setIsLoading] = useState(false)
   const [iframeUrl, setIframeUrl] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
-  // --- Auto-scroll state for fullscreen ---
+  // FIX: State to manage hydration and prevent SSR mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Unified Auto-scroll and Zoom State
   const [autoScroll, setAutoScroll] = useState(false)
-  const [scrollSpeed, setScrollSpeed] = useState(1) // 1 = normal, 2 = fast, 0.5 = slow
-  const [zoomLevel, setZoomLevel] = useState(1) // Add zoom level state
+  const [scrollSpeed, setScrollSpeed] = useState(1)
+  const [zoomLevel, setZoomLevel] = useState(1)
 
-  // --- Zoom functions ---
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.1, 2)) // Max zoom 200%
-  }
+  // Audio player state
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+  const [audioProgress, setAudioProgress] = useState(0)
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0)
+  const [audioPlaybackRate, setAudioPlaybackRate] = useState(1)
+  const [isAudioPlayerVisible, setIsAudioPlayerVisible] = useState(true)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  // Add ref for fullscreen iframe
+  const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
 
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.1, 0.5)) // Min zoom 50%
-  }
-
-  const handleZoomReset = () => {
-    setZoomLevel(1) // Reset to 100%
-  }
-
-  // --- Certificate navigation handler ---
-  const handleCertificateClick = () => {
-    window.location.href = "/certificate"
-  }
-
+  // FIX: Set mount state to true only on the client after initial render
   useEffect(() => {
-    const defaultSidebarData = [
-      {
-        name: "Networking",
-        progress: 0,
-        description: "Learn about networking concepts, protocols, and technologies.",
-        icon: "networking",
-        children: [
-          {
-            name: "How the Internet Really Works",
-            progress: 0,
-            description: "Understanding the physical internet infrastructure and data flow.",
-            icon: "tcp-ip",
-            href: "/networking/networking-part-1",
-            children: [],
-          },
-          {
-            name: "Advanced Networking Concepts",
-            progress: 0,
-            description: "Protocols, ports, DNS, and network troubleshooting tools.",
-            icon: "http-https",
-            href: "/networking/networking-part-2",
-            children: [],
-          },
-          {
-            name: "The Future of Connected Technology",
-            progress: 0,
-            description: "Network programming, cloud computing, IoT, and future technologies.",
-            icon: "dns",
-            href: "/networking/networking-part-3",
-            children: [],
-          }
-        ],
-      },
-      {
-        name: "HTML",
-        progress: 0,
-        description: "Master HTML fundamentals and semantic markup.",
-        icon: "html",
-        children: [
-          {
-            name: "HTML Basics",
-            progress: 0,
-            description: "The Building Blocks of the Web - tags, structure, and elements.",
-            icon: "html",
-            href: "/html/html-part-1",
-            children: [],
-          },
-          {
-            name: "Lists & Tables",
-            progress: 0,
-            description: "Organizing data with HTML lists and table structures.",
-            icon: "html",
-            href: "/html/html-part-2",
-            children: [],
-          },
-          {
-            name: "HTML Forms",
-            progress: 0,
-            description: "Gathering user input with interactive forms and controls.",
-            icon: "html",
-            href: "/html/html-part-3",
-            children: [],
-          },
-          {
-            name: "Media & Semantics",
-            progress: 0,
-            description: "Images, audio, video, and semantic HTML elements.",
-            icon: "html",
-            href: "/html/html-part-4",
-            children: [],
-          },
-          {
-            name: "Linking Files",
-            progress: 0,
-            description: "Connecting CSS, JavaScript, and other external resources.",
-            icon: "html",
-            href: "/html/html-part-5",
-            children: [],
-          },
-        ],
-      },
-      {
-        name: "CSS",
-        progress: 0,
-        description: "Style your web pages with modern CSS techniques.",
-        icon: "css",
-        children: [
-          {
-            name: "CSS Fundamentals",
-            progress: 0,
-            description: "Selectors, properties, colors, typography, and the box model.",
-            icon: "css",
-            href: "/css/css-part-1",
-            children: [],
-          },
-          {
-            name: "Advanced Layout & Design",
-            progress: 0,
-            description: "Flexbox, Grid, responsive design, and modern CSS techniques.",
-            icon: "css",
-            href: "/css/css-part-2",
-            children: [],
-          },
-        ],
-      },
-      {
-        name: "JavaScript",
-        progress: 0,
-        description: "Add interactivity with JavaScript programming.",
-        icon: "js",
-        children: [
-          {
-            name: "JS Basics",
-            progress: 0,
-            description: "Variables, data types, arrays, and objects fundamentals.",
-            icon: "js",
-            href: "/js/js-part-1",
-            children: [],
-          },
-          {
-            name: "Decisions & Loops",
-            progress: 0,
-            description: "Control flow with if statements, loops, and functions.",
-            icon: "js",
-            href: "/js/js-part-2",
-            children: [],
-          },
-          {
-            name: "Super Functions & Arrow Syntax",
-            progress: 0,
-            description: "Advanced functions, arrow functions, and function types.",
-            icon: "js",
-            href: "/js/js-part-3",
-            children: [],
-          },
-          {
-            name: "Arrays - Data Collection Toolkit",
-            progress: 0,
-            description: "Array methods, manipulation, and advanced techniques.",
-            icon: "js",
-            href: "/js/js-part-4",
-            children: [],
-          },
-          {
-            name: "DOM Magic",
-            progress: 0,
-            description: "Manipulating web pages with the Document Object Model.",
-            icon: "js",
-            href: "/js/js-part-5",
-            children: [],
-          },
-          {
-            name: "Memory Management & References",
-            progress: 0,
-            description: "Understanding object references and memory management.",
-            icon: "js",
-            href: "/js/js-part-6",
-            children: [],
-          },
-          {
-            name: "Async JavaScript & Event Loop",
-            progress: 0,
-            description: "Asynchronous programming and understanding the event loop.",
-            icon: "js",
-            href: "/js/js-part-7",
-            children: [],
-          },
-          {
-            name: "Promises & Async/Await",
-            progress: 0,
-            description: "Modern asynchronous JavaScript patterns and error handling.",
-            icon: "js",
-            href: "/js/js-part-8",
-            children: [],
-          },
-          {
-            name: "Deep Dive into APIs",
-            progress: 0,
-            description: "Understanding and working with web APIs and data exchange.",
-            icon: "js",
-            href: "/js/js-part-9",
-            children: [],
-          },
-          {
-            name: "Mastering Fetch API",
-            progress: 0,
-            description: "Making HTTP requests and handling API responses.",
-            icon: "js",
-            href: "/js/js-part-10",
-            children: [],
-          },
-          {
-            name: "Spread, Rest & Copying",
-            progress: 0,
-            description: "Advanced syntax and memory management techniques.",
-            icon: "js",
-            href: "/js/js-part-11",
-            children: [],
-          },
-          {
-            name: "The Grand Finale",
-            progress: 0,
-            description: "Celebrating your JavaScript journey and next steps.",
-            icon: "js",
-            href: "/js/js-part-12",
-            children: [],
-          },
-        ],
-      },
-      {
-        name: "Certificate",
-        progress: 0,
-        description: "Earn your completion certificate.",
-        icon: "certificate",
-        href: "/certificate",
-        children: [],
-      },
-    ]
-    const stored = typeof window !== "undefined" ? localStorage.getItem("sidebarData") : null
-    if (stored) {
-      setSidebarState(JSON.parse(stored))
-      // Show the first parent item instead of first child
-      setSelectedItem(JSON.parse(stored)[0])
-    } else {
-      setSidebarState(defaultSidebarData)
-      // Show the first parent item instead of first child
-      setSelectedItem(defaultSidebarData[0])
-    }
-  }, [])
+    setIsMounted(true);
+  }, []);
+  
+  // Load initial data from localStorage or defaults
+  useEffect(() => {
+    if (!isMounted) return; // Don't run on server or first client render
 
+    const defaultSidebarData = [
+        {
+          name: "Networking",
+          progress: 0,
+          description: "Learn about networking concepts, protocols, and technologies.",
+          icon: "networking",
+          children: [
+            { name: "How the Internet Really Works", progress: 0, description: "Understanding the physical internet infrastructure and data flow.", icon: "tcp-ip", href: "/networking/networking-part-1", children: [] },
+            { name: "Advanced Networking Concepts", progress: 0, description: "Protocols, ports, DNS, and network troubleshooting tools.", icon: "http-https", href: "/networking/networking-part-2", children: [] },
+            { name: "The Future of Connected Technology", progress: 0, description: "Network programming, cloud computing, IoT, and future technologies.", icon: "dns", href: "/networking/networking-part-3", children: [] }
+          ],
+        },
+        {
+          name: "HTML", progress: 0, description: "Master HTML fundamentals and semantic markup.", icon: "html",
+          children: [
+            { name: "HTML Basics", progress: 0, description: "The Building Blocks of the Web - tags, structure, and elements.", icon: "html", href: "/html/html-part-1", children: [] },
+            { name: "Lists & Tables", progress: 0, description: "Organizing data with HTML lists and table structures.", icon: "html", href: "/html/html-part-2", children: [] },
+            { name: "HTML Forms", progress: 0, description: "Gathering user input with interactive forms and controls.", icon: "html", href: "/html/html-part-3", children: [] },
+            { name: "Media & Semantics", progress: 0, description: "Images, audio, video, and semantic HTML elements.", icon: "html", href: "/html/html-part-4", children: [] },
+            { name: "Linking Files", progress: 0, description: "Connecting CSS, JavaScript, and other external resources.", icon: "html", href: "/html/html-part-5", children: [] },
+          ],
+        },
+        {
+          name: "CSS", progress: 0, description: "Style your web pages with modern CSS techniques.", icon: "css",
+          children: [
+            { name: "CSS Fundamentals", progress: 0, description: "Selectors, properties, colors, typography, and the box model.", icon: "css", href: "/css/css-part-1", children: [] },
+            { name: "Advanced Layout & Design", progress: 0, description: "Flexbox, Grid, responsive design, and modern CSS techniques.", icon: "css", href: "/css/css-part-2", children: [] },
+          ],
+        },
+        {
+          name: "JavaScript", progress: 0, description: "Add interactivity with JavaScript programming.", icon: "js",
+          children: [
+            { name: "JS Basics", progress: 0, description: "Variables, data types, arrays, and objects fundamentals.", icon: "js", href: "/js/js-part-1", children: [] },
+            { name: "Decisions & Loops", progress: 0, description: "Control flow with if statements, loops, and functions.", icon: "js", href: "/js/js-part-2", children: [] },
+            { name: "Super Functions & Arrow Syntax", progress: 0, description: "Advanced functions, arrow functions, and function types.", icon: "js", href: "/js/js-part-3", children: [] },
+            { name: "Arrays - Data Collection Toolkit", progress: 0, description: "Array methods, manipulation, and advanced techniques.", icon: "js", href: "/js/js-part-4", children: [] },
+            { name: "DOM Magic", progress: 0, description: "Manipulating web pages with the Document Object Model.", icon: "js", href: "/js/js-part-5", children: [] },
+            { name: "Memory Management & References", progress: 0, description: "Understanding object references and memory management.", icon: "js", href: "/js/js-part-6", children: [] },
+            { name: "Async JavaScript & Event Loop", progress: 0, description: "Asynchronous programming and understanding the event loop.", icon: "js", href: "/js/js-part-7", children: [] },
+            { name: "Promises & Async/Await", progress: 0, description: "Modern asynchronous JavaScript patterns and error handling.", icon: "js", href: "/js/js-part-8", children: [] },
+            { name: "Deep Dive into APIs", progress: 0, description: "Understanding and working with web APIs and data exchange.", icon: "js", href: "/js/js-part-9", children: [] },
+            { name: "Mastering Fetch API", progress: 0, description: "Making HTTP requests and handling API responses.", icon: "js", href: "/js/js-part-10", children: [] },
+            { name: "Spread, Rest & Copying", progress: 0, description: "Advanced syntax and memory management techniques.", icon: "js", href: "/js/js-part-11", children: [] },
+            { name: "The Grand Finale", progress: 0, description: "Celebrating your JavaScript journey and next steps.", icon: "js", href: "/js/js-part-12", children: [] },
+          ],
+        },
+        { name: "Certificate", progress: 0, description: "Earn your completion certificate.", icon: "certificate", href: "/certificate", children: [] },
+    ];
+    const stored = localStorage.getItem("sidebarData");
+    let dataToUse = defaultSidebarData;
+    if (stored) {
+      try {
+        dataToUse = JSON.parse(stored);
+      } catch (e) {
+        console.error("Failed to parse sidebar data from localStorage", e);
+      }
+    }
+    setSidebarState(dataToUse);
+    
+    if (!selectedItem) {
+        const firstItem = dataToUse[0];
+        const firstLesson = firstItem?.children?.length > 0 ? firstItem.children[0] : firstItem;
+        setSelectedItem(firstLesson);
+    }
+  }, [isMounted]);
+  
+  // Persist sidebar state to localStorage
   useEffect(() => {
     if (sidebarState.length > 0) {
       localStorage.setItem("sidebarData", JSON.stringify(sidebarState))
     }
   }, [sidebarState])
 
+  // Handle window resizing
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth)
-      if (window.innerWidth < 768) {
-        setIsSidebarCollapsed(false)
-        setIsMobileMenuOpen(false)
-      }
-    }
-
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+        setWindowWidth(window.innerWidth);
+        if(window.innerWidth >= 768) {
+            setIsMobileMenuOpen(false);
+        }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [])
-
-  function updateProgressForLesson(lessonHref: string) {
-    function update(items: any[]): [any[], boolean] {
-      let updated = false
-      const newItems = items.map(item => {
-        if (item.href === lessonHref) {
-          if (item.progress < 100) {
-            updated = true
-            return { ...item, progress: 100 }
-          }
-          return item
-        }
-        if (item.children && item.children.length > 0) {
-          const [newChildren, childUpdated] = update(item.children)
-          if (childUpdated) {
-            const avg = Math.round(
-              newChildren.reduce((acc, c) => acc + c.progress, 0) / newChildren.length
-            )
-            updated = true
-            return { ...item, children: newChildren, progress: avg }
-          }
-        }
-        return item
-      })
-      return [newItems, updated]
-    }
-    const [newSidebar, changed] = update(sidebarState)
-    if (changed) setSidebarState(newSidebar)
-  }
-
-  useEffect(() => {
-    if (!iframeUrl || !selectedItem?.href) return
-
-    let iframe: HTMLIFrameElement | null = null
-    let scrollHandler: (() => void) | null = null
-
-    function attachScrollListener() {
-      iframe = document.querySelector('iframe[src="' + iframeUrl + '"]')
-      if (!iframe) return
-
-      iframe.onload = () => {
-        try {
-          const doc = iframe!.contentDocument || iframe!.contentWindow?.document
-          if (!doc) return
-          const onScroll = () => {
-            const scrollTop = doc.documentElement.scrollTop || doc.body.scrollTop
-            const scrollHeight = doc.documentElement.scrollHeight || doc.body.scrollHeight
-            const clientHeight = doc.documentElement.clientHeight || doc.body.clientHeight
-            if (scrollTop + clientHeight >= scrollHeight - 20) {
-              updateProgressForLesson(selectedItem.href)
-            }
-          }
-          doc.addEventListener("scroll", onScroll)
-          scrollHandler = () => doc.removeEventListener("scroll", onScroll)
-        } catch (e) {
-        }
-      }
-    }
-
-    attachScrollListener()
-    return () => {
-      if (scrollHandler) scrollHandler()
-    }
-  }, [iframeUrl, selectedItem?.href])
-
-  // --- Auto-scroll effect for fullscreen ---
-  useEffect(() => {
-    if (!isFullscreen || !iframeUrl || !autoScroll) return
-
-    let iframe: HTMLIFrameElement | null = document.querySelector('.fullscreen-iframe')
-    let interval: NodeJS.Timeout | null = null
-
-    function startAutoScroll() {
-      if (!iframe) return
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow?.document
-        if (!doc) return
-        interval = setInterval(() => {
-          const el = doc.scrollingElement || doc.documentElement || doc.body
-          if (!el) return
-          el.scrollBy({ top: 2 * scrollSpeed, behavior: "smooth" })
-          // Stop at bottom
-          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
-            setAutoScroll(false)
-            clearInterval(interval!)
-          }
-        }, 16)
-      } catch (e) {
-        // cross-origin, ignore
-      }
-    }
-
-    startAutoScroll()
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [isFullscreen, iframeUrl, autoScroll, scrollSpeed])
-
+  
   const fetchAndShowHtml = async (item: any) => {
     if (!item?.href) {
-      setIframeUrl(null)
-      return
+      setIframeUrl(null);
+      return;
     }
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const res = await axios.get(`${cdnUrl}/page?coursePage=${item.href}`, { responseType: "text" })
-      
-      // Inject viewport meta tags and zoom styles into the HTML content
-      let htmlContent = res.data
-      
-      // Check if viewport meta tags already exist
-      if (!htmlContent.includes('name="viewport"')) {
-        // Find the head tag and inject viewport meta tags and zoom styles
-        const headMatch = htmlContent.match(/<head[^>]*>/i)
-        if (headMatch) {
-          const headTag = headMatch[0]
-          const viewportMetasAndStyles = `
-    <meta name="viewport" content="width=1024">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      body {
-        zoom: 0.9;
-        -webkit-transform: scale(0.9);
-        -webkit-transform-origin: 0 0;
-        -moz-transform: scale(0.9);
-        -moz-transform-origin: 0 0;
-        -o-transform: scale(0.9);
-        -o-transform-origin: 0 0;
-        transform: scale(0.9);
-        transform-origin: 0 0;
-      }
-      @media (max-width: 768px) {
-        body {
-          zoom: 0.7;
-          -webkit-transform: scale(0.7);
-          -moz-transform: scale(0.7);
-          -o-transform: scale(0.7);
-          transform: scale(0.7);
-        }
-      }
-    </style>`
-          
-          htmlContent = htmlContent.replace(headTag, headTag + viewportMetasAndStyles)
-        } else {
-          // If no head tag found, add it with viewport meta tags and zoom styles
-          const htmlMatch = htmlContent.match(/<html[^>]*>/i)
-          if (htmlMatch) {
-            const htmlTag = htmlMatch[0]
-            const headWithViewportAndStyles = `
-  <head>
-    <meta name="viewport" content="width=1024">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      body {
-        zoom: 0.9;
-        -webkit-transform: scale(0.9);
-        -webkit-transform-origin: 0 0;
-        -moz-transform: scale(0.9);
-        -moz-transform-origin: 0 0;
-        -o-transform: scale(0.9);
-        -o-transform-origin: 0 0;
-        transform: scale(0.9);
-        transform-origin: 0 0;
-      }
-      @media (max-width: 768px) {
-        body {
-          zoom: 0.7;
-          -webkit-transform: scale(0.7);
-          -moz-transform: scale(0.7);
-          -o-transform: scale(0.7);
-          transform: scale(0.7);
-        }
-      }
-    </style>
-  </head>`
-            
-            htmlContent = htmlContent.replace(htmlTag, htmlTag + headWithViewportAndStyles)
+      const res = await axios.get(`${cdnUrl}/page?coursePage=${item.href}`, { responseType: "text" });
+      const responsiveStyles = `
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          :root { --line-height-base: 1.7; --font-size-base: 1.1rem; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: var(--line-height-base);
+            font-size: var(--font-size-base);
+            color: #2d3748;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            box-sizing: border-box;
+            overflow-x: hidden;
+            background-color: #fff;
           }
+          img, video, iframe { max-width: 100%; height: auto; border-radius: 8px; }
+          h1, h2, h3 { line-height: 1.2; margin-top: 1.5em; margin-bottom: 0.5em; color: #1a202c; }
+          pre { white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; background-color: #f7fafc; padding: 1em; border-radius: 8px; overflow-x: auto; border: 1px solid #e2e8f0;}
+          code { font-family: 'Courier New', Courier, monospace; }
+        </style>
+      `;
+
+      let htmlContent = res.data;
+      if (!htmlContent.includes('<head>')) {
+        htmlContent = `<html><head></head><body>${htmlContent}</body></html>`
+      }
+      htmlContent = htmlContent.replace(/<head[^>]*>/i, `$&${responsiveStyles}`);
+      
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      setIframeUrl(url);
+    } catch {
+      setIframeUrl(null);
+    }
+    setIsLoading(false);
+  };
+  
+  const fetchAudio = async (item: any) => {
+    if (!item?.href) {
+      setAudioUrl(null);
+      return;
+    }
+    try {
+      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio`, { responseType: "blob" });
+      const audioBlob = new Blob([res.data], { type: "audio/wav" });
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+    } catch (error) {
+      console.log("No audio found for this lesson.");
+      setAudioUrl(null);
+    }
+  };
+
+  const handleAudioPlayPause = () => {
+    if (audioRef.current) {
+      if (isAudioPlaying) audioRef.current.pause();
+      else audioRef.current.play();
+    }
+  };
+
+  const handleAudioTimeUpdate = () => { if (audioRef.current) { const current = audioRef.current.currentTime; const duration = audioRef.current.duration; setAudioCurrentTime(current); setAudioProgress((current / duration) * 100); }};
+  const handleAudioLoadedMetadata = () => { if (audioRef.current) setAudioDuration(audioRef.current.duration); };
+  const handleAudioEnded = () => { setIsAudioPlaying(false); };
+  const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => { if (audioRef.current) { const newTime = (parseFloat(e.target.value) / 100) * audioDuration; audioRef.current.currentTime = newTime; }};
+  const handlePlaybackRateChange = (rate: number) => { if (audioRef.current) { audioRef.current.playbackRate = rate; setAudioPlaybackRate(rate); }};
+  
+  const handleItemSelect = (item: any) => {
+    if(item.name === selectedItem?.name) return;
+    setSelectedItem(item);
+    if (windowWidth < 768) {
+        setIsMobileMenuOpen(false)
+    }
+  };
+  
+  useEffect(() => {
+    if (selectedItem) {
+        fetchAndShowHtml(selectedItem);
+        fetchAudio(selectedItem);
+    }
+  }, [selectedItem?.href]);
+
+  // --- Auto-scroll logic for fullscreen (with progress) ---
+  useEffect(() => {
+    if (!isFullscreen || !autoScroll) return;
+
+    let frameId: number;
+    const scrollStep = () => {
+      const iframe = fullscreenIframeRef.current;
+      if (iframe && iframe.contentWindow) {
+        try {
+          const doc = iframe.contentWindow.document;
+          const maxScroll = doc.body.scrollHeight - doc.documentElement.clientHeight;
+          const currentScroll = doc.documentElement.scrollTop || doc.body.scrollTop;
+          if (currentScroll < maxScroll) {
+            const speed = 1.5 * scrollSpeed; // px per frame, adjust as needed
+            doc.documentElement.scrollTop = doc.body.scrollTop = currentScroll + speed;
+            // Progress logic: update selectedItem's progress if not 100%
+            if (sidebarState && selectedItem && selectedItem.href) {
+              const percent = Math.min(100, Math.round(((currentScroll + speed) / maxScroll) * 100));
+              if (percent > (selectedItem.progress || 0)) {
+                setSidebarState(prev => {
+                  // Deep update progress for selectedItem
+                  const updateProgress = (items: any[]): any[] =>
+                    items.map(item => {
+                      if (item.name === selectedItem.name && item.href === selectedItem.href) {
+                        return { ...item, progress: percent }
+                      }
+                      if (item.children && item.children.length > 0) {
+                        return { ...item, children: updateProgress(item.children) }
+                      }
+                      return item
+                    });
+                  return updateProgress(prev);
+                });
+              }
+            }
+            frameId = requestAnimationFrame(scrollStep);
+          }
+        } catch (e) {
+          // Cross-origin, do nothing
         }
       }
-      
-      const blob = new Blob([htmlContent], { type: "text/html" })
-      const url = URL.createObjectURL(blob)
-      setIframeUrl(url)
-    } catch {
-      setIframeUrl(null)
-    }
-    setIsLoading(false)
+    };
+    frameId = requestAnimationFrame(scrollStep);
+    return () => cancelAnimationFrame(frameId);
+    // eslint-disable-next-line
+  }, [isFullscreen, autoScroll, scrollSpeed, iframeUrl, selectedItem, sidebarState]);
+
+  // FIX: Show a loading screen until the component is mounted on the client
+  if (!isMounted) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  const handleItemSelect = (item: any) => {
-    setSelectedItem(item)
-    fetchAndShowHtml(item)
-    if (windowWidth < 768) {
-      setIsMobileMenuOpen(false)
-    }
-  }
+  const overallProgress = sidebarState.length > 0
+    ? Math.round(sidebarState.reduce((acc, item) => acc + (item.progress || 0), 0) / sidebarState.filter(item => item.icon !== 'certificate').length)
+    : 0;
 
-  const handleNextLesson = () => {
-    const nextLesson = findNextLesson(selectedItem, sidebarState)
-    if (nextLesson) {
-      setIsLoading(true)
-      setTimeout(() => {
-        setSelectedItem(nextLesson)
-        fetchAndShowHtml(nextLesson)
-        setIsLoading(false)
-      }, 500)
-    } else {-
-      handleCertificateClick()
-    }
-  }
-
-  // --- Fullscreen next lesson handler ---
-  const handleFullscreenNext = () => {
-    if (nextLesson) {
-      setIsFullscreen(false)
-      setTimeout(() => {
-        setSelectedItem(nextLesson)
-        fetchAndShowHtml(nextLesson)
-      }, 300)
-    }
-  }
-
-  const overallProgress = sidebarState.length
-    ? Math.round(sidebarState.reduce((acc, item) => acc + item.progress, 0) / sidebarState.length)
-    : 0
-
-  const nextLesson = findNextLesson(selectedItem, sidebarState)
-
+  const nextLesson = findNextLesson(selectedItem, sidebarState);
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="md:hidden"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-white" />
+       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-40">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <BookOpen className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="hidden sm:block">
+                            <h1 className="text-lg font-bold text-gray-900">Skill Assign</h1>
+                            <p className="text-xs text-gray-500">Master Technology Skills</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-lg font-bold text-gray-900">Skill Assign</h1>
-                  <p className="text-xs text-gray-500">Master Technology Skills</p>
+
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="hidden lg:block">
+                        <OverallProgressDisplay progress={overallProgress} onCertificateClick={() => {}} />
+                    </div>
+                    <div className="lg:hidden flex items-center gap-2">
+                        <ProgressCircle progress={overallProgress} size={36} />
+                        {overallProgress > 50 && (
+                            <Button size="icon" variant="outline" className="border-green-500 text-green-700 bg-green-50 hover:bg-green-100 w-9 h-9" onClick={() => {}}>
+                                <Award className="w-5 h-5" />
+                            </Button>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="hidden sm:inline-flex">
+                            <User className="w-3 h-3 mr-1" /> Sanjay
+                        </Badge>
+                        <Button size="icon" variant="outline" className="w-9 h-9">
+                            <Settings className="w-4 h-4" />
+                        </Button>
+                    </div>
                 </div>
-              </div>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:block">
-                <OverallProgressDisplay progress={overallProgress} onCertificateClick={handleCertificateClick} />
-              </div>
-
-              <div className="lg:hidden">
-                <ProgressCircle progress={overallProgress} size={36} />
-                {/* Show certificate unlocked on mobile */}
-                {overallProgress > 50 && (
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="ml-2 border-green-500 text-green-700 bg-green-50 hover:bg-green-100"
-                    onClick={handleCertificateClick}
-                  >
-                    <Award className="w-5 h-5" />
-                  </Button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="hidden sm:inline-flex">
-                  <User className="w-3 h-3 mr-1" />
-                  Sanjay
-                </Badge>
-
-                <Button size="sm" variant="outline">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
       <div className="flex h-[calc(100vh-4rem)]">
         {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
         )}
-
         <aside
           className={cn(
             "bg-white/90 backdrop-blur-md shadow-xl border-r border-slate-200 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out",
             "md:relative md:translate-x-0",
-            "fixed inset-y-0 left-0 z-50 transform",
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-            isSidebarCollapsed ? "md:w-20" : "w-80 md:w-80",
+            "fixed inset-y-0 left-0 z-50 transform h-full",
+            isMobileMenuOpen ? "translate-x-0 w-80" : "-translate-x-full",
+            isSidebarCollapsed ? "md:w-20" : "md:w-80",
           )}
         >
           <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 flex items-center justify-between">
-              <div className={cn("transition-all duration-300", isSidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100")}>
-                <h2 className="font-semibold text-gray-900">Course Content</h2>
-                <p className="text-xs text-gray-500">{overallProgress}% Complete</p>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden md:flex"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              >
-                {isSidebarCollapsed ? (
-                  <ChevronRight className="w-4 h-4" />
-                ) : (
-                  <ChevronLeft className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {sidebarState.map((item, index) => (
-                <SidebarItem
-                  key={item.name}
-                  item={item}
-                  isUnlocked={item.icon === "certificate" ? overallProgress > 50 : (index === 0 || sidebarState[index - 1]?.progress >= 70)}
-                  onSelect={handleItemSelect}
-                  selectedItem={selectedItem}
-                  isCollapsed={isSidebarCollapsed}
-                />
-              ))}
-            </div>
-
-            {!isSidebarCollapsed && (
-              <div className="p-4 border-t border-slate-200 bg-slate-50/50 space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start text-sm">
-                  <Home className="w-4 h-4 mr-2" />
-                  Dashboard
+            <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 flex items-center justify-between">
+                <div className={cn("transition-opacity duration-300", isSidebarCollapsed ? "opacity-0 w-0" : "opacity-100")}>
+                    <h2 className="font-semibold text-gray-900">Course Content</h2>
+                    <p className="text-xs text-gray-500">{overallProgress}% Complete</p>
+                </div>
+                <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+                    {isSidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start text-sm text-red-600 hover:text-red-700 hover:bg-red-50">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            )}
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                {sidebarState.map((item, index) => (
+                    <SidebarItem
+                        key={item.name}
+                        item={item}
+                        isUnlocked={item.icon === "certificate" ? overallProgress > 50 : (index === 0 || (sidebarState[index - 1]?.progress ?? 0) >= 70)}
+                        onSelect={handleItemSelect}
+                        selectedItem={selectedItem}
+                        isCollapsed={isSidebarCollapsed}
+                    />
+                ))}
+            </div>
           </div>
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 p-4 md:p-8 overflow-auto">
+          <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto">
             <Card className="h-full shadow-xl border-0 overflow-hidden">
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative min-h-[500px]">
-                  {/* --- Fullscreen overlay --- */}
                   {isFullscreen && (
                     <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-                      {/* Controls */}
-                      <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex gap-1 md:gap-2">
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
-                          onClick={() => setIsFullscreen(false)}
-                          aria-label="Exit Fullscreen"
-                        >
-                          <Minimize2 className="w-4 h-4 md:w-6 md:h-6" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant={autoScroll ? "default" : "secondary"}
-                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
-                          onClick={() => setAutoScroll(!autoScroll)}
-                          aria-label="Auto Scroll"
-                        >
-                          <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path d="M12 5v14m0 0l-4-4m4 4l4-4" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </Button>
-                        <select
-                          className="rounded-lg px-1 py-1 md:px-2 md:py-1 bg-white text-xs md:text-sm border border-gray-300 focus:outline-none h-8 md:h-10"
-                          value={scrollSpeed}
-                          onChange={e => setScrollSpeed(Number(e.target.value))}
-                          aria-label="Scroll Speed"
-                        >
-                          <option value={0.5}>0.5x</option>
-                          <option value={1}>1x</option>
-                          <option value={2}>2x</option>
-                          <option value={3}>3x</option>
-                        </select>
-                        {nextLesson && (
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
-                            onClick={handleFullscreenNext}
-                            aria-label="Next Lesson"
-                          >
-                            <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
-                          </Button>
-                        )}
-                        {/* Certificate unlocked in fullscreen */}
-                        {overallProgress > 50 && (
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="rounded-full shadow-lg border-green-500 text-green-700 bg-green-50 hover:bg-green-100 w-8 h-8 md:w-10 md:h-10"
-                            onClick={handleCertificateClick}
-                            aria-label="Certificate"
-                          >
-                            <Award className="w-4 h-4 md:w-6 md:h-6" />
-                          </Button>
-                        )}
-                      </div>
-
-                      {/* Zoom Controls */}
-                      <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 z-50 flex flex-col gap-1 md:gap-2">
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
-                          onClick={handleZoomIn}
-                          aria-label="Zoom In"
-                        >
-                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                            <line x1="11" y1="8" x2="11" y2="14"/>
-                            <line x1="8" y1="11" x2="14" y2="11"/>
-                          </svg>
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10"
-                          onClick={handleZoomOut}
-                          aria-label="Zoom Out"
-                        >
-                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                            <line x1="8" y1="11" x2="14" y2="11"/>
-                          </svg>
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-full shadow-lg w-8 h-8 md:w-10 md:h-10 text-xs"
-                          onClick={handleZoomReset}
-                          aria-label="Reset Zoom"
-                        >
-                          <span className="text-xs font-bold">{Math.round(zoomLevel * 100)}%</span>
-                        </Button>
-                      </div>
-
-                      <div className="w-full h-full flex items-center justify-center p-0">
-                        {iframeUrl ? (
-                          <iframe
-                            src={iframeUrl}
-                            className="w-full h-full fullscreen-iframe"
-                            title={selectedItem?.name}
-                            style={{ 
-                              border: "none",
-                              width: "100vw",
-                              height: "100vh",
-                              transform: `scale(${zoomLevel})`,
-                              transformOrigin: "center center"
-                            }}
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full p-6 md:p-12 bg-gradient-to-br from-slate-50 to-blue-50 w-full">
-                            <div className="text-center max-w-lg">
-                              <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-2xl">
-                                <Play className="w-8 h-8 md:w-12 md:h-12 text-white" />
-                              </div>
-                              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 md:mb-4">
-                                {selectedItem?.name || "Ready to Learn?"}
-                              </h3>
-                              <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8">
-                                {selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}
-                              </p>
-                            </div>
+                        <div className="absolute top-4 right-4 z-[52] flex gap-2">
+                            <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => setIsFullscreen(false)}><Minimize2 /></Button>
+                            <Button size="icon" variant={autoScroll ? "default" : "secondary"} className="rounded-full shadow-lg" onClick={() => setAutoScroll(!autoScroll)}><ArrowDownToLine /></Button>
+                            <select className="rounded-full px-2 bg-white text-sm border border-gray-300 focus:outline-none h-10" value={scrollSpeed} onChange={e => setScrollSpeed(Number(e.target.value))}>
+                                <option value={0.5}>0.5x</option><option value={1}>1x</option><option value={2}>2x</option><option value={3}>3x</option>
+                            </select>
+                            {nextLesson && (<Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => {}}><ChevronRight /></Button>)}
+                        </div>
+                        <div className="absolute bottom-20 right-4 z-[52] flex flex-col gap-2">
+                            <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => {}}><ZoomIn /></Button>
+                            <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => {}}><ZoomOut /></Button>
+                            <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => {}}><RotateCcw className="w-5 h-5" /></Button>
+                        </div>
+                        
+                        {/* Audio Player in Fullscreen with hide/show */}
+                        {audioUrl && isAudioPlayerVisible && (
+                          <div className="absolute bottom-4 left-4 right-4 z-[51] bg-black/70 backdrop-blur-sm rounded-xl p-3 text-white flex items-center">
+                             <AudioPlayer
+                                isPlaying={isAudioPlaying}
+                                progress={audioProgress}
+                                currentTime={audioCurrentTime}
+                                duration={audioDuration}
+                                playbackRate={audioPlaybackRate}
+                                onPlayPause={handleAudioPlayPause}
+                                onSeek={handleAudioSeek}
+                                onRateChange={handlePlaybackRateChange}
+                                lessonName={selectedItem?.name}
+                                isCompact={true}
+                                onClose={() => setIsAudioPlayerVisible(false)}
+                              />
                           </div>
                         )}
-                      </div>
+                        {audioUrl && !isAudioPlayerVisible && (
+                          <div className="absolute bottom-8 left-8 z-[52]">
+                            <Button size="icon" className="rounded-full shadow-lg w-12 h-12" onClick={() => setIsAudioPlayerVisible(true)}><Music4 /></Button>
+                          </div>
+                        )}
+
+                        {iframeUrl && (
+                          <iframe
+                            ref={fullscreenIframeRef}
+                            src={iframeUrl}
+                            className="w-full h-full"
+                            title={selectedItem?.name}
+                            style={{ border: "none" }}
+                          />
+                        )}
                     </div>
                   )}
 
-                  {/* Fullscreen button (only show if iframe is present and not already fullscreen) */}
                   {!isFullscreen && iframeUrl && (
-                    <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="rounded-full shadow w-8 h-8 md:w-10 md:h-10"
-                        onClick={() => setIsFullscreen(true)}
-                        aria-label="Fullscreen"
-                      >
-                        <Maximize2 className="w-4 h-4 md:w-5 md:h-5" />
-                      </Button>
+                    <div className="absolute top-4 right-4 z-20">
+                      <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => setIsFullscreen(true)}><Maximize2 /></Button>
                     </div>
                   )}
 
                   {isLoading ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm">
-                      <div className="text-center">
-                        <div className="w-8 h-8 md:w-12 md:h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4 md:mb-6"></div>
-                        <p className="text-slate-600 text-base md:text-lg font-medium">Loading lesson...</p>
-                      </div>
-                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/80"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
+                  ) : iframeUrl ? (
+                    <iframe src={iframeUrl} className="w-full h-full rounded-xl" title={selectedItem?.name} style={{ border: "none", minHeight: "500px" }} />
                   ) : (
-                    <div className="w-full h-full rounded-xl overflow-hidden">
-                      {selectedItem?.href && iframeUrl ? (
-                        <iframe
-                          src={iframeUrl}
-                          className="w-full h-full"
-                          title={selectedItem.name}
-                          style={{ 
-                            border: "none",
-                            minHeight: "500px"
-                          }}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full p-6 md:p-12 bg-gradient-to-br from-slate-50 to-blue-50">
-                          <div className="text-center max-w-lg">
-                            <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-2xl">
-                              <Play className="w-8 h-8 md:w-12 md:h-12 text-white" />
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 md:mb-4">
-                              {selectedItem?.name || "Ready to Learn?"}
-                            </h3>
-                            <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8">
-                              {selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}
-                            </p>
-                            <div className="flex items-center justify-center gap-4 text-slate-500">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 md:w-5 md:h-5" />
-                                <span className="font-medium text-sm md:text-base">Interactive Content</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Star className="w-4 h-4 md:w-5 md:h-5" />
-                                <span className="font-medium text-sm md:text-base">Expert-Crafted</span>
-                              </div>
-                            </div>
-                          </div>
+                    <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
+                        <div className="text-center max-w-lg">
+                            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl"><Play className="w-12 h-12 text-white" /></div>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4">{selectedItem?.name || "Ready to Learn?"}</h3>
+                            <p className="text-slate-600 text-lg leading-relaxed">{selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}</p>
                         </div>
-                      )}
                     </div>
+                  )}
+                  
+                  {audioUrl && !isFullscreen && isAudioPlayerVisible && (
+                    <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-3 shadow-lg">
+                       <AudioPlayer
+                          isPlaying={isAudioPlaying}
+                          progress={audioProgress}
+                          currentTime={audioCurrentTime}
+                          duration={audioDuration}
+                          playbackRate={audioPlaybackRate}
+                          onPlayPause={handleAudioPlayPause}
+                          onSeek={handleAudioSeek}
+                          onRateChange={handlePlaybackRateChange}
+                          onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
+                          isAutoScrollOn={autoScroll}
+                          lessonName={selectedItem?.name}
+                          onClose={() => setIsAudioPlayerVisible(false)}
+                        />
+                    </div>
+                  )}
+
+                  {audioUrl && !isFullscreen && !isAudioPlayerVisible && (
+                    <div className="absolute bottom-4 right-4 z-20">
+                         <Button size="icon" className="rounded-full shadow-lg w-12 h-12" onClick={() => setIsAudioPlayerVisible(true)}><Music4 /></Button>
+                    </div>
+                  )}
+                  
+                  {audioUrl && (
+                    <audio 
+                      ref={audioRef} 
+                      src={audioUrl} 
+                      onTimeUpdate={handleAudioTimeUpdate} 
+                      onLoadedMetadata={handleAudioLoadedMetadata} 
+                      onEnded={handleAudioEnded}
+                      onPlay={() => setIsAudioPlaying(true)}
+                      onPause={() => setIsAudioPlaying(false)}
+                      />
                   )}
                 </div>
 
-                <div className="p-4 md:p-8 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 md:gap-6">
-                    <div className="flex items-center gap-3 md:gap-4">
-                      {nextLesson ? (
-                        <>
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center">
-                            <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-xs md:text-sm font-bold text-slate-900 mb-1">Up Next</p>
-                            <p className="text-base md:text-lg text-slate-700 font-medium">{nextLesson.name}</p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center">
-                            <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-xs md:text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
-                            <p className="text-base md:text-lg text-slate-700 font-medium">Course Complete</p>
-                          </div>
-                        </>
-                      )}
+                <div className="p-4 md:p-6 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        {nextLesson ? (
+                            <>
+                                <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-6 h-6 text-white" /></div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-900 mb-1">Up Next</p>
+                                    <p className="text-lg text-slate-700 font-medium">{nextLesson.name}</p>
+                                </div>
+                            </>
+                        ) : (
+                             <>
+                                <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-6 h-6 text-white" /></div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
+                                    <p className="text-lg text-slate-700 font-medium">Course Complete</p>
+                                </div>
+                            </>
+                        )}
                     </div>
-                    <Button
-                      onClick={handleNextLesson}
-                      disabled={isLoading}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 md:px-8 py-2 md:py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-sm md:text-base"
-                    >
-                      {nextLesson ? 'Continue Learning' : 'Course Complete'}
-                      <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+                    <Button onClick={() => {}} disabled={isLoading} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-base w-full sm:w-auto">
+                        {nextLesson ? 'Continue Learning' : 'Claim Certificate'}
+                        <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </div>
                 </div>
@@ -1300,6 +989,12 @@ export default function LearningPlatform() {
           </div>
         </main>
       </div>
+      <style jsx>{`
+        .slider::-webkit-slider-thumb { appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .slider::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .slider-compact::-webkit-slider-thumb { background: #fff; }
+        .slider-compact::-moz-range-thumb { background: #fff; }
+      `}</style>
     </div>
   )
 }
