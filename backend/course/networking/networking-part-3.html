@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>Networking Part 3 - The Future of Connected Technology</title>
     <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
         body { 
             font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; 
             margin: 30px;
@@ -13,11 +19,16 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f0f8ff;
+            width: 100%;
+            box-sizing: border-box;
         }
         h1, h2, h3 { 
             color: #1565c0; 
             border-bottom: 2px solid #42a5f5;
             padding-bottom: 5px;
+        }
+        p, li {
+            overflow-wrap: break-word;
         }
         .container {
             background: white;
@@ -25,16 +36,26 @@
             padding: 25px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .diagram { 
             margin: 30px 0; 
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: auto;
         }
         .diagram svg { 
             background: #f8fbff; 
             border-radius: 10px;
             border: 1px solid #ccc; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: block;
+            min-width: 320px;
+            max-width: 100%;
+            width: 800px;
+            height: auto;
         }
         .analogy {
             background: #e3f2fd;
@@ -56,6 +77,10 @@
             margin: 15px 0;
             overflow-x: auto;
             font-family: Consolas, monospace;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            width: 100%;
+            box-sizing: border-box;
         }
         .feature-grid {
             display: grid;
@@ -146,6 +171,48 @@
             border-radius: 8px;
             margin: 20px 0;
             border-left: 4px solid #9c27b0;
+        }
+        @media (max-width: 700px) {
+            body {
+                width: 100%;
+            }
+            .container {
+                width: 100%;
+            }
+            .diagram {
+                overflow-x: auto;
+            }
+            .diagram svg {
+                min-width: 600px;
+                width: 600px;
+                max-width: none;
+            }
+            .code-example {
+                font-size: 0.9em;
+                padding: 10px;
+                overflow-x: auto;
+            }
+        }
+        @media (max-width: 480px) {
+            body {
+                width: 100vw;
+            }
+            .container {
+                width: 100vw;
+            }
+            .diagram {
+                overflow-x: auto;
+            }
+            .diagram svg {
+                min-width: 400px;
+                width: 400px;
+                max-width: none;
+            }
+            .code-example {
+                font-size: 0.85em;
+                padding: 7px;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>

@@ -52,13 +52,13 @@ export default function CertificatePage() {
         setTimeout(() => {
           const text = `🎉 Excited to share that I've completed the Skill Assign Learning Program!
 
-✅ Mastered web development fundamentals including HTML, CSS, JavaScript, and Node.js
+✅ Mastered web development fundamentals including HTML, CSS, JavaScript, Networking, and Node.js
 ✅ Built practical coding skills through hands-on projects
 ✅ Ready to tackle new development challenges
 
 Thanks to Skill Assign for providing such an excellent learning experience!
 
-#WebDevelopment #SkillAssign #LearningJourney #TechSkills #Certification #HTML #CSS #JavaScript #NodeJS`
+#WebDevelopment #SkillAssign #LearningJourney #TechSkills #Certification #HTML #CSS #JavaScript #Networking #NodeJS`
           
           const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`
           window.open(linkedInUrl, '_blank')
@@ -152,110 +152,111 @@ Thanks to Skill Assign for providing such an excellent learning experience!
               style={{ width: '842px', height: '595px' }} // A4 landscape dimensions
             >
               {/* Certificate Content */}
-              <div className="h-full flex flex-col relative p-12">
+              <div className="h-full flex flex-col relative p-10">
                 {/* Decorative Borders */}
-                <div className="absolute inset-4 border-4 border-blue-600 rounded-lg"></div>
-                <div className="absolute inset-8 border-2 border-blue-200 rounded-lg"></div>
-                <div className="absolute inset-10 border border-blue-100 rounded-lg"></div>
+                <div className="absolute inset-3 border-2 border-gray-700 rounded"></div>
+                <div className="absolute inset-5 border border-gray-400 rounded"></div>
 
                 {/* Header */}
-                <div className="text-center mb-6 relative z-10">
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center">
-                      <Award className="w-7 h-7 text-white" />
+                <div className="text-center mb-8 relative z-10">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center">
+                      <Award className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="text-3xl font-bold text-blue-600 tracking-wide">SKILL ASSIGN</div>
-                      <div className="text-sm text-gray-500 tracking-wider uppercase">Learning Platform</div>
+                      <div className="text-2xl font-semibold text-gray-800 tracking-wider">SKILL ASSIGN</div>
+                      <div className="text-xs text-gray-500 tracking-widest uppercase">Learning Platform</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col justify-center text-center relative z-10 space-y-6">
+                <div className="flex-1 flex flex-col justify-center text-center relative z-10 space-y-5">
                   <div>
-                    <h1 className="text-3xl font-light text-gray-800 mb-3 tracking-wide uppercase">Certificate of Completion</h1>
-                    <div className="w-32 h-0.5 bg-blue-600 mx-auto"></div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <p className="text-xl text-gray-600">This is to certify that</p>
-                    <div>
-                      <div className="text-4xl font-bold text-blue-600 tracking-wide mb-2 py-2">
-                        {name}
-                      </div>
-                      <div className="w-64 h-0.5 bg-gray-400 mx-auto"></div>
-                    </div>
+                    <h1 className="text-2xl font-light text-gray-700 mb-2 tracking-wider uppercase">Certificate of Achievement</h1>
+                    <div className="w-28 h-px bg-gray-500 mx-auto"></div>
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-xl text-gray-600">has successfully completed</p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg py-4 px-6 mx-12">
-                      <div className="text-2xl font-semibold text-blue-700 mb-2">Web Development Fundamentals</div>
-                      <p className="text-gray-600">A comprehensive program covering HTML, CSS, JavaScript, and Node.js</p>
+                    <p className="text-lg text-gray-600">This certificate is proudly presented to</p>
+                    <div>
+                      <div className="text-3xl font-medium text-gray-800 tracking-wide mb-1 py-1">
+                        {name}
+                      </div>
+                      <div className="w-56 h-px bg-gray-400 mx-auto"></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-lg text-gray-600">for successfully completing the course</p>
+                    <div className="bg-gray-50 border border-gray-200 rounded-md py-3 px-5 mx-10">
+                      <div className="text-xl font-semibold text-gray-700 mb-1">Frontend Web Development</div>
+                      <p className="text-sm text-gray-500">A comprehensive program covering HTML, CSS, JavaScript, and Networking</p>
                     </div>
                   </div>
 
                   {/* Skills Icons */}
-                  <div className="flex justify-center gap-6">
+                  {/* <div className="flex justify-center gap-4 pt-2">
                     <div className="text-center">
-                      <div className="w-12 h-12 border-2 border-orange-400 rounded-lg flex items-center justify-center bg-orange-50">
-                        <span className="text-orange-600 font-bold text-sm">HTML</span>
+                      <div className="w-11 h-11 border border-orange-500 rounded flex items-center justify-center bg-orange-50">
+                        <span className="text-orange-600 font-semibold text-xs">HTML</span>
                       </div>
-                      <span className="text-xs text-gray-500 mt-1 block">HTML5</span>
+                      <span className="text-xs text-gray-500 mt-0.5 block">HTML5</span>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 border-2 border-blue-400 rounded-lg flex items-center justify-center bg-blue-50">
-                        <span className="text-blue-600 font-bold text-sm">CSS</span>
+                      <div className="w-11 h-11 border border-blue-500 rounded flex items-center justify-center bg-blue-50">
+                        <span className="text-blue-600 font-semibold text-xs">CSS</span>
                       </div>
-                      <span className="text-xs text-gray-500 mt-1 block">CSS3</span>
+                      <span className="text-xs text-gray-500 mt-0.5 block">CSS3</span>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 border-2 border-yellow-400 rounded-lg flex items-center justify-center bg-yellow-50">
-                        <span className="text-yellow-600 font-bold text-sm">JS</span>
+                      <div className="w-11 h-11 border border-yellow-500 rounded flex items-center justify-center bg-yellow-50">
+                        <span className="text-yellow-600 font-semibold text-xs">JS</span>
                       </div>
-                      <span className="text-xs text-gray-500 mt-1 block">JavaScript</span>
+                      <span className="text-xs text-gray-500 mt-0.5 block">JavaScript</span>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 border-2 border-green-400 rounded-lg flex items-center justify-center bg-green-50">
-                        <span className="text-green-600 font-bold text-xs">Node</span>
+                      <div className="w-11 h-11 border border-green-500 rounded flex items-center justify-center bg-green-50">
+                        <span className="text-green-600 font-semibold text-xs">NET</span>
                       </div>
-                      <span className="text-xs text-gray-500 mt-1 block">Node.js</span>
+                      <span className="text-xs text-gray-500 mt-0.5 block">Networking</span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-between items-end relative z-10 mt-6">
-                  <div className="text-left">
-                    <div className="w-24 h-0.5 bg-gray-400 mb-2"></div>
-                    <div className="text-sm text-gray-600">Authorized by</div>
-                    <div className="text-base font-semibold text-gray-900">Skill Assign Team</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
-                      <Award className="w-8 h-8 text-white" />
+                <div className="flex justify-between items-end relative z-10 mt-auto pt-4">
+                    {/* Left Column: Presented By */}
+                    <div className="flex flex-col items-start">
+                        <div className="w-20 h-px bg-gray-400 mb-1.5"></div>
+                        <div className="text-xs text-gray-500">Presented by</div>
+                        <div className="text-sm font-medium text-gray-700">Skill Assign Team</div>
                     </div>
-                    <div className="text-xs text-blue-600 font-medium">Excellence</div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <div className="w-24 h-0.5 bg-gray-400 mb-2 ml-auto"></div>
-                    <div className="text-sm text-gray-600">Date of Completion</div>
-                    <div className="text-base font-semibold text-gray-900">
-                      {new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
+
+                    {/* Center Column: Seal/Award */}
+                    <div className="flex flex-col items-center justify-end">
+                       <div className="w-10 h-10 border-2 border-gray-600 rounded-full flex items-center justify-center">
+                         <Award className="w-5 h-5 text-gray-600" />
+                       </div>
                     </div>
-                  </div>
+                  
+                    {/* Right Column: Date Issued */}
+                    <div className="flex flex-col items-end">
+                        <div className="w-20 h-px bg-gray-400 mb-1.5"></div>
+                        <div className="text-xs text-gray-500">Date Issued</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          {new Date().toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Watermark */}
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
-                  <span className="text-xs text-gray-300 select-none opacity-60">unofficial certificate</span>
+                {/* Unofficial Certificate Watermark */}
+                <div className="text-center relative z-0">
+                  <span className="text-xs text-gray-300 select-none opacity-50 ml-2">Unofficial Certificate</span>
                 </div>
               </div>
             </div>

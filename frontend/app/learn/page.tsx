@@ -1,4 +1,4 @@
-import LearningPlatform from "@/components/learning-platform"
+import LearningPlatform from "@/components/LearningPlatform"
 
 export default function Page() {
   return <LearningPlatform />
