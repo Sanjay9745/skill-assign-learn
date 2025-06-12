@@ -98,6 +98,10 @@ export default function LearningPlatform() {
   // Add ref for fullscreen iframe
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
 
+  // Add refs for abort controllers
+  const htmlAbortControllerRef = useRef<AbortController | null>(null);
+  const audioAbortControllerRef = useRef<AbortController | null>(null);
+
   const router = useRouter();
 
   // FIX: Set mount state to true only on the client after initial render
@@ -148,13 +152,23 @@ export default function LearningPlatform() {
   }, [])
   
   const fetchAndShowHtml = async (item: any) => {
+    // Abort previous HTML fetch if any
+    if (htmlAbortControllerRef.current) {
+      htmlAbortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    htmlAbortControllerRef.current = abortController;
+
     if (!item?.href) {
       setIframeUrl(null);
       return;
     }
     setIsLoading(true);
     try {
-      const res = await axios.get(`${cdnUrl}/page?coursePage=${item.href}`, { responseType: "text" });
+      const res = await axios.get(`${cdnUrl}/page?coursePage=${item.href}`, { 
+        responseType: "text",
+        signal: abortController.signal
+      });
       const responsiveStyles = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
@@ -185,13 +199,25 @@ export default function LearningPlatform() {
       const blob = new Blob([htmlContent], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       setIframeUrl(url);
-    } catch {
-      setIframeUrl(null);
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('HTML fetch request canceled:', item.href);
+      } else {
+        setIframeUrl(null);
+        console.error("Error fetching HTML content for", item.href, error);
+      }
     }
     setIsLoading(false);
   };
   
   const fetchAudio = async (item: any) => {
+    // Abort previous audio fetch if any
+    if (audioAbortControllerRef.current) {
+      audioAbortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    audioAbortControllerRef.current = abortController;
+
     if (!item?.href) {
       setAudioUrl(null);
       setIsAudioPlayerVisible(false);
@@ -210,14 +236,22 @@ export default function LearningPlatform() {
     setAudioCurrentTime(0);
     setAudioDuration(0);
     try {
-      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio`, { responseType: "blob" });
+      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio`, { 
+        responseType: "blob",
+        signal: abortController.signal
+      });
       const audioBlob = new Blob([res.data], { type: res.headers['content-type'] || "audio/mpeg" });
       const url = URL.createObjectURL(audioBlob);
       setAudioUrl(url);
       setIsAudioPlayerVisible(true);
     } catch (error) {
-      setAudioUrl(null);
-      setIsAudioPlayerVisible(false);
+      if (axios.isCancel(error)) {
+        console.log('Audio fetch request canceled:', item.href);
+      } else {
+        setAudioUrl(null);
+        setIsAudioPlayerVisible(false);
+        console.error("Error fetching audio content for", item.href, error);
+      }
     } finally {
       setIsAudioLoading(false);
     }
@@ -311,8 +345,15 @@ export default function LearningPlatform() {
       setIsAudioPlayerVisible(false);
       setIsAudioLoading(false);
     }
+
+    return () => {
+      // Abort any ongoing fetches on cleanup
+      if (htmlAbortControllerRef.current) htmlAbortControllerRef.current.abort();
+      if (audioAbortControllerRef.current) audioAbortControllerRef.current.abort();
+    };
     // eslint-disable-next-line
   }, [selectedItem?.href]);
+
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 3;
 
