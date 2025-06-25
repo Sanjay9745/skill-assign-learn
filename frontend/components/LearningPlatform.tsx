@@ -538,7 +538,7 @@ export default function LearningPlatform() {
           <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto">
             <Card className="h-full shadow-xl border-0 overflow-hidden">
               <div className="h-full flex flex-col">
-                <div className="flex-1 relative min-h-[500px]">
+                <div className="flex-1 relative min-h-[500px] pb-24">
                   {isFullscreen && (
                     <div className="fixed inset-0 z-50 flex flex-col">
                       <div className="absolute top-4 right-4 z-[52] flex gap-2 items-center">
@@ -667,51 +667,54 @@ export default function LearningPlatform() {
                       />
                   )}
                 </div>
-
-                <div className="p-4 md:p-6 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        {nextLesson ? (
-                            <>
-                                <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-6 h-6 text-white" /></div>
-                                <div>
-                                    <p className="text-sm font-bold text-slate-900 mb-1">Up Next</p>
-                                    <p className="text-lg text-slate-700 font-medium">{nextLesson.name}</p>
-                                </div>
-                            </>
-                        ) : (
-                             <>
-                                <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-6 h-6 text-white" /></div>
-                                <div>
-                                    <p className="text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
-                                    <p className="text-lg text-slate-700 font-medium">Course Complete</p>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <Button
-                      onClick={() => {
-                        // Mark current lesson as completed before continuing
-                        if (selectedItem) {
-                          markLessonCompleted(selectedItem);
-                        }
-                        if (nextLesson) {
-                          handleItemSelect(nextLesson);
-                        } else {
-                          // Handle claim certificate action: navigate to certificate page
-                          router.push("/certificate");
-                        }
-                      }}
-                      disabled={isLoading}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-base w-full sm:w-auto"
-                    >
-                        {nextLesson ? 'Continue Learning' : 'Claim Certificate'}
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
               </div>
             </Card>
+          </div>
+          
+          {/* Fixed Footer - Outside scrollable content */}
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50 border-t border-slate-200 p-4 md:p-6 flex-shrink-0">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                    {nextLesson ? (
+                        <>
+                            <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl flex items-center justify-center shrink-0"><Clock className="w-6 h-6 text-white" /></div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-bold text-slate-900 mb-1">Up Next</p>
+                                <p className="text-lg text-slate-700 font-medium truncate">{nextLesson.name}</p>
+                            </div>
+                        </>
+                    ) : (
+                         <>
+                            <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-6 h-6 text-white" /></div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-bold text-slate-900 mb-1">Congratulations!</p>
+                                <p className="text-lg text-slate-700 font-medium">Course Complete</p>
+                            </div>
+                        </>
+                    )}
+                </div>
+                <Button
+                  onClick={() => {
+                    // Mark current lesson as completed before continuing
+                    if (selectedItem) {
+                      markLessonCompleted(selectedItem);
+                    }
+                    if (nextLesson) {
+                      handleItemSelect(nextLesson);
+                    } else {
+                      // Handle claim certificate action: navigate to certificate page
+                      router.push("/certificate");
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-base w-full sm:w-auto"
+                >
+                    {nextLesson ? 'Continue Learning' : 'Claim Certificate'}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
+            </div>
           </div>
         </main>
       </div>
