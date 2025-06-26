@@ -81,7 +81,8 @@ export default function LearningPlatform() {
   const [isMounted, setIsMounted] = useState(false);
 
   // Unified Auto-scroll and Zoom State
-  const [autoScroll, setAutoScroll] = useState(false)
+  const [autoScroll, setAutoScroll] = useState(false) // Manual auto-scroll
+  const [audioAutoScroll, setAudioAutoScroll] = useState(false) // Audio-based auto-scroll
   const [scrollSpeed, setScrollSpeed] = useState(1)
   const [zoomLevel, setZoomLevel] = useState(1)
 
@@ -92,11 +93,14 @@ export default function LearningPlatform() {
   const [audioDuration, setAudioDuration] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [audioPlaybackRate, setAudioPlaybackRate] = useState(1)
+  const [audioLanguage, setAudioLanguage] = useState('english') // New language state
   const [isAudioPlayerVisible, setIsAudioPlayerVisible] = useState(true)
-  const [isAudioLoading, setIsAudioLoading] = useState(false) // audio loading indicator
+  const [isAudioLoading, setIsAudioLoading] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   // Add ref for fullscreen iframe
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
+  // Add ref for main content iframe
+  const mainIframeRef = useRef<HTMLIFrameElement>(null)
 
   // Add refs for abort controllers
   const htmlAbortControllerRef = useRef<AbortController | null>(null);
@@ -236,7 +240,7 @@ export default function LearningPlatform() {
     setAudioCurrentTime(0);
     setAudioDuration(0);
     try {
-      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio`, { 
+      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`, { 
         responseType: "blob",
         signal: abortController.signal
       });
@@ -354,6 +358,14 @@ export default function LearningPlatform() {
     // eslint-disable-next-line
   }, [selectedItem?.href]);
 
+  // Add effect to refetch audio when language changes
+  useEffect(() => {
+    if (selectedItem && selectedItem.href && audioUrl) {
+      fetchAudio(selectedItem);
+    }
+    // eslint-disable-next-line
+  }, [audioLanguage]);
+
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 3;
 
@@ -362,25 +374,48 @@ export default function LearningPlatform() {
   const handleResetZoom = () => setZoomLevel(1);
 
   useEffect(() => {
-    if (!isFullscreen || !autoScroll || !iframeUrl) return;
+    if (!iframeUrl) return;
+    
+    const iframe = isFullscreen ? fullscreenIframeRef.current : mainIframeRef.current;
+    if (!iframe) return;
+
     let frameId: number;
-    const scrollIframeContent = () => {
-      const iframe = fullscreenIframeRef.current;
-      if (iframe && iframe.contentWindow) {
-        try {
-          const doc = iframe.contentWindow.document;
-          const body = doc.body;
-          const htmlEl = doc.documentElement;
-          const scrollHeight = Math.max(body.scrollHeight, body.offsetHeight, htmlEl.clientHeight, htmlEl.scrollHeight, htmlEl.offsetHeight);
-          const clientHeight = htmlEl.clientHeight;
-          const maxScroll = Math.max(0, scrollHeight - clientHeight);
-          let currentScroll = htmlEl.scrollTop || body.scrollTop;
-          if (currentScroll < maxScroll) {
-            const speed = 1.0 * scrollSpeed;
-            currentScroll += speed;
+    
+    const scrollContent = () => {
+      try {
+        const doc = iframe.contentWindow?.document;
+        if (!doc) return;
+        
+        const body = doc.body;
+        const htmlEl = doc.documentElement;
+        const scrollHeight = Math.max(body.scrollHeight, body.offsetHeight, htmlEl.clientHeight, htmlEl.scrollHeight, htmlEl.offsetHeight);
+        const clientHeight = htmlEl.clientHeight;
+        const maxScroll = Math.max(0, scrollHeight - clientHeight);
+        let currentScroll = htmlEl.scrollTop || body.scrollTop;
+        
+        if (currentScroll < maxScroll) {
+          let scrollIncrement = 0;
+          
+          // Priority: Audio auto-scroll > Manual auto-scroll
+          if (audioAutoScroll && isAudioPlaying && audioDuration > 0) {
+            // Audio-based scrolling: sync with audio progress
+            const audioProgressRatio = audioCurrentTime / audioDuration;
+            const targetScroll = audioProgressRatio * maxScroll;
+            
+            // Smooth scrolling towards audio position
+            const diff = targetScroll - currentScroll;
+            scrollIncrement = Math.max(0.5, Math.abs(diff) * 0.1) * Math.sign(diff);
+          } else if (autoScroll) {
+            // Manual auto-scroll with speed control
+            scrollIncrement = 1.0 * scrollSpeed;
+          }
+          
+          if (scrollIncrement !== 0) {
+            currentScroll += scrollIncrement;
             currentScroll = Math.min(currentScroll, maxScroll);
             htmlEl.scrollTop = body.scrollTop = currentScroll;
-            // Progress logic
+            
+            // Update lesson progress
             if (sidebarState && selectedItem && selectedItem.href && maxScroll > 0) {
               const percent = Math.min(100, Math.round((currentScroll / maxScroll) * 100));
               if (percent > (selectedItem.progress || 0)) {
@@ -399,14 +434,23 @@ export default function LearningPlatform() {
                 });
               }
             }
-            frameId = requestAnimationFrame(scrollIframeContent);
           }
-        } catch (e) {}
+          
+          frameId = requestAnimationFrame(scrollContent);
+        }
+      } catch (e) {
+        console.error('Auto-scroll error:', e);
       }
     };
-    frameId = requestAnimationFrame(scrollIframeContent);
-    return () => cancelAnimationFrame(frameId);
-  }, [isFullscreen, autoScroll, scrollSpeed, iframeUrl, selectedItem, sidebarState]);
+    
+    if (audioAutoScroll || autoScroll) {
+      frameId = requestAnimationFrame(scrollContent);
+    }
+    
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen]);
 
   // FIX: Show a loading screen until the component is mounted on the client
   if (!isMounted) {
@@ -535,14 +579,61 @@ export default function LearningPlatform() {
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto">
+          {/* Mobile: Up Next Section at Top (10% height) */}
+          <div className="md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0" style={{ height: '10vh', minHeight: '60px' }}>
+            <div className="h-full flex items-center justify-between px-4">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                {nextLesson ? (
+                  <>
+                    <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-500 rounded-lg flex items-center justify-center shrink-0">
+                      <Clock className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-900">Up Next</p>
+                      <p className="text-sm text-slate-700 font-medium truncate">{nextLesson.name}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-lg flex items-center justify-center shrink-0">
+                      <Trophy className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-900">Complete!</p>
+                      <p className="text-sm text-slate-700 font-medium">Course Finished</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (selectedItem) markLessonCompleted(selectedItem);
+                  if (nextLesson) {
+                    handleItemSelect(nextLesson);
+                  } else {
+                    router.push("/certificate");
+                  }
+                }}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 py-1.5 rounded-lg text-xs flex-shrink-0"
+              >
+                {nextLesson ? 'Next' : 'Cert'}
+                <ArrowRight className="ml-1 w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden">
             <Card className="h-full shadow-xl border-0 overflow-hidden">
               <div className="h-full flex flex-col">
-                <div className="flex-1 relative min-h-[500px] pb-24">
+                <div className="flex-1 relative">
                   {isFullscreen && (
                     <div className="fixed inset-0 z-50 flex flex-col">
-                      <div className="absolute top-4 right-4 z-[52] flex gap-2 items-center">
+                      <div className="absolute top-4 right-4 z-[52] flex flex-col sm:flex-row gap-2 items-center">
                         <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => setIsFullscreen(false)}><Minimize2 /></Button>
+                        <Button size="icon" variant={audioAutoScroll ? "default" : "secondary"} className="rounded-full shadow-lg" onClick={() => setAudioAutoScroll(!audioAutoScroll)}><Music4 /></Button>
                         <Button size="icon" variant={autoScroll ? "default" : "secondary"} className="rounded-full shadow-lg" onClick={() => setAutoScroll(!autoScroll)}><ArrowDownToLine /></Button>
                         <select className="rounded-full px-2 bg-white text-sm border border-gray-300 focus:outline-none h-10 shadow-lg" value={scrollSpeed} onChange={e => setScrollSpeed(Number(e.target.value))}>
                           <option value={0.5}>0.5x</option><option value={1}>1x</option><option value={1.5}>1.5x</option><option value={2}>2x</option><option value={3}>3x</option>
@@ -551,23 +642,16 @@ export default function LearningPlatform() {
                           handleItemSelect(nextLesson);
                           setIsFullscreen(false);
                           setAutoScroll(false);
+                          setAudioAutoScroll(false);
                           setZoomLevel(1);
                         }}><ChevronRight /></Button>)}
                       </div>
                       <div className="absolute bottom-20 right-4 z-[52] flex flex-col gap-2">
                         <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleZoomIn}><ZoomIn /></Button>
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-full shadow-lg"
-                          onClick={handleZoomOut}
-                          disabled={zoomLevel <= MIN_ZOOM}
-                        >
-                          <ZoomOut />
-                        </Button>
+                        <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleZoomOut} disabled={zoomLevel <= MIN_ZOOM}><ZoomOut /></Button>
                         <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleResetZoom}><RotateCcw className="w-5 h-5" /></Button>
                       </div>
-                      {/* Audio Player in Fullscreen with hide/show */}
+                      {/* Audio Player in Fullscreen */}
                       {audioUrl && isAudioPlayerVisible && (
                         <div className="absolute bottom-4 left-4 right-4 z-[51] bg-black/80 backdrop-blur-sm rounded-xl p-2 text-white flex items-center shadow-xl">
                           <AudioPlayer
@@ -576,9 +660,15 @@ export default function LearningPlatform() {
                             currentTime={audioCurrentTime}
                             duration={audioDuration}
                             playbackRate={audioPlaybackRate}
+                            audioLanguage={audioLanguage}
                             onPlayPause={handleAudioPlayPause}
                             onSeek={handleAudioSeek}
                             onRateChange={handlePlaybackRateChange}
+                            onLanguageChange={setAudioLanguage}
+                            onToggleAudioAutoScroll={() => setAudioAutoScroll(!audioAutoScroll)}
+                            onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
+                            isAudioAutoScrollOn={audioAutoScroll}
+                            isAutoScrollOn={autoScroll}
                             lessonName={selectedItem?.name}
                             isCompact={true}
                             onClose={() => setIsAudioPlayerVisible(false)}
@@ -617,7 +707,7 @@ export default function LearningPlatform() {
                   {isLoading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
                   ) : iframeUrl ? (
-                    <iframe src={iframeUrl} className="w-full h-full rounded-xl" title={selectedItem?.name} style={{ border: "none", minHeight: "500px" }} />
+                    <iframe ref={mainIframeRef} src={iframeUrl} className="w-full h-full rounded-xl" title={selectedItem?.name} style={{ border: "none", minHeight: "300px" }} />
                   ) : (
                     <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
                         <div className="text-center max-w-lg">
@@ -628,26 +718,6 @@ export default function LearningPlatform() {
                     </div>
                   )}
                   
-                  {audioUrl && !isFullscreen && isAudioPlayerVisible && (
-                    <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-3 shadow-lg">
-                       <AudioPlayer
-                          isPlaying={isAudioPlaying}
-                          progress={audioProgress}
-                          currentTime={audioCurrentTime}
-                          duration={audioDuration}
-                          playbackRate={audioPlaybackRate}
-                          onPlayPause={handleAudioPlayPause}
-                          onSeek={handleAudioSeek}
-                          onRateChange={handlePlaybackRateChange}
-                          onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
-                          isAutoScrollOn={autoScroll}
-                          lessonName={selectedItem?.name}
-                          onClose={() => setIsAudioPlayerVisible(false)}
-                          isAudioLoading={isAudioLoading}
-                        />
-                    </div>
-                  )}
-
                   {audioUrl && !isFullscreen && !isAudioPlayerVisible && (
                     <div className="absolute bottom-4 right-4 z-20">
                          <Button size="icon" className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" onClick={() => setIsAudioPlayerVisible(true)}><Music4 className="text-white" /></Button>
@@ -671,8 +741,36 @@ export default function LearningPlatform() {
             </Card>
           </div>
           
-          {/* Fixed Footer - Outside scrollable content */}
-          <div className="bg-gradient-to-r from-slate-50 to-blue-50 border-t border-slate-200 p-4 md:p-6 flex-shrink-0">
+          {/* Mobile: Audio Player at Bottom (10% height) */}
+          {audioUrl && !isFullscreen && isAudioPlayerVisible && (
+            <div className="flex-shrink-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg" style={{ height: windowWidth < 768 ? '10vh' : 'auto', minHeight: windowWidth < 768 ? '80px' : 'auto' }}>
+              <div className="h-full p-2 md:p-3">
+                <AudioPlayer
+                  isPlaying={isAudioPlaying}
+                  progress={audioProgress}
+                  currentTime={audioCurrentTime}
+                  duration={audioDuration}
+                  playbackRate={audioPlaybackRate}
+                  audioLanguage={audioLanguage}
+                  onPlayPause={handleAudioPlayPause}
+                  onSeek={handleAudioSeek}
+                  onRateChange={handlePlaybackRateChange}
+                  onLanguageChange={setAudioLanguage}
+                  onToggleAudioAutoScroll={() => setAudioAutoScroll(!audioAutoScroll)}
+                  onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
+                  isAudioAutoScrollOn={audioAutoScroll}
+                  isAutoScrollOn={autoScroll}
+                  lessonName={selectedItem?.name}
+                  onClose={() => setIsAudioPlayerVisible(false)}
+                  isAudioLoading={isAudioLoading}
+                  isMobile={windowWidth < 768}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Desktop: Fixed Footer */}
+          <div className="hidden md:block bg-gradient-to-r from-slate-50 to-blue-50 border-t border-slate-200 p-4 md:p-6 flex-shrink-0">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4 min-w-0">
@@ -696,14 +794,12 @@ export default function LearningPlatform() {
                 </div>
                 <Button
                   onClick={() => {
-                    // Mark current lesson as completed before continuing
                     if (selectedItem) {
                       markLessonCompleted(selectedItem);
                     }
                     if (nextLesson) {
                       handleItemSelect(nextLesson);
                     } else {
-                      // Handle claim certificate action: navigate to certificate page
                       router.push("/certificate");
                     }
                   }}

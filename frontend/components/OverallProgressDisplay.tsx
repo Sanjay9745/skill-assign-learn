@@ -3,8 +3,11 @@ import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import ProgressCircle from "./ProgressCircle"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 function OverallProgressDisplay({ progress, onCertificateClick }: { progress: number, onCertificateClick?: () => void }) {
+  const router = useRouter();
+
   const getProgressLevel = () => {
     if (progress >= 90) return {
       label: "Expert",
@@ -41,6 +44,14 @@ function OverallProgressDisplay({ progress, onCertificateClick }: { progress: nu
   const level = getProgressLevel()
   const LevelIcon = level.icon
 
+  const handleCertificateClick = () => {
+    if (onCertificateClick) {
+      onCertificateClick();
+    } else {
+      router.push("/certificate");
+    }
+  };
+
   return (
     <div className="flex items-center gap-4">
       <ProgressCircle progress={progress} size={48} />
@@ -56,7 +67,7 @@ function OverallProgressDisplay({ progress, onCertificateClick }: { progress: nu
               size="sm"
               variant="outline"
               className="ml-2 px-2 py-1 border-green-500 text-green-700 bg-green-50 hover:bg-green-100 flex items-center gap-1"
-              onClick={onCertificateClick}
+              onClick={handleCertificateClick}
             >
               <Award className="w-4 h-4" />
               Certificate
