@@ -131,9 +131,9 @@ function AudioPlayer({
             isInFullscreenIframe ? 'bg-white/20 text-white hover:bg-white/30 border-white/30' : ''
           }`}
           onClick={onPlayPause}
-          disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10}
+          disabled={isAudioLoading || !canPlayAudio}
         >
-          {(isAudioLoading && (audioLoadingProgress || 0) < 10) ? (
+          {isAudioLoading ? (
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           ) : (
             isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />
@@ -165,16 +165,16 @@ function AudioPlayer({
               type="range" 
               min="0" 
               max="100" 
-              value={isAudioLoading && !canPlayAudio ? 0 : progress} 
+              value={isAudioLoading ? 0 : progress} 
               onChange={onSeek} 
-              disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10} 
+              disabled={isAudioLoading || !canPlayAudio} 
               className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider-compact ${
                 isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-300'
               }`}
               style={{ 
                 background: isInFullscreenIframe 
-                  ? `linear-gradient(to right, #ffffff 0%, #ffffff ${progress}%, rgba(255,255,255,0.3) ${progress}%, rgba(255,255,255,0.3) 100%)`
-                  : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progress}%, #d1d5db ${progress}%, #d1d5db 100%)`
+                  ? `linear-gradient(to right, #ffffff 0%, #ffffff ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) 100%)`
+                  : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${isAudioLoading ? 0 : progress}%, #d1d5db ${isAudioLoading ? 0 : progress}%, #d1d5db 100%)`
               }}
             />
             {/* Buffer progress indicator */}
@@ -363,9 +363,9 @@ function AudioPlayer({
           isInFullscreenIframe ? 'bg-white/20 text-white hover:bg-white/30 border-white/30' : ''
         }`}
         onClick={onPlayPause}
-        disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10}
+        disabled={isAudioLoading || !canPlayAudio}
       >
-        {(isAudioLoading && (audioLoadingProgress || 0) < 10) ? (
+        {isAudioLoading ? (
           <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
         ) : (
           isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />
@@ -397,16 +397,16 @@ function AudioPlayer({
             type="range" 
             min="0" 
             max="100" 
-            value={isAudioLoading && !canPlayAudio ? 0 : progress} 
+            value={isAudioLoading ? 0 : progress} 
             onChange={onSeek} 
-            disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10} 
+            disabled={isAudioLoading || !canPlayAudio} 
             className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider ${
               isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-200'
             }`}
             style={{ 
               background: isInFullscreenIframe 
-                ? `linear-gradient(to right, #ffffff 0%, #ffffff ${progress}%, rgba(255,255,255,0.3) ${progress}%, rgba(255,255,255,0.3) 100%)`
-                : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progress}%, #e5e7eb ${progress}%, #e5e7eb 100%)`
+                ? `linear-gradient(to right, #ffffff 0%, #ffffff ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) 100%)`
+                : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${isAudioLoading ? 0 : progress}%, #e5e7eb ${isAudioLoading ? 0 : progress}%, #e5e7eb 100%)`
             }}
           />
           {/* Buffer progress indicator */}

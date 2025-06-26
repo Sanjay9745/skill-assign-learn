@@ -271,17 +271,18 @@ export default function LearningPlatform() {
       return;
     }
 
+    // Stop and reset current audio
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current.load();
+      // Don't call load() here as it can cause issues
     }
 
     const currentLanguage = language || audioLanguage;
 
     setIsAudioLoading(true);
     setAudioLoadingProgress(0);
-    setAudioUrl(null);
+    // Don't set audioUrl to null immediately - keep it until new audio is ready
     setIsAudioPlaying(false);
     setAudioProgress(0);
     setAudioCurrentTime(0);
@@ -305,6 +306,8 @@ export default function LearningPlatform() {
       setTotalChunks(totalChunks);
 
       let loadedChunks: Blob[] = [];
+      let hasSetInitialUrl = false;
+
       for (let i = 0; i < totalChunks; i++) {
         if (abortController.signal.aborted) break;
         
@@ -324,8 +327,15 @@ export default function LearningPlatform() {
         setAudioChunks([...loadedChunks]);
         setAudioLoadingProgress(((i + 1) / totalChunks) * 100);
 
-        if (i === 2 || (i === totalChunks - 1)) {
-          updateAudioUrl(loadedChunks);
+        // Set initial URL after first few chunks are loaded
+        if (!hasSetInitialUrl && i >= 2) {
+          updateAudioUrl(loadedChunks, true);
+          hasSetInitialUrl = true;
+        }
+        
+        // Update URL when all chunks are loaded
+        if (i === totalChunks - 1) {
+          updateAudioUrl(loadedChunks, false);
         }
       }
       setIsAudioPlayerVisible(true);
@@ -344,19 +354,28 @@ export default function LearningPlatform() {
     }
   };
 
-  const updateAudioUrl = (chunks: Blob[]) => {
+  const updateAudioUrl = (chunks: Blob[], isPartial = false) => {
     const availableChunks = chunks.filter(Boolean);
     if (availableChunks.length === 0) return;
     
+    // Revoke previous URL to prevent memory leaks
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
     }
     
     const combinedBlob = new Blob(availableChunks, { type: "audio/mpeg" });
     const url = URL.createObjectURL(combinedBlob);
+    
+    // Set the new URL
     setAudioUrl(url);
     
-    if (availableChunks.length >= 3 || availableChunks.length === totalChunks) {
+    // Reset audio element when new URL is set
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+    
+    // Enable playback when we have enough chunks or all chunks
+    if (availableChunks.length >= 3 || (!isPartial && availableChunks.length === totalChunks)) {
       setCanPlayAudio(true);
       setIsAudioPlayerVisible(true);
     }
@@ -373,12 +392,24 @@ export default function LearningPlatform() {
   };
 
   const handleAudioPlayPause = () => {
-    if (audioRef.current && canPlayAudio) {
+    if (audioRef.current && canPlayAudio && !isAudioLoading) {
       if (isAudioPlaying) {
         audioRef.current.pause();
       } else {
+        // Add error handling for play
         audioRef.current.play().catch(error => {
           console.error('Error playing audio:', error);
+          // Try to reload the audio if play fails
+          if (audioRef.current) {
+            audioRef.current.load();
+            setTimeout(() => {
+              if (audioRef.current && canPlayAudio) {
+                audioRef.current.play().catch(err => {
+                  console.error('Failed to play audio after reload:', err);
+                });
+              }
+            }, 100);
+          }
         });
       }
     }
@@ -387,6 +418,10 @@ export default function LearningPlatform() {
   const handleAudioLoadedMetadata = () => {
     if (audioRef.current) {
       setAudioDuration(audioRef.current.duration);
+      // Ensure we can play after metadata is loaded
+      if (!canPlayAudio && audioRef.current.readyState >= 2) {
+        setCanPlayAudio(true);
+      }
     }
   };
 
@@ -396,14 +431,20 @@ export default function LearningPlatform() {
   };
 
   const handleAudioCanPlayThrough = () => {
-    if (!canPlayAudio) setCanPlayAudio(true);
+    setCanPlayAudio(true);
   };
 
   const handleAudioWaiting = () => {
   };
 
   const handleAudioCanPlay = () => {
-    if (!canPlayAudio) setCanPlayAudio(true);
+    setCanPlayAudio(true);
+  };
+
+  const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    console.error('Audio error:', e);
+    setCanPlayAudio(false);
+    setIsAudioPlaying(false);
   };
 
   const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -970,7 +1011,7 @@ export default function LearningPlatform() {
                   
                   {audioUrl && (
                     <audio 
-                      key={`${audioUrl}-${audioLanguage}`}
+                      key={`${selectedItem?.href}-${audioLanguage}`}
                       ref={audioRef} 
                       src={audioUrl} 
                       onTimeUpdate={handleAudioTimeUpdate} 
@@ -981,6 +1022,7 @@ export default function LearningPlatform() {
                       onCanPlay={handleAudioCanPlay}
                       onCanPlayThrough={handleAudioCanPlayThrough}
                       onWaiting={handleAudioWaiting}
+                      onError={handleAudioError}
                       preload="auto"
                     />
                   )}
