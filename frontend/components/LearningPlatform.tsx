@@ -96,6 +96,7 @@ export default function LearningPlatform() {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([])
   const [totalChunks, setTotalChunks] = useState(0)
   const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+  const [wasPlayingBeforeBuffer, setWasPlayingBeforeBuffer] = useState(false)
   const [audioProgress, setAudioProgress] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
@@ -271,18 +272,19 @@ export default function LearningPlatform() {
       return;
     }
 
-    // Stop and reset current audio
+    // Remember playback state before fetching new audio
+    const wasPlaying = isAudioPlaying;
+    
+    // Only stop current audio if we're changing lessons
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      // Don't call load() here as it can cause issues
     }
 
     const currentLanguage = language || audioLanguage;
 
     setIsAudioLoading(true);
     setAudioLoadingProgress(0);
-    // Don't set audioUrl to null immediately - keep it until new audio is ready
     setIsAudioPlaying(false);
     setAudioProgress(0);
     setAudioCurrentTime(0);
@@ -290,6 +292,7 @@ export default function LearningPlatform() {
     setAudioChunks([]);
     setTotalChunks(0);
     setCanPlayAudio(false);
+    setWasPlayingBeforeBuffer(wasPlaying || item.autoPlay); // Remember if we were playing or should auto-play
 
     try {
       const metaRes = await axios.head(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${currentLanguage}`, {
@@ -308,6 +311,7 @@ export default function LearningPlatform() {
       let loadedChunks: Blob[] = [];
       let hasSetInitialUrl = false;
 
+      // Start playback after the very first chunk is loaded
       for (let i = 0; i < totalChunks; i++) {
         if (abortController.signal.aborted) break;
         
@@ -327,17 +331,18 @@ export default function LearningPlatform() {
         setAudioChunks([...loadedChunks]);
         setAudioLoadingProgress(((i + 1) / totalChunks) * 100);
 
-        // Set initial URL after first few chunks are loaded
-        if (!hasSetInitialUrl && i >= 2) {
+        // Start playback after first chunk is loaded
+        if (!hasSetInitialUrl) {
           updateAudioUrl(loadedChunks, true);
           hasSetInitialUrl = true;
-        }
-        
-        // Update URL when all chunks are loaded
-        if (i === totalChunks - 1) {
-          updateAudioUrl(loadedChunks, false);
+        } else if (i % 2 === 0 || i === totalChunks - 1) {
+          // Update URL every few chunks and at the end
+          updateAudioUrl(loadedChunks, i < totalChunks - 1);
         }
       }
+      
+      // Final update with all chunks
+      updateAudioUrl(loadedChunks, false);
       setIsAudioPlayerVisible(true);
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -369,16 +374,40 @@ export default function LearningPlatform() {
     // Set the new URL
     setAudioUrl(url);
     
-    // Reset audio element when new URL is set
-    if (audioRef.current) {
-      audioRef.current.load();
-    }
+    // Enable playback as soon as we have at least the first chunk
+    const hasEnoughData = availableChunks.length >= 1;
     
-    // Enable playback when we have enough chunks or all chunks
-    if (availableChunks.length >= 3 || (!isPartial && availableChunks.length === totalChunks)) {
+    if (hasEnoughData) {
       setCanPlayAudio(true);
       setIsAudioPlayerVisible(true);
+      
+      // Only reset the audio element if it's the first load or we're starting from beginning
+      if (audioRef.current) {
+        if (audioCurrentTime === 0 || !isPartial) {
+          audioRef.current.load();
+        }
+        
+        // Auto-play if we were playing before or it's a new lesson load
+        // Start playback immediately with first chunk
+        if (wasPlayingBeforeBuffer || isPartial) {
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.play()
+                .then(() => {
+                  setIsAudioPlaying(true);
+                  if (!isPartial) {
+                    setWasPlayingBeforeBuffer(false);
+                  }
+                })
+                .catch(error => {
+                  console.error('Error auto-playing audio:', error);
+                });
+            }
+          }, 100);
+        }
+      }
     }
+    
     setAudioBufferLength(availableChunks.length);
   };
 
@@ -435,16 +464,42 @@ export default function LearningPlatform() {
   };
 
   const handleAudioWaiting = () => {
+    // This event fires when the audio needs to buffer more data
+    if (isAudioPlaying) {
+      // Remember that we were playing before buffering
+      setWasPlayingBeforeBuffer(true);
+      
+      // No need to pause here - let the browser handle buffering naturally
+      // Just update the UI state to show buffering is happening
+      console.log("Audio buffering at position:", audioRef.current?.currentTime);
+    }
   };
 
   const handleAudioCanPlay = () => {
     setCanPlayAudio(true);
+    
+    // If we were playing before buffering, resume playback immediately
+    if (wasPlayingBeforeBuffer && audioRef.current && !isAudioPlaying) {
+      audioRef.current.play()
+        .then(() => {
+          setIsAudioPlaying(true);
+          // Only reset wasPlayingBeforeBuffer if we're not in the middle of loading chunks
+          if (!isAudioLoading) {
+            setWasPlayingBeforeBuffer(false);
+          }
+        })
+        .catch(error => {
+          console.error('Error resuming audio after buffering:', error);
+          // Don't reset wasPlayingBeforeBuffer on error so we can try again
+        });
+    }
   };
 
   const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
     console.error('Audio error:', e);
     setCanPlayAudio(false);
     setIsAudioPlaying(false);
+    setWasPlayingBeforeBuffer(false); // Reset this state on error
   };
 
   const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -470,8 +525,6 @@ export default function LearningPlatform() {
     
     console.log('Language changing from', audioLanguage, 'to', newLanguage);
     setAudioLanguage(newLanguage);
-    
-    // Immediately save to localStorage
     if (isMounted) {
       localStorage.setItem("audioLanguage", newLanguage);
     }
@@ -537,6 +590,7 @@ export default function LearningPlatform() {
       audioRef.current.currentTime = 0;
     }
     setIsAudioPlaying(false);
+    setWasPlayingBeforeBuffer(false); // Reset this state when changing lessons
     setAudioProgress(0);
     setAudioCurrentTime(0);
     setAudioDuration(0);
@@ -554,6 +608,7 @@ export default function LearningPlatform() {
     }
 
     return () => {
+      setWasPlayingBeforeBuffer(false); // Also reset on cleanup
       if (htmlAbortControllerRef.current) htmlAbortControllerRef.current.abort();
       if (audioAbortControllerRef.current) audioAbortControllerRef.current.abort();
       if (audioUrl) URL.revokeObjectURL(audioUrl);
