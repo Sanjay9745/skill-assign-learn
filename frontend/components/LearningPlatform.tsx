@@ -102,6 +102,9 @@ export default function LearningPlatform() {
   const [audioBufferLength, setAudioBufferLength] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
 
+  const [isMobileTabVisible, setIsMobileTabVisible] = useState(true)
+  const [lastScrollTop, setLastScrollTop] = useState(0)
+
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
   const mainIframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -513,6 +516,18 @@ export default function LearningPlatform() {
         const maxScroll = Math.max(0, scrollHeight - clientHeight);
         let currentScroll = htmlEl.scrollTop || body.scrollTop;
         
+        // Handle mobile tab visibility based on scroll direction
+        if (windowWidth < 768 && !isFullscreen) {
+          if (currentScroll > lastScrollTop && currentScroll > 50) {
+            // Scrolling down - hide tab
+            setIsMobileTabVisible(false);
+          } else if (currentScroll < lastScrollTop || currentScroll <= 50) {
+            // Scrolling up or near top - show tab
+            setIsMobileTabVisible(true);
+          }
+          setLastScrollTop(currentScroll);
+        }
+        
         if (currentScroll < maxScroll) {
           let scrollIncrement = 0;
           
@@ -558,14 +573,44 @@ export default function LearningPlatform() {
       }
     };
     
+    // Add scroll event listener for mobile tab visibility
+    const handleIframeScroll = () => {
+      if (windowWidth < 768 && !isFullscreen) {
+        try {
+          const doc = iframe.contentWindow?.document;
+          if (doc) {
+            const currentScroll = doc.documentElement.scrollTop || doc.body.scrollTop;
+            
+            if (currentScroll > lastScrollTop && currentScroll > 50) {
+              setIsMobileTabVisible(false);
+            } else if (currentScroll < lastScrollTop || currentScroll <= 50) {
+              setIsMobileTabVisible(true);
+            }
+            setLastScrollTop(currentScroll);
+          }
+        } catch (e) {
+          console.error('Scroll detection error:', e);
+        }
+      }
+    };
+
+    // Set up scroll listener
+    const iframeDoc = iframe.contentWindow?.document;
+    if (iframeDoc) {
+      iframeDoc.addEventListener('scroll', handleIframeScroll, { passive: true });
+    }
+    
     if (audioAutoScroll || autoScroll) {
       frameId = requestAnimationFrame(scrollContent);
     }
     
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
+      if (iframeDoc) {
+        iframeDoc.removeEventListener('scroll', handleIframeScroll);
+      }
     };
-  }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen]);
+  }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen, windowWidth, lastScrollTop]);
 
   if (!isMounted) {
     return (
@@ -692,7 +737,10 @@ export default function LearningPlatform() {
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0 safe-area-inset-top" style={{ height: '10vh', minHeight: '60px' }}>
+          <div className={cn(
+            "md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0 safe-area-inset-top transition-transform duration-300 ease-in-out",
+            isMobileTabVisible ? "translate-y-0" : "-translate-y-full"
+          )} style={{ height: '10vh', minHeight: '60px' }}>
             <div className="h-full flex items-center justify-between px-4">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {nextLesson ? (
