@@ -290,18 +290,19 @@ function AudioPlayer({
               variant="ghost" 
               className={`px-2 py-1 text-xs h-8 min-w-[40px] flex items-center gap-1 ${
                 isInFullscreenIframe ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100'
-              }`}
+              } ${(isAudioLoading || !canPlayAudio) ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => {
+                if (isAudioLoading || !canPlayAudio) return;
                 setShowSpeedDropdown(!showSpeedDropdown);
                 setShowLanguageDropdown(false);
               }}
-              disabled={isAudioLoading}
+              disabled={isAudioLoading || !canPlayAudio}
             >
               {playbackRate}x
               <ChevronDown className="w-3 h-3" />
             </Button>
             
-            {showSpeedDropdown && (
+            {showSpeedDropdown && !isAudioLoading && canPlayAudio && (
               <div className={`absolute bottom-full right-0 mb-2 border rounded-lg shadow-xl z-[60] min-w-[70px] overflow-hidden ${
                 isInFullscreenIframe ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
               }`}>
@@ -314,9 +315,12 @@ function AudioPlayer({
                         : `hover:bg-gray-50 ${playbackRate === rate ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`
                     }`}
                     onClick={() => {
-                      onRateChange(rate);
-                      setShowSpeedDropdown(false);
+                      if (!isAudioLoading && canPlayAudio) {
+                        onRateChange(rate);
+                        setShowSpeedDropdown(false);
+                      }
                     }}
+                    disabled={isAudioLoading || !canPlayAudio}
                   >
                     {rate}x
                     {playbackRate === rate && (
@@ -524,7 +528,7 @@ function AudioPlayer({
         {/* Playback Speed Buttons */}
         <div className={`flex items-center gap-1 rounded-lg p-1 ${
           isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-100'
-        }`}>
+        } ${(isAudioLoading || !canPlayAudio) ? 'opacity-50' : ''}`}>
           {[0.5, 1, 1.5, 2].map(rate => (
             <Button 
               key={rate} 
@@ -533,8 +537,12 @@ function AudioPlayer({
               className={`px-3 py-1 text-xs h-7 min-w-[40px] rounded-md ${
                 isInFullscreenIframe && playbackRate !== rate ? 'text-white hover:bg-white/20' : ''
               }`}
-              onClick={() => onRateChange(rate)} 
-              disabled={isAudioLoading}
+              onClick={() => {
+                if (!isAudioLoading && canPlayAudio) {
+                  onRateChange(rate);
+                }
+              }}
+              disabled={isAudioLoading || !canPlayAudio}
             >
               {rate}x
             </Button>

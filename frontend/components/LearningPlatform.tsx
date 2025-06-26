@@ -414,9 +414,13 @@ export default function LearningPlatform() {
   };
 
   const handlePlaybackRateChange = (rate: number) => {
-    if (audioRef.current) {
-      audioRef.current.playbackRate = rate;
-      setAudioPlaybackRate(rate);
+    if (audioRef.current && canPlayAudio && !isAudioLoading) {
+      try {
+        audioRef.current.playbackRate = rate;
+        setAudioPlaybackRate(rate);
+      } catch (error) {
+        console.error('Error changing playback rate:', error);
+      }
     }
   };
 
@@ -951,7 +955,7 @@ export default function LearningPlatform() {
                       )}
 
                       {audioUrl && !isAudioPlayerVisible && (
-                        <div className="absolute bottom-4 right-4 z-20 lg:bottom-28">
+                        <div className="absolute bottom-20 right-4 z-20 lg:bottom-28">
                           <Button 
                             size="icon" 
                             className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" 
