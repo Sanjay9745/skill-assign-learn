@@ -35,7 +35,30 @@ app.get('/page', async (req, res, next) => {
 });
 app.get('/audio', async (req, res, next) => {
   try {
-    const courseFile = path.join(__dirname, 'course', req.query.courseAudio + '.wav');
+    let courseFile;
+    
+    if (req.query.language) {
+      // Split courseAudio to get course and part
+      const audioPath = req.query.courseAudio; // e.g., "/html/html-part-1"
+      const pathParts = audioPath.split('/');
+      const courseName = pathParts[1]; // "html"
+      const partName = pathParts[2]; // "html-part-1"
+      
+      // Extract first 3 characters of language for file naming
+      const langCode = req.query.language.substring(0, 3);
+      courseFile = path.join(__dirname, 'course', 'courses', courseName, 'language', req.query.language, partName + '-' + langCode + '.wav');
+      
+      try {
+        await fs.promises.access(courseFile, fs.constants.F_OK);
+        res.sendFile(courseFile);
+        return;
+      } catch (err) {
+        // Language-specific file doesn't exist, fall back to default
+      }
+    }
+    
+    // Default audio file
+    courseFile = path.join(__dirname, 'course', req.query.courseAudio + '.wav');
     await fs.promises.access(courseFile, fs.constants.F_OK);
     res.sendFile(courseFile);
   } catch (err) {
