@@ -59,7 +59,7 @@ app.get('/audio', async (req, res, next) => {
     }
     
     // Default audio file
-    courseFile = path.join(__dirname, 'course', req.query.courseAudio + '.wav');
+    courseFile = path.join(__dirname, 'course', req.query.courseAudio + '.mp3');
     await fs.promises.access(courseFile, fs.constants.F_OK);
     res.sendFile(courseFile);
   } catch (err) {
