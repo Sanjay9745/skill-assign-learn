@@ -10,6 +10,7 @@ const cors = require('cors');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var coursesRouter = require('./routes/courses');
+const audioRouter = require('./routes/audio');
 
 var app = express();
 
@@ -46,7 +47,7 @@ app.get('/audio', async (req, res, next) => {
       
       // Extract first 3 characters of language for file naming
       const langCode = req.query.language.substring(0, 3);
-      courseFile = path.join(__dirname, 'course', 'courses', courseName, 'language', req.query.language, partName + '-' + langCode + '.wav');
+      courseFile = path.join(__dirname, 'course', courseName, 'language', req.query.language, partName + '-' + langCode + '.wav');
       
       try {
         await fs.promises.access(courseFile, fs.constants.F_OK);
@@ -69,6 +70,7 @@ app.get('/audio', async (req, res, next) => {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/courses', coursesRouter);
+app.use('/api/audio', audioRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
