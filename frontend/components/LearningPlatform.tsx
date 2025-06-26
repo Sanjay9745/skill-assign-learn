@@ -36,6 +36,7 @@ import {
   Pause,
   Music4,
   ArrowDownToLine,
+  MoreHorizontal,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import cdnUrl from "@/api/cdnUrl"
@@ -76,17 +77,15 @@ export default function LearningPlatform() {
   const [isLoading, setIsLoading] = useState(false)
   const [iframeUrl, setIframeUrl] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showFullscreenControls, setShowFullscreenControls] = useState(false)
 
-  // FIX: State to manage hydration and prevent SSR mismatch
   const [isMounted, setIsMounted] = useState(false);
 
-  // Unified Auto-scroll and Zoom State
-  const [autoScroll, setAutoScroll] = useState(false) // Manual auto-scroll
-  const [audioAutoScroll, setAudioAutoScroll] = useState(false) // Audio-based auto-scroll
+  const [autoScroll, setAutoScroll] = useState(false)
+  const [audioAutoScroll, setAudioAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(1)
   const [zoomLevel, setZoomLevel] = useState(1)
 
-  // Audio player state (cleaned up)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [audioChunks, setAudioChunks] = useState<Blob[]>([])
   const [totalChunks, setTotalChunks] = useState(0)
@@ -103,27 +102,21 @@ export default function LearningPlatform() {
   const [audioBufferLength, setAudioBufferLength] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  // Add ref for fullscreen iframe
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
-  // Add ref for main content iframe
   const mainIframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Add refs for abort controllers
   const htmlAbortControllerRef = useRef<AbortController | null>(null);
   const audioAbortControllerRef = useRef<AbortController | null>(null);
 
   const router = useRouter();
 
-  // FIX: Set mount state to true only on the client after initial render
   useEffect(() => {
     setIsMounted(true);
   }, []);
   
-  // Load initial data from localStorage or defaults
   useEffect(() => {
-    if (!isMounted) return; // Don't run on server or first client render
+    if (!isMounted) return;
 
-   
     const stored = localStorage.getItem("sidebarData");
     let dataToUse = defaultSidebarData;
     if (stored) {
@@ -141,15 +134,13 @@ export default function LearningPlatform() {
         setSelectedItem(firstLesson);
     }
   }, [isMounted]);
-  
-  // Persist sidebar state to localStorage
+
   useEffect(() => {
     if (sidebarState.length > 0) {
       localStorage.setItem("sidebarData", JSON.stringify(sidebarState))
     }
   }, [sidebarState])
 
-  // Handle window resizing
   useEffect(() => {
     const handleResize = () => {
         setWindowWidth(window.innerWidth);
@@ -160,9 +151,23 @@ export default function LearningPlatform() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [])
-  
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const storedLanguage = localStorage.getItem("audioLanguage");
+    if (storedLanguage) {
+      setAudioLanguage(storedLanguage);
+    }
+  }, [isMounted]);
+
+  useEffect(() => {
+    if (audioLanguage) {
+      localStorage.setItem("audioLanguage", audioLanguage);
+    }
+  }, [audioLanguage]);
+
   const fetchAndShowHtml = async (item: any) => {
-    // Abort previous HTML fetch if any
     if (htmlAbortControllerRef.current) {
       htmlAbortControllerRef.current.abort();
     }
@@ -237,14 +242,14 @@ export default function LearningPlatform() {
       return;
     }
 
-    setIsAudioLoading(true);
-    setAudioLoadingProgress(0);
-
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current.load();
     }
 
+    setIsAudioLoading(true);
+    setAudioLoadingProgress(0);
     setAudioUrl(null);
     setIsAudioPlaying(false);
     setAudioProgress(0);
@@ -259,16 +264,22 @@ export default function LearningPlatform() {
         signal: abortController.signal
       });
       const contentLength = parseInt(metaRes.headers['content-length'] || '0');
+      
+      if (contentLength === 0) {
+        throw new Error('No audio content available');
+      }
+
       const chunkSize = Math.ceil(contentLength / 10);
       const totalChunks = Math.ceil(contentLength / chunkSize);
       setTotalChunks(totalChunks);
 
-      // Load chunks sequentially
       let loadedChunks: Blob[] = [];
       for (let i = 0; i < totalChunks; i++) {
         if (abortController.signal.aborted) break;
+        
         const start = i * chunkSize;
-        const end = start + chunkSize - 1;
+        const end = Math.min(start + chunkSize - 1, contentLength - 1);
+        
         const res = await axios.get(
           `${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`,
           {
@@ -277,12 +288,12 @@ export default function LearningPlatform() {
             headers: { 'Range': `bytes=${start}-${end}` }
           }
         );
+        
         loadedChunks[i] = new Blob([res.data], { type: res.headers['content-type'] || "audio/mpeg" });
         setAudioChunks([...loadedChunks]);
         setAudioLoadingProgress(((i + 1) / totalChunks) * 100);
 
-        // Update audioUrl as soon as the first chunk is loaded
-        if (i === 0 || loadedChunks.filter(Boolean).length >= Math.min(3, totalChunks)) {
+        if (i === 2 || (i === totalChunks - 1)) {
           updateAudioUrl(loadedChunks);
         }
       }
@@ -291,11 +302,11 @@ export default function LearningPlatform() {
       if (axios.isCancel(error)) {
         console.log('Chunked audio fetch request canceled:', item.href);
       } else {
+        console.error("Error fetching audio:", error);
         setAudioUrl(null);
         setIsAudioPlayerVisible(false);
         setAudioChunks([]);
         setCanPlayAudio(false);
-        console.error("Error fetching chunked audio content for", item.href, error);
       }
     } finally {
       setIsAudioLoading(false);
@@ -305,11 +316,16 @@ export default function LearningPlatform() {
   const updateAudioUrl = (chunks: Blob[]) => {
     const availableChunks = chunks.filter(Boolean);
     if (availableChunks.length === 0) return;
+    
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    
     const combinedBlob = new Blob(availableChunks, { type: "audio/mpeg" });
     const url = URL.createObjectURL(combinedBlob);
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(url);
-    if (availableChunks.length > 0 && !canPlayAudio) {
+    
+    if (availableChunks.length >= 3 || availableChunks.length === totalChunks) {
       setCanPlayAudio(true);
       setIsAudioPlayerVisible(true);
     }
@@ -353,7 +369,6 @@ export default function LearningPlatform() {
   };
 
   const handleAudioWaiting = () => {
-    // Optionally show buffering UI
   };
 
   const handleAudioCanPlay = () => {
@@ -374,6 +389,17 @@ export default function LearningPlatform() {
     }
   };
 
+  const handleLanguageChange = (newLanguage: string) => {
+    if (newLanguage === audioLanguage) return;
+    
+    setAudioLanguage(newLanguage);
+    if (selectedItem && selectedItem.href) {
+      setTimeout(() => {
+        fetchAudioChunked(selectedItem);
+      }, 100);
+    }
+  };
+
   const handleItemSelect = (item: any) => {
     if(item.name === selectedItem?.name) return;
     setSelectedItem(item);
@@ -382,7 +408,6 @@ export default function LearningPlatform() {
     }
   };
 
-  // Helper to mark a lesson as completed (progress 100)
   const markLessonCompleted = (item: any) => {
     setSidebarState(prev => {
       const updateProgress = (items: any[]): any[] =>
@@ -399,7 +424,6 @@ export default function LearningPlatform() {
     });
   };
 
-  // Helper to count all leaf lessons (not categories/certificates)
   const countLessons = (items: any[]): number =>
     items.reduce((count, item) => {
       if (item.children && item.children.length > 0) {
@@ -411,7 +435,6 @@ export default function LearningPlatform() {
       return count;
     }, 0);
 
-  // Helper to sum progress of all leaf lessons
   const sumProgress = (items: any[]): number =>
     items.reduce((sum, item) => {
       if (item.children && item.children.length > 0) {
@@ -423,13 +446,11 @@ export default function LearningPlatform() {
       return sum;
     }, 0);
 
-  // Calculate overall progress as average of all lesson progresses (ignoring categories/certificates)
   const totalLessons = countLessons(sidebarState);
   const totalProgress = sumProgress(sidebarState);
   const overallProgress = totalLessons > 0 ? Math.round(totalProgress / totalLessons) : 0;
 
   useEffect(() => {
-    // Stop and reset previous audio explicitly before fetching new
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -443,7 +464,7 @@ export default function LearningPlatform() {
     
     if (selectedItem && selectedItem.href) {
       fetchAndShowHtml(selectedItem);
-      fetchAudioChunked(selectedItem); // Use chunked loading
+      fetchAudioChunked(selectedItem);
     } else {
       setIframeUrl(null);
       setAudioUrl(null);
@@ -452,20 +473,16 @@ export default function LearningPlatform() {
     }
 
     return () => {
-      // Cleanup
       if (htmlAbortControllerRef.current) htmlAbortControllerRef.current.abort();
       if (audioAbortControllerRef.current) audioAbortControllerRef.current.abort();
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
-    // eslint-disable-next-line
   }, [selectedItem?.href]);
 
-  // Add effect to refetch audio when language changes
   useEffect(() => {
     if (selectedItem && selectedItem.href && audioUrl) {
-      fetchAudioChunked(selectedItem); // Use chunked loading
+      fetchAudioChunked(selectedItem);
     }
-    // eslint-disable-next-line
   }, [audioLanguage]);
 
   const MIN_ZOOM = 1;
@@ -498,17 +515,13 @@ export default function LearningPlatform() {
         if (currentScroll < maxScroll) {
           let scrollIncrement = 0;
           
-          // Priority: Audio auto-scroll > Manual auto-scroll
           if (audioAutoScroll && isAudioPlaying && audioDuration > 0) {
-            // Audio-based scrolling: sync with audio progress
             const audioProgressRatio = audioCurrentTime / audioDuration;
             const targetScroll = audioProgressRatio * maxScroll;
             
-            // Smooth scrolling towards audio position
             const diff = targetScroll - currentScroll;
             scrollIncrement = Math.max(0.5, Math.abs(diff) * 0.1) * Math.sign(diff);
           } else if (autoScroll) {
-            // Manual auto-scroll with speed control
             scrollIncrement = 1.0 * scrollSpeed;
           }
           
@@ -517,7 +530,6 @@ export default function LearningPlatform() {
             currentScroll = Math.min(currentScroll, maxScroll);
             htmlEl.scrollTop = body.scrollTop = currentScroll;
             
-            // Update lesson progress
             if (sidebarState && selectedItem && selectedItem.href && maxScroll > 0) {
               const percent = Math.min(100, Math.round((currentScroll / maxScroll) * 100));
               if (percent > (selectedItem.progress || 0)) {
@@ -554,7 +566,6 @@ export default function LearningPlatform() {
     };
   }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen]);
 
-  // FIX: Show a loading screen until the component is mounted on the client
   if (!isMounted) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
@@ -636,7 +647,6 @@ export default function LearningPlatform() {
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
                 {sidebarState.map((item, index) => {
-                  // Only unlock the first item, or unlock if ALL previous are completed (progress 100 for leaves, all children 100 for categories)
                   let isUnlocked = false;
                   if (item.icon === "certificate") {
                     isUnlocked = overallProgress > 50;
@@ -681,8 +691,7 @@ export default function LearningPlatform() {
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          {/* Mobile: Up Next Section at Top (10% height) */}
-          <div className="md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0" style={{ height: '10vh', minHeight: '60px' }}>
+          <div className="md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0 safe-area-inset-top" style={{ height: '10vh', minHeight: '60px' }}>
             <div className="h-full flex items-center justify-between px-4">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {nextLesson ? (
@@ -726,36 +735,109 @@ export default function LearningPlatform() {
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden">
+          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-safe">
             <Card className="h-full shadow-xl border-0 overflow-hidden">
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative">
                   {isFullscreen && (
-                    <div className="fixed inset-0 z-50 flex flex-col">
-                      <div className="absolute top-4 right-4 z-[52] flex flex-col sm:flex-row gap-2 items-center">
-                        <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => setIsFullscreen(false)}><Minimize2 /></Button>
-                        <Button size="icon" variant={audioAutoScroll ? "default" : "secondary"} className="rounded-full shadow-lg" onClick={() => setAudioAutoScroll(!audioAutoScroll)}><Music4 /></Button>
-                        <Button size="icon" variant={autoScroll ? "default" : "secondary"} className="rounded-full shadow-lg" onClick={() => setAutoScroll(!autoScroll)}><ArrowDownToLine /></Button>
-                        <select className="rounded-full px-2 bg-white text-sm border border-gray-300 focus:outline-none h-10 shadow-lg" value={scrollSpeed} onChange={e => setScrollSpeed(Number(e.target.value))}>
-                          <option value={0.5}>0.5x</option><option value={1}>1x</option><option value={1.5}>1.5x</option><option value={2}>2x</option><option value={3}>3x</option>
-                        </select>
-                        {nextLesson && (<Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => {
-                          handleItemSelect(nextLesson);
-                          setIsFullscreen(false);
-                          setAutoScroll(false);
-                          setAudioAutoScroll(false);
-                          setZoomLevel(1);
-                        }}><ChevronRight /></Button>)}
+                    <div className="fixed inset-0 z-50 flex flex-col bg-black">
+                      <div className="absolute top-4 right-4 z-[52] flex items-center gap-2">
+                        <Button 
+                          size="icon" 
+                          variant="secondary" 
+                          className="rounded-full shadow-lg bg-black/50 hover:bg-black/70 text-white border-white/20" 
+                          onClick={() => setShowFullscreenControls(!showFullscreenControls)}
+                        >
+                          <MoreHorizontal className="w-5 h-5" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant={audioAutoScroll ? "default" : "secondary"} 
+                          className="rounded-full shadow-lg bg-black/50 hover:bg-black/70 text-white border-white/20" 
+                          onClick={() => setAudioAutoScroll(!audioAutoScroll)}
+                        >
+                          <Music4 className="w-5 h-5" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="secondary" 
+                          className="rounded-full shadow-lg bg-black/50 hover:bg-black/70 text-white border-white/20" 
+                          onClick={() => setIsFullscreen(false)}
+                        >
+                          <Minimize2 className="w-5 h-5" />
+                        </Button>
                       </div>
-                      <div className="absolute bottom-20 right-4 z-[52] flex flex-col gap-2">
-                        <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleZoomIn}><ZoomIn /></Button>
-                        <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleZoomOut} disabled={zoomLevel <= MIN_ZOOM}><ZoomOut /></Button>
-                        <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={handleResetZoom}><RotateCcw className="w-5 h-5" /></Button>
-                      </div>
-                      {/* Audio Player in Fullscreen */}
+
+                      {showFullscreenControls && (
+                        <div className="absolute top-16 right-4 z-[52] bg-black/80 backdrop-blur-sm rounded-xl p-3 shadow-xl">
+                          <div className="flex flex-col gap-2">
+                            <Button 
+                              size="icon" 
+                              variant={autoScroll ? "default" : "secondary"} 
+                              className="rounded-full" 
+                              onClick={() => setAutoScroll(!autoScroll)}
+                            >
+                              <ArrowDownToLine className="w-5 h-5" />
+                            </Button>
+                            <select 
+                              className="rounded-full px-3 py-2 bg-white/90 text-black text-sm border-0 focus:outline-none shadow-lg" 
+                              value={scrollSpeed} 
+                              onChange={e => setScrollSpeed(Number(e.target.value))}
+                            >
+                              <option value={0.5}>0.5x</option>
+                              <option value={1}>1x</option>
+                              <option value={1.5}>1.5x</option>
+                              <option value={2}>2x</option>
+                              <option value={3}>3x</option>
+                            </select>
+                            <Button 
+                              size="icon" 
+                              variant="secondary" 
+                              className="rounded-full" 
+                              onClick={handleZoomIn}
+                            >
+                              <ZoomIn className="w-5 h-5" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              variant="secondary" 
+                              className="rounded-full" 
+                              onClick={handleZoomOut} 
+                              disabled={zoomLevel <= MIN_ZOOM}
+                            >
+                              <ZoomOut className="w-5 h-5" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              variant="secondary" 
+                              className="rounded-full" 
+                              onClick={handleResetZoom}
+                            >
+                              <RotateCcw className="w-5 h-5" />
+                            </Button>
+                            {nextLesson && (
+                              <Button 
+                                size="icon" 
+                                variant="secondary" 
+                                className="rounded-full" 
+                                onClick={() => {
+                                  handleItemSelect(nextLesson);
+                                  setIsFullscreen(false);
+                                  setAutoScroll(false);
+                                  setAudioAutoScroll(false);
+                                  setZoomLevel(1);
+                                  setShowFullscreenControls(false);
+                                }}
+                              >
+                                <ChevronRight className="w-5 h-5" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {audioUrl && isAudioPlayerVisible && (
-                        <div className="absolute bottom-4 left-4 right-4 z-[51] bg-black/80 backdrop-blur-sm rounded-xl p-2 text-white flex items-center shadow-xl">
+                        <div className="absolute bottom-4 left-4 right-4 z-[51] bg-black/80 backdrop-blur-sm rounded-xl p-3 text-white shadow-xl">
                           <AudioPlayer
                             isPlaying={isAudioPlaying}
                             progress={audioProgress}
@@ -766,7 +848,7 @@ export default function LearningPlatform() {
                             onPlayPause={handleAudioPlayPause}
                             onSeek={handleAudioSeek}
                             onRateChange={handlePlaybackRateChange}
-                            onLanguageChange={setAudioLanguage}
+                            onLanguageChange={handleLanguageChange}
                             onToggleAudioAutoScroll={() => setAudioAutoScroll(!audioAutoScroll)}
                             onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
                             isAudioAutoScrollOn={audioAutoScroll}
@@ -781,11 +863,19 @@ export default function LearningPlatform() {
                           />
                         </div>
                       )}
+
                       {audioUrl && !isAudioPlayerVisible && (
                         <div className="absolute bottom-6 left-6 z-[52]">
-                          <Button size="icon" className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" onClick={() => setIsAudioPlayerVisible(true)}><Music4 className="text-white" /></Button>
+                          <Button 
+                            size="icon" 
+                            className="rounded-full shadow-xl w-14 h-14 bg-blue-600 hover:bg-blue-700" 
+                            onClick={() => setIsAudioPlayerVisible(true)}
+                          >
+                            <Music4 className="text-white w-6 h-6" />
+                          </Button>
                         </div>
                       )}
+
                       <div className="w-full h-full flex-1 overflow-auto">
                         {iframeUrl && (
                           <iframe
@@ -804,34 +894,59 @@ export default function LearningPlatform() {
                       </div>
                     </div>
                   )}
-                  {!isFullscreen && iframeUrl && (
-                    <div className="absolute top-4 right-4 z-20">
-                      <Button size="icon" variant="secondary" className="rounded-full shadow-lg" onClick={() => setIsFullscreen(true)}><Maximize2 /></Button>
-                    </div>
-                  )}
-                  {isLoading ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/80"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
-                  ) : iframeUrl ? (
-                    <iframe ref={mainIframeRef} src={iframeUrl} className="w-full h-full rounded-xl" title={selectedItem?.name} style={{ border: "none", minHeight: "300px" }} />
-                  ) : (
-                    <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
-                        <div className="text-center max-w-lg">
+
+                  {!isFullscreen && (
+                    <>
+                      <div className="absolute top-4 right-4 z-20">
+                        <Button 
+                          size="icon" 
+                          variant="secondary" 
+                          className="rounded-full shadow-lg" 
+                          onClick={() => setIsFullscreen(true)}
+                        >
+                          <Maximize2 className="w-5 h-5" />
+                        </Button>
+                      </div>
+                      
+                      {isLoading ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+                          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      ) : iframeUrl ? (
+                        <iframe 
+                          ref={mainIframeRef} 
+                          src={iframeUrl} 
+                          className="w-full h-full rounded-xl" 
+                          title={selectedItem?.name} 
+                          style={{ border: "none", minHeight: "300px" }} 
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
+                          <div className="text-center max-w-lg">
                             <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl"><Play className="w-12 h-12 text-white" /></div>
                             <h3 className="text-2xl font-bold text-slate-900 mb-4">{selectedItem?.name || "Ready to Learn?"}</h3>
                             <p className="text-slate-600 text-lg leading-relaxed">{selectedItem?.description || "Choose a topic from the sidebar to start your learning journey"}</p>
+                          </div>
                         </div>
-                    </div>
-                  )}
-                  
-                  {audioUrl && !isFullscreen && !isAudioPlayerVisible && (
-                    <div className="absolute bottom-4 right-4 z-20">
-                         <Button size="icon" className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" onClick={() => setIsAudioPlayerVisible(true)}><Music4 className="text-white" /></Button>
-                    </div>
+                      )}
+
+                      {audioUrl && !isAudioPlayerVisible && (
+                        <div className="absolute bottom-4 right-4 z-20">
+                          <Button 
+                            size="icon" 
+                            className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" 
+                            onClick={() => setIsAudioPlayerVisible(true)}
+                          >
+                            <Music4 className="text-white w-5 h-5" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   )}
                   
                   {audioUrl && (
                     <audio 
-                      key={audioUrl || 'no-audio'}
+                      key={`${audioUrl}-${audioLanguage}`}
                       ref={audioRef} 
                       src={audioUrl} 
                       onTimeUpdate={handleAudioTimeUpdate} 
@@ -843,17 +958,20 @@ export default function LearningPlatform() {
                       onCanPlayThrough={handleAudioCanPlayThrough}
                       onWaiting={handleAudioWaiting}
                       preload="auto"
-                      />
+                    />
                   )}
                 </div>
               </div>
             </Card>
           </div>
           
-          {/* Mobile: Audio Player at Bottom (10% height) */}
           {audioUrl && !isFullscreen && isAudioPlayerVisible && (
-            <div className="flex-shrink-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg" style={{ height: windowWidth < 768 ? '10vh' : 'auto', minHeight: windowWidth < 768 ? '80px' : 'auto' }}>
-              <div className="h-full p-2 md:p-3">
+            <div className="flex-shrink-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg safe-area-inset-bottom" 
+                 style={{ 
+                   minHeight: windowWidth < 768 ? '90px' : 'auto',
+                   paddingBottom: windowWidth < 768 ? 'env(safe-area-inset-bottom)' : '0'
+                 }}>
+              <div className="p-3 md:p-4">
                 <AudioPlayer
                   isPlaying={isAudioPlaying}
                   progress={audioProgress}
@@ -864,7 +982,7 @@ export default function LearningPlatform() {
                   onPlayPause={handleAudioPlayPause}
                   onSeek={handleAudioSeek}
                   onRateChange={handlePlaybackRateChange}
-                  onLanguageChange={setAudioLanguage}
+                  onLanguageChange={handleLanguageChange}
                   onToggleAudioAutoScroll={() => setAudioAutoScroll(!audioAutoScroll)}
                   onToggleAutoScroll={() => setAutoScroll(!autoScroll)}
                   isAudioAutoScrollOn={audioAutoScroll}
@@ -881,7 +999,6 @@ export default function LearningPlatform() {
             </div>
           )}
 
-          {/* Desktop: Fixed Footer */}
           <div className="hidden md:block bg-gradient-to-r from-slate-50 to-blue-50 border-t border-slate-200 p-4 md:p-6 flex-shrink-0">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -926,9 +1043,25 @@ export default function LearningPlatform() {
           </div>
         </main>
       </div>
+
       <style jsx>{`
-        .slider::-webkit-slider-thumb { appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .slider::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .safe-area-inset-top { padding-top: env(safe-area-inset-top); }
+        .safe-area-inset-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        .pb-safe { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+        
+        @media (min-width: 768px) {
+          .pb-safe { padding-bottom: 0; }
+        }
+        
+        .slider::-webkit-slider-thumb { 
+          appearance: none; height: 16px; width: 16px; border-radius: 50%; 
+          background: #3b82f6; cursor: pointer; border: 2px solid white; 
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+        }
+        .slider::-moz-range-thumb { 
+          height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; 
+          cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+        }
         .slider-compact::-webkit-slider-thumb { background: #fff; }
         .slider-compact::-moz-range-thumb { background: #fff; }
       `}</style>
