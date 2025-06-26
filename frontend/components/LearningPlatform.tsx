@@ -68,6 +68,12 @@ function findNextLesson(currentItem: any, data: any[]): any | null {
   return null;
 }
 
+function formatTime(time: number) {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+}
+
 export default function LearningPlatform() {
   const [sidebarState, setSidebarState] = useState<any[]>([])
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -102,8 +108,6 @@ export default function LearningPlatform() {
   const [audioBufferLength, setAudioBufferLength] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  const [isMobileTabVisible, setIsMobileTabVisible] = useState(true)
-  const [lastScrollTop, setLastScrollTop] = useState(0)
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
@@ -113,6 +117,8 @@ export default function LearningPlatform() {
   const audioAbortControllerRef = useRef<AbortController | null>(null);
 
   const router = useRouter();
+
+  const [showFloatingPlayer, setShowFloatingPlayer] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -170,6 +176,25 @@ export default function LearningPlatform() {
       localStorage.setItem("audioLanguage", audioLanguage);
     }
   }, [audioLanguage, isMounted]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (audioUrl && !isFullscreen && isAudioPlayerVisible) {
+        const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        if (scrollPosition > 200 || scrollPosition / (documentHeight - windowHeight) > 0.2) {
+          setShowFloatingPlayer(true);
+        } else {
+          setShowFloatingPlayer(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [audioUrl, isFullscreen, isAudioPlayerVisible]);
 
   const fetchAndShowHtml = async (item: any) => {
     if (htmlAbortControllerRef.current) {
@@ -499,114 +524,7 @@ export default function LearningPlatform() {
 
   const handleIframeLoad = () => {
     setIframeLoaded(true);
-    
-    // Add scroll event listener to iframe after a slight delay to ensure it's loaded
-    setTimeout(() => {
-      const iframe = mainIframeRef.current;
-      if (iframe && iframe.contentWindow && iframe.contentDocument) {
-        try {
-          iframe.contentWindow.addEventListener('scroll', handleIframeScroll, { passive: true });
-          // Also listen to document scroll for cases where iframe events don't bubble up
-          document.addEventListener('scroll', handleDocumentScroll, { passive: true });
-        } catch (error) {
-          console.error('Error setting up scroll listeners:', error);
-        }
-      }
-    }, 500);
   };
-
-  const handleIframeScroll = (event: any) => {
-    if (windowWidth >= 768 || isFullscreen) return;
-    
-    try {
-      let currentScroll;
-      if (event.target.documentElement) {
-        currentScroll = event.target.documentElement.scrollTop;
-      } else {
-        currentScroll = event.target.scrollTop || 0;
-      }
-      
-      // Only update if scroll position changed significantly
-      if (Math.abs(currentScroll - lastScrollTop) > 10) {
-        if (currentScroll > lastScrollTop && currentScroll > 50) {
-          // Scrolling down - hide tab
-          setIsMobileTabVisible(false);
-        } else if (currentScroll < lastScrollTop || currentScroll <= 20) {
-          // Scrolling up or near top - show tab
-          setIsMobileTabVisible(true);
-        }
-        setLastScrollTop(currentScroll);
-      }
-    } catch (e) {
-      console.error('Iframe scroll handler error:', e);
-    }
-  };
-
-  const handleDocumentScroll = () => {
-    if (windowWidth >= 768 || isFullscreen) return;
-    
-    const currentScroll = window.scrollY || document.documentElement.scrollTop;
-    
-    // Only update if scroll position changed significantly
-    if (Math.abs(currentScroll - lastScrollTop) > 10) {
-      if (currentScroll > lastScrollTop && currentScroll > 50) {
-        // Scrolling down - hide tab
-        setIsMobileTabVisible(false);
-      } else if (currentScroll < lastScrollTop || currentScroll <= 20) {
-        // Scrolling up or near top - show tab
-        setIsMobileTabVisible(true);
-      }
-      setLastScrollTop(currentScroll);
-    }
-  };
-
-  useEffect(() => {
-    let lastKnownScrollPosition = 0;
-    let ticking = false;
-    
-    const onScroll = () => {
-      if (windowWidth >= 768 || isFullscreen) return;
-      
-      lastKnownScrollPosition = window.scrollY;
-      
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (lastKnownScrollPosition > lastScrollTop + 10 && lastKnownScrollPosition > 50) {
-            setIsMobileTabVisible(false);
-          } else if (lastKnownScrollPosition < lastScrollTop - 10 || lastKnownScrollPosition <= 20) {
-            setIsMobileTabVisible(true);
-          }
-          setLastScrollTop(lastKnownScrollPosition);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    // For mobile - listen to touch events
-    window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('touchmove', onScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('touchmove', onScroll);
-    };
-  }, [windowWidth, isFullscreen, lastScrollTop]);
-
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('scroll', handleDocumentScroll);
-      
-      const iframe = mainIframeRef.current;
-      if (iframe && iframe.contentWindow) {
-        try {
-          iframe.contentWindow.removeEventListener('scroll', handleIframeScroll);
-        } catch (e) {
-          // Ignore errors when cleaning up
-        }
-      }
-    };
-  }, [windowWidth, isFullscreen]);
 
   useEffect(() => {
     if (!iframeUrl) return;
@@ -672,7 +590,7 @@ export default function LearningPlatform() {
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
     };
-  }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen, windowWidth, lastScrollTop]);
+  }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen, windowWidth]);
 
   if (!isMounted) {
     return (
@@ -800,11 +718,7 @@ export default function LearningPlatform() {
 
         <main className="flex-1 flex flex-col overflow-hidden">
           <div 
-            className={cn(
-              "md:hidden fixed left-0 right-0 top-16 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 z-30 safe-area-inset-top",
-              "transition-transform duration-300 ease-in-out",
-              isMobileTabVisible ? "translate-y-0" : "-translate-y-full"
-            )} 
+            className="md:hidden fixed left-0 right-0 top-16 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 z-30 safe-area-inset-top"
             style={{ 
               height: '10vh', 
               minHeight: '60px',
@@ -854,13 +768,25 @@ export default function LearningPlatform() {
             </div>
           </div>
 
-          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-safe pt-safe-mobile">
+          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-2 md:pb-safe pt-safe-mobile">
             <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ minHeight: windowWidth < 768 ? "calc(100vh - 200px)" : "calc(100vh - 300px)" }}>
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative">
                   {isFullscreen && (
                     <div className="fixed inset-0 z-50 flex flex-col bg-black">
                       <div className="absolute top-4 right-4 z-[52] flex items-center gap-2">
+                        {nextLesson && (
+                          <Button 
+                            size="sm" 
+                            className="rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 text-white px-4"
+                            onClick={() => {
+                              if (selectedItem) markLessonCompleted(selectedItem);
+                              handleItemSelect(nextLesson);
+                            }}
+                          >
+                            Next Lesson <ChevronRight className="ml-1 w-4 h-4" />
+                          </Button>
+                        )}
                         <Button 
                           size="icon" 
                           variant="secondary" 
@@ -934,23 +860,6 @@ export default function LearningPlatform() {
                             >
                               <RotateCcw className="w-5 h-5" />
                             </Button>
-                            {nextLesson && (
-                              <Button 
-                                size="icon" 
-                                variant="secondary" 
-                                className="rounded-full" 
-                                onClick={() => {
-                                  handleItemSelect(nextLesson);
-                                  setIsFullscreen(false);
-                                  setAutoScroll(false);
-                                  setAudioAutoScroll(false);
-                                  setZoomLevel(1);
-                                  setShowFullscreenControls(false);
-                                }}
-                              >
-                                <ChevronRight className="w-5 h-5" />
-                              </Button>
-                            )}
                           </div>
                         </div>
                       )}
@@ -974,24 +883,13 @@ export default function LearningPlatform() {
                             isAutoScrollOn={autoScroll}
                             lessonName={selectedItem?.name}
                             isCompact={true}
+                            isDarkMode={true}
                             onClose={() => setIsAudioPlayerVisible(false)}
                             isAudioLoading={isAudioLoading}
                             audioLoadingProgress={audioLoadingProgress}
                             canPlayAudio={canPlayAudio}
                             audioBufferLength={audioBufferLength}
                           />
-                        </div>
-                      )}
-
-                      {audioUrl && !isAudioPlayerVisible && (
-                        <div className="absolute bottom-6 left-6 z-[52]">
-                          <Button 
-                            size="icon" 
-                            className="rounded-full shadow-xl w-14 h-14 bg-blue-600 hover:bg-blue-700" 
-                            onClick={() => setIsAudioPlayerVisible(true)}
-                          >
-                            <Music4 className="text-white w-6 h-6" />
-                          </Button>
                         </div>
                       )}
 
@@ -1089,7 +987,7 @@ export default function LearningPlatform() {
           </div>
           
           {audioUrl && !isFullscreen && isAudioPlayerVisible && (
-            <div className="flex-shrink-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg safe-area-inset-bottom" 
+            <div className="flex-shrink-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg safe-area-inset-bottom fixed bottom-0 left-0 right-0 md:relative" 
                  style={{ 
                    minHeight: windowWidth < 768 ? '90px' : 'auto',
                    paddingBottom: windowWidth < 768 ? 'env(safe-area-inset-bottom)' : '0'
@@ -1117,7 +1015,33 @@ export default function LearningPlatform() {
                   canPlayAudio={canPlayAudio}
                   audioBufferLength={audioBufferLength}
                   isMobile={windowWidth < 768}
+                  isCompact={windowWidth < 768}
                 />
+              </div>
+            </div>
+          )}
+
+          {audioUrl && !isFullscreen && showFloatingPlayer && !isAudioPlayerVisible && (
+            <div className="fixed bottom-4 right-4 z-50">
+              <div className="bg-blue-600 text-white rounded-full shadow-lg p-2 flex items-center gap-2">
+                <Button 
+                  size="icon" 
+                  className="h-8 w-8 rounded-full bg-white text-blue-600 hover:bg-blue-100" 
+                  onClick={handleAudioPlayPause}
+                  disabled={!canPlayAudio}
+                >
+                  {isAudioPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
+                <div className="text-xs font-medium truncate max-w-[80px]">
+                  {formatTime(audioCurrentTime)}
+                </div>
+                <Button 
+                  size="icon" 
+                  className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20" 
+                  onClick={() => setIsAudioPlayerVisible(true)}
+                >
+                  <Music4 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           )}
@@ -1189,6 +1113,12 @@ export default function LearningPlatform() {
         }
         .slider-compact::-webkit-slider-thumb { background: #fff; }
         .slider-compact::-moz-range-thumb { background: #fff; }
+        
+        @media (max-width: 767px) {
+          main {
+            padding-bottom: 90px;
+          }
+        }
       `}</style>
     </div>
   )
