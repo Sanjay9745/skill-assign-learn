@@ -90,7 +90,7 @@ function AudioPlayer({
           <div className="flex items-center justify-between gap-2 mb-1">
             <span className="text-xs font-medium truncate">{lessonName}</span>
             <span className="text-xs opacity-75 flex-shrink-0">
-              {isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100 ? (
+              {(isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100) ? (
                 <>
                   <span className="text-green-400">●</span> {Math.round(audioLoadingProgress)}%
                 </>
@@ -281,7 +281,7 @@ function AudioPlayer({
             <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="text-sm font-medium text-gray-700 truncate">{lessonName}</span>
                 <span className="text-xs text-gray-500 flex-shrink-0">
-                  {isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100 ? (
+                  {(isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100) ? (
                     <>
                       <span className="text-green-500">● </span>Loading {Math.round(audioLoadingProgress)}%
                     </>
