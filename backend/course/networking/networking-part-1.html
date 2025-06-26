@@ -272,6 +272,13 @@
         
         /* Responsive SVG Text Scaling */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                font-size: 15px;
+            }
+            .container {
+                padding: 10px;
+            }
             .diagram svg text {
                 font-size: 10px !important;
             }
@@ -282,6 +289,9 @@
         }
         
         @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
             .diagram svg text {
                 font-size: 8px !important;
             }

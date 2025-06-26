@@ -251,35 +251,21 @@
         .flow-line { stroke: var(--text-color); stroke-width: 1.5px; marker-end: url(#arrowhead); }
         .flow-line-dashed { stroke-dasharray: 4, 2; }
 
+        .main-container {
+            max-width: 980px;
+        }
 
         @media (max-width: 768px) {
-            body { padding: 5px; font-size: 15px; }
-            .main-container { margin: 10px auto; padding: 10px; }
-            h1 { font-size: 2em; margin-bottom: 25px; }
-            h2 { font-size: 1.6em; margin-bottom: 15px; }
-            h3 { font-size: 1.25em; margin-top: 20px; margin-bottom: 10px; }
-            .section { padding: 15px; margin: 15px 0; }
-            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
-            .analogy-box { padding: 10px; margin: 15px 0; }
-            .analogy-box::before { font-size: 35px; top: -10px; left: -8px; }
-            ul li { padding-left: 22px; margin-bottom: 8px; }
-            ul li::before { font-size: 0.9em; }
-            .button-style, .interactive-button { padding: 10px 20px; font-size: 1em; }
-            .flow-text { font-size: 12px; }
-            .flow-text-small { font-size: 10px; }
-            .diagram-container svg { min-width: 400px; }
+            body {
+                padding: 5px;
+                font-size: 15px;
+            }
         }
+
         @media (max-width: 480px) {
-            h1 { font-size: 1.8em; }
-            h2 { font-size: 1.4em; }
-            h3 { font-size: 1.1em; }
-            body { font-size: 14px; }
-            .section, .analogy-box, pre[class*="language-"] { padding: 10px; }
-            pre[class*="language-"] { font-size: 0.8em; }
-            .button-style, .interactive-button { width: 100%; text-align: center; margin-bottom: 10px; }
-            .flow-text { font-size: 10px; }
-            .flow-text-small { font-size: 9px; }
-            .diagram-container svg { min-width: 300px; }
+            body {
+                font-size: 14px;
+            }
         }
     </style>
 </head>

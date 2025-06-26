@@ -108,6 +108,9 @@
             margin: 20px 0;
             border-left: 4px solid #4caf50; /* Green border */
         }
+        .styled-table-example {
+            overflow-x: auto;
+        }
         .styled-table-example table {
             width: 100%;
             border-collapse: collapse; /* Important for table borders */
@@ -145,6 +148,34 @@
             border-radius: 8px;
             margin: 15px 0;
             border-left: 4px solid #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 15px;
+                padding: 10px;
+                font-size: 14px;
+            }
+            .container {
+                padding: 15px;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                margin: 10px;
+                padding: 5px;
+            }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.3em; }
+            .container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -446,7 +477,7 @@
 
                 <rect x="50" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
                 <rect x="250" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
-                <rect x="350" y="100" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
+                <rect x="350" y="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
 
                 <rect x="50" y="150" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>
                 <rect x="250" y="150" width="100" height="50" stroke="#ccc" fill="#f9f9f9"/>

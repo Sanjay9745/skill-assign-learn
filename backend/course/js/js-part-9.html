@@ -454,10 +454,9 @@
             h3 { font-size: 1.25em; margin-top: 15px; margin-bottom: 10px; }
             h4 { font-size: 1.1em; margin-top: 15px; margin-bottom: 8px; }
             .section { padding: 15px; margin: 15px 0; }
-            pre[class*="language-"] { padding: 10px; font-size: 0.85em; }
+            pre[class*="language-"] { padding: 10px; font-size: 0.85em; overflow-x: auto; }
             .method-grid { grid-template-columns: 1fr; gap: 10px; }
             .flow-container { flex-direction: column; padding: 15px; }
-            .flow-arrow { transform: rotate(90deg); margin: 10px 0; }
         }
 
         @media (max-width: 480px) {
@@ -466,10 +465,7 @@
             h3 { font-size: 1.1em; }
             h4 { font-size: 1em; }
             body { font-size: 14px; }
-            .section, .analogy-box, .info-box, .warning-box, .success-box, pre[class*="language-"] { padding: 10px; }
-            pre[class*="language-"] { font-size: 0.8em; }
-            .button-style { width: 100%; text-align: center; }
-            .url-part { font-size: 0.8em; padding: 6px 8px; }
+            .section { padding: 10px; }
         }
     </style>
 </head>
