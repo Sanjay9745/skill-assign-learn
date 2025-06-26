@@ -104,6 +104,7 @@ export default function LearningPlatform() {
 
   const [isMobileTabVisible, setIsMobileTabVisible] = useState(true)
   const [lastScrollTop, setLastScrollTop] = useState(0)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
 
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
   const mainIframeRef = useRef<HTMLIFrameElement>(null)
@@ -496,6 +497,117 @@ export default function LearningPlatform() {
   const handleZoomOut = () => setZoomLevel(z => Math.max(z - 0.1, MIN_ZOOM));
   const handleResetZoom = () => setZoomLevel(1);
 
+  const handleIframeLoad = () => {
+    setIframeLoaded(true);
+    
+    // Add scroll event listener to iframe after a slight delay to ensure it's loaded
+    setTimeout(() => {
+      const iframe = mainIframeRef.current;
+      if (iframe && iframe.contentWindow && iframe.contentDocument) {
+        try {
+          iframe.contentWindow.addEventListener('scroll', handleIframeScroll, { passive: true });
+          // Also listen to document scroll for cases where iframe events don't bubble up
+          document.addEventListener('scroll', handleDocumentScroll, { passive: true });
+        } catch (error) {
+          console.error('Error setting up scroll listeners:', error);
+        }
+      }
+    }, 500);
+  };
+
+  const handleIframeScroll = (event: any) => {
+    if (windowWidth >= 768 || isFullscreen) return;
+    
+    try {
+      let currentScroll;
+      if (event.target.documentElement) {
+        currentScroll = event.target.documentElement.scrollTop;
+      } else {
+        currentScroll = event.target.scrollTop || 0;
+      }
+      
+      // Only update if scroll position changed significantly
+      if (Math.abs(currentScroll - lastScrollTop) > 10) {
+        if (currentScroll > lastScrollTop && currentScroll > 50) {
+          // Scrolling down - hide tab
+          setIsMobileTabVisible(false);
+        } else if (currentScroll < lastScrollTop || currentScroll <= 20) {
+          // Scrolling up or near top - show tab
+          setIsMobileTabVisible(true);
+        }
+        setLastScrollTop(currentScroll);
+      }
+    } catch (e) {
+      console.error('Iframe scroll handler error:', e);
+    }
+  };
+
+  const handleDocumentScroll = () => {
+    if (windowWidth >= 768 || isFullscreen) return;
+    
+    const currentScroll = window.scrollY || document.documentElement.scrollTop;
+    
+    // Only update if scroll position changed significantly
+    if (Math.abs(currentScroll - lastScrollTop) > 10) {
+      if (currentScroll > lastScrollTop && currentScroll > 50) {
+        // Scrolling down - hide tab
+        setIsMobileTabVisible(false);
+      } else if (currentScroll < lastScrollTop || currentScroll <= 20) {
+        // Scrolling up or near top - show tab
+        setIsMobileTabVisible(true);
+      }
+      setLastScrollTop(currentScroll);
+    }
+  };
+
+  useEffect(() => {
+    let lastKnownScrollPosition = 0;
+    let ticking = false;
+    
+    const onScroll = () => {
+      if (windowWidth >= 768 || isFullscreen) return;
+      
+      lastKnownScrollPosition = window.scrollY;
+      
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (lastKnownScrollPosition > lastScrollTop + 10 && lastKnownScrollPosition > 50) {
+            setIsMobileTabVisible(false);
+          } else if (lastKnownScrollPosition < lastScrollTop - 10 || lastKnownScrollPosition <= 20) {
+            setIsMobileTabVisible(true);
+          }
+          setLastScrollTop(lastKnownScrollPosition);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    // For mobile - listen to touch events
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('touchmove', onScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('touchmove', onScroll);
+    };
+  }, [windowWidth, isFullscreen, lastScrollTop]);
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('scroll', handleDocumentScroll);
+      
+      const iframe = mainIframeRef.current;
+      if (iframe && iframe.contentWindow) {
+        try {
+          iframe.contentWindow.removeEventListener('scroll', handleIframeScroll);
+        } catch (e) {
+          // Ignore errors when cleaning up
+        }
+      }
+    };
+  }, [windowWidth, isFullscreen]);
+
   useEffect(() => {
     if (!iframeUrl) return;
     
@@ -516,89 +628,42 @@ export default function LearningPlatform() {
         const maxScroll = Math.max(0, scrollHeight - clientHeight);
         let currentScroll = htmlEl.scrollTop || body.scrollTop;
         
-        // Handle mobile tab visibility based on scroll direction
-        if (windowWidth < 768 && !isFullscreen) {
-          if (currentScroll > lastScrollTop && currentScroll > 50) {
-            // Scrolling down - hide tab
-            setIsMobileTabVisible(false);
-          } else if (currentScroll < lastScrollTop || currentScroll <= 50) {
-            // Scrolling up or near top - show tab
-            setIsMobileTabVisible(true);
-          }
-          setLastScrollTop(currentScroll);
-        }
-        
-        if (currentScroll < maxScroll) {
-          let scrollIncrement = 0;
+        if (audioAutoScroll && isAudioPlaying && audioDuration > 0) {
+          const audioProgressRatio = audioCurrentTime / audioDuration;
+          const targetScroll = audioProgressRatio * maxScroll;
           
-          if (audioAutoScroll && isAudioPlaying && audioDuration > 0) {
-            const audioProgressRatio = audioCurrentTime / audioDuration;
-            const targetScroll = audioProgressRatio * maxScroll;
-            
-            const diff = targetScroll - currentScroll;
-            scrollIncrement = Math.max(0.5, Math.abs(diff) * 0.1) * Math.sign(diff);
-          } else if (autoScroll) {
-            scrollIncrement = 1.0 * scrollSpeed;
-          }
+          const diff = targetScroll - currentScroll;
+          const scrollIncrement = Math.max(0.5, Math.abs(diff) * 0.1) * Math.sign(diff);
           
-          if (scrollIncrement !== 0) {
-            currentScroll += scrollIncrement;
-            currentScroll = Math.min(currentScroll, maxScroll);
-            htmlEl.scrollTop = body.scrollTop = currentScroll;
-            
-            if (sidebarState && selectedItem && selectedItem.href && maxScroll > 0) {
-              const percent = Math.min(100, Math.round((currentScroll / maxScroll) * 100));
-              if (percent > (selectedItem.progress || 0)) {
-                setSidebarState(prev => {
-                  const updateProgress = (items: any[]): any[] =>
-                    items.map(item => {
-                      if (item.name === selectedItem.name && item.href === selectedItem.href) {
-                        return { ...item, progress: percent }
-                      }
-                      if (item.children && item.children.length > 0) {
-                        return { ...item, children: updateProgress(item.children) }
-                      }
-                      return item
-                    });
-                  return updateProgress(prev);
-                });
-              }
+          currentScroll += scrollIncrement;
+          currentScroll = Math.min(currentScroll, maxScroll);
+          htmlEl.scrollTop = body.scrollTop = currentScroll;
+          
+          if (sidebarState && selectedItem && selectedItem.href && maxScroll > 0) {
+            const percent = Math.min(100, Math.round((currentScroll / maxScroll) * 100));
+            if (percent > (selectedItem.progress || 0)) {
+              setSidebarState(prev => {
+                const updateProgress = (items: any[]): any[] =>
+                  items.map(item => {
+                    if (item.name === selectedItem.name && item.href === selectedItem.href) {
+                      return { ...item, progress: percent }
+                    }
+                    if (item.children && item.children.length > 0) {
+                      return { ...item, children: updateProgress(item.children) }
+                    }
+                    return item
+                  });
+                return updateProgress(prev);
+              });
             }
           }
-          
-          frameId = requestAnimationFrame(scrollContent);
         }
+        
+        frameId = requestAnimationFrame(scrollContent);
       } catch (e) {
         console.error('Auto-scroll error:', e);
       }
     };
-    
-    // Add scroll event listener for mobile tab visibility
-    const handleIframeScroll = () => {
-      if (windowWidth < 768 && !isFullscreen) {
-        try {
-          const doc = iframe.contentWindow?.document;
-          if (doc) {
-            const currentScroll = doc.documentElement.scrollTop || doc.body.scrollTop;
-            
-            if (currentScroll > lastScrollTop && currentScroll > 50) {
-              setIsMobileTabVisible(false);
-            } else if (currentScroll < lastScrollTop || currentScroll <= 50) {
-              setIsMobileTabVisible(true);
-            }
-            setLastScrollTop(currentScroll);
-          }
-        } catch (e) {
-          console.error('Scroll detection error:', e);
-        }
-      }
-    };
-
-    // Set up scroll listener
-    const iframeDoc = iframe.contentWindow?.document;
-    if (iframeDoc) {
-      iframeDoc.addEventListener('scroll', handleIframeScroll, { passive: true });
-    }
     
     if (audioAutoScroll || autoScroll) {
       frameId = requestAnimationFrame(scrollContent);
@@ -606,9 +671,6 @@ export default function LearningPlatform() {
     
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
-      if (iframeDoc) {
-        iframeDoc.removeEventListener('scroll', handleIframeScroll);
-      }
     };
   }, [audioAutoScroll, autoScroll, isAudioPlaying, audioCurrentTime, audioDuration, scrollSpeed, iframeUrl, selectedItem, sidebarState, isFullscreen, windowWidth, lastScrollTop]);
 
@@ -737,10 +799,18 @@ export default function LearningPlatform() {
         </aside>
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className={cn(
-            "md:hidden bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 flex-shrink-0 safe-area-inset-top transition-transform duration-300 ease-in-out",
-            isMobileTabVisible ? "translate-y-0" : "-translate-y-full"
-          )} style={{ height: '10vh', minHeight: '60px' }}>
+          <div 
+            className={cn(
+              "md:hidden fixed left-0 right-0 top-16 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 z-30 safe-area-inset-top",
+              "transition-transform duration-300 ease-in-out",
+              isMobileTabVisible ? "translate-y-0" : "-translate-y-full"
+            )} 
+            style={{ 
+              height: '10vh', 
+              minHeight: '60px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+            }}
+          >
             <div className="h-full flex items-center justify-between px-4">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {nextLesson ? (
@@ -784,7 +854,7 @@ export default function LearningPlatform() {
             </div>
           </div>
 
-          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-safe">
+          <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-safe pt-safe-mobile">
             <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ minHeight: windowWidth < 768 ? "calc(100vh - 200px)" : "calc(100vh - 300px)" }}>
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative">
@@ -971,6 +1041,7 @@ export default function LearningPlatform() {
                             border: "none", 
                             minHeight: windowWidth < 768 ? "500px" : "600px"
                           }} 
+                          onLoad={handleIframeLoad}
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
@@ -1100,9 +1171,11 @@ export default function LearningPlatform() {
         .safe-area-inset-top { padding-top: env(safe-area-inset-top); }
         .safe-area-inset-bottom { padding-bottom: env(safe-area-inset-bottom); }
         .pb-safe { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+        .pt-safe-mobile { padding-top: calc(10vh + 16px); }
         
         @media (min-width: 768px) {
           .pb-safe { padding-bottom: 0; }
+          .pt-safe-mobile { padding-top: 0; }
         }
         
         .slider::-webkit-slider-thumb { 
