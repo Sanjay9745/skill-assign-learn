@@ -131,9 +131,9 @@ function AudioPlayer({
             isInFullscreenIframe ? 'bg-white/20 text-white hover:bg-white/30 border-white/30' : ''
           }`}
           onClick={onPlayPause}
-          disabled={isAudioLoading || !canPlayAudio}
+          disabled={!canPlayAudio && !isAudioLoading}
         >
-          {isAudioLoading ? (
+          {isAudioLoading && !canPlayAudio ? (
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           ) : (
             isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />
@@ -165,16 +165,16 @@ function AudioPlayer({
               type="range" 
               min="0" 
               max="100" 
-              value={isAudioLoading ? 0 : progress} 
+              value={Math.max(0, Math.min(100, progress || 0))} 
               onChange={onSeek} 
-              disabled={isAudioLoading || !canPlayAudio} 
-              className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider-compact ${
+              disabled={!canPlayAudio || (isAudioLoading && !canPlayAudio)} 
+              className={`w-full h-2 rounded-lg appearance-none slider-compact ${
                 isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-300'
-              }`}
+              } ${(!canPlayAudio || (isAudioLoading && !canPlayAudio)) ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
               style={{ 
                 background: isInFullscreenIframe 
-                  ? `linear-gradient(to right, #ffffff 0%, #ffffff ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) 100%)`
-                  : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${isAudioLoading ? 0 : progress}%, #d1d5db ${isAudioLoading ? 0 : progress}%, #d1d5db 100%)`
+                  ? `linear-gradient(to right, #ffffff 0%, #ffffff ${Math.max(0, Math.min(100, progress || 0))}%, rgba(255,255,255,0.3) ${Math.max(0, Math.min(100, progress || 0))}%, rgba(255,255,255,0.3) 100%)`
+                  : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${Math.max(0, Math.min(100, progress || 0))}%, #d1d5db ${Math.max(0, Math.min(100, progress || 0))}%, #d1d5db 100%)`
               }}
             />
             {/* Buffer progress indicator */}
@@ -183,7 +183,7 @@ function AudioPlayer({
                 className={`absolute top-0 left-0 h-2 rounded-lg transition-all duration-300 ${
                   isInFullscreenIframe ? 'bg-white/40' : 'bg-blue-300/60'
                 }`}
-                style={{ width: `${audioLoadingProgress}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, audioLoadingProgress))}%` }}
               />
             )}
           </div>
@@ -290,19 +290,19 @@ function AudioPlayer({
               variant="ghost" 
               className={`px-2 py-1 text-xs h-8 min-w-[40px] flex items-center gap-1 ${
                 isInFullscreenIframe ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100'
-              } ${(isAudioLoading || !canPlayAudio) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              } ${!canPlayAudio ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => {
-                if (isAudioLoading || !canPlayAudio) return;
+                if (!canPlayAudio) return;
                 setShowSpeedDropdown(!showSpeedDropdown);
                 setShowLanguageDropdown(false);
               }}
-              disabled={isAudioLoading || !canPlayAudio}
+              disabled={!canPlayAudio}
             >
               {playbackRate}x
               <ChevronDown className="w-3 h-3" />
             </Button>
             
-            {showSpeedDropdown && !isAudioLoading && canPlayAudio && (
+            {showSpeedDropdown && canPlayAudio && (
               <div className={`absolute bottom-full right-0 mb-2 border rounded-lg shadow-xl z-[60] min-w-[70px] overflow-hidden ${
                 isInFullscreenIframe ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
               }`}>
@@ -315,12 +315,12 @@ function AudioPlayer({
                         : `hover:bg-gray-50 ${playbackRate === rate ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`
                     }`}
                     onClick={() => {
-                      if (!isAudioLoading && canPlayAudio) {
+                      if (canPlayAudio) {
                         onRateChange(rate);
                         setShowSpeedDropdown(false);
                       }
                     }}
-                    disabled={isAudioLoading || !canPlayAudio}
+                    disabled={!canPlayAudio}
                   >
                     {rate}x
                     {playbackRate === rate && (
@@ -363,9 +363,9 @@ function AudioPlayer({
           isInFullscreenIframe ? 'bg-white/20 text-white hover:bg-white/30 border-white/30' : ''
         }`}
         onClick={onPlayPause}
-        disabled={isAudioLoading || !canPlayAudio}
+        disabled={!canPlayAudio && !isAudioLoading}
       >
-        {isAudioLoading ? (
+        {isAudioLoading && !canPlayAudio ? (
           <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
         ) : (
           isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />
@@ -397,16 +397,16 @@ function AudioPlayer({
             type="range" 
             min="0" 
             max="100" 
-            value={isAudioLoading ? 0 : progress} 
+            value={Math.max(0, Math.min(100, progress || 0))} 
             onChange={onSeek} 
-            disabled={isAudioLoading || !canPlayAudio} 
-            className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider ${
+            disabled={!canPlayAudio || (isAudioLoading && !canPlayAudio)} 
+            className={`w-full h-2 rounded-lg appearance-none slider ${
               isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-200'
-            }`}
+            } ${(!canPlayAudio || (isAudioLoading && !canPlayAudio)) ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
             style={{ 
               background: isInFullscreenIframe 
-                ? `linear-gradient(to right, #ffffff 0%, #ffffff ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) ${isAudioLoading ? 0 : progress}%, rgba(255,255,255,0.3) 100%)`
-                : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${isAudioLoading ? 0 : progress}%, #e5e7eb ${isAudioLoading ? 0 : progress}%, #e5e7eb 100%)`
+                ? `linear-gradient(to right, #ffffff 0%, #ffffff ${Math.max(0, Math.min(100, progress || 0))}%, rgba(255,255,255,0.3) ${Math.max(0, Math.min(100, progress || 0))}%, rgba(255,255,255,0.3) 100%)`
+                : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${Math.max(0, Math.min(100, progress || 0))}%, #e5e7eb ${Math.max(0, Math.min(100, progress || 0))}%, #e5e7eb 100%)`
             }}
           />
           {/* Buffer progress indicator */}
@@ -415,7 +415,7 @@ function AudioPlayer({
               className={`absolute top-0 left-0 h-2 rounded-lg transition-all duration-300 ${
                 isInFullscreenIframe ? 'bg-white/40' : 'bg-blue-300/50'
               }`}
-              style={{ width: `${audioLoadingProgress}%` }}
+              style={{ width: `${Math.max(0, Math.min(100, audioLoadingProgress))}%` }}
             />
           )}
         </div>
@@ -528,7 +528,7 @@ function AudioPlayer({
         {/* Playback Speed Buttons */}
         <div className={`flex items-center gap-1 rounded-lg p-1 ${
           isInFullscreenIframe ? 'bg-white/20' : 'bg-gray-100'
-        } ${(isAudioLoading || !canPlayAudio) ? 'opacity-50' : ''}`}>
+        } ${!canPlayAudio ? 'opacity-50' : ''}`}>
           {[0.5, 1, 1.5, 2].map(rate => (
             <Button 
               key={rate} 
@@ -538,11 +538,11 @@ function AudioPlayer({
                 isInFullscreenIframe && playbackRate !== rate ? 'text-white hover:bg-white/20' : ''
               }`}
               onClick={() => {
-                if (!isAudioLoading && canPlayAudio) {
+                if (canPlayAudio) {
                   onRateChange(rate);
                 }
               }}
-              disabled={isAudioLoading || !canPlayAudio}
+              disabled={!canPlayAudio}
             >
               {rate}x
             </Button>

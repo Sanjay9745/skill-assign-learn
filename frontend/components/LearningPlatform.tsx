@@ -275,14 +275,17 @@ export default function LearningPlatform() {
     // Remember playback state before fetching new audio
     const wasPlaying = isAudioPlaying;
     
-    // Only stop current audio if we're changing lessons
+    // Reset audio element
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      // Remove any existing event listeners to prevent conflicts
+      audioRef.current.removeEventListener('canplay', handleAudioCanPlay);
     }
 
     const currentLanguage = language || audioLanguage;
 
+    // Reset all audio states
     setIsAudioLoading(true);
     setAudioLoadingProgress(0);
     setIsAudioPlaying(false);
@@ -292,7 +295,7 @@ export default function LearningPlatform() {
     setAudioChunks([]);
     setTotalChunks(0);
     setCanPlayAudio(false);
-    setWasPlayingBeforeBuffer(wasPlaying || item.autoPlay); // Remember if we were playing or should auto-play
+    setWasPlayingBeforeBuffer(wasPlaying);
 
     try {
       const metaRes = await axios.head(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${currentLanguage}`, {
@@ -363,6 +366,10 @@ export default function LearningPlatform() {
     const availableChunks = chunks.filter(Boolean);
     if (availableChunks.length === 0) return;
     
+    // Store current time and playing state before updating URL
+    const currentTime = audioRef.current?.currentTime || 0;
+    const wasCurrentlyPlaying = audioRef.current && !audioRef.current.paused;
+    
     // Revoke previous URL to prevent memory leaks
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
@@ -381,29 +388,57 @@ export default function LearningPlatform() {
       setCanPlayAudio(true);
       setIsAudioPlayerVisible(true);
       
-      // Only reset the audio element if it's the first load or we're starting from beginning
       if (audioRef.current) {
+        // For first load, reset everything
         if (audioCurrentTime === 0 || !isPartial) {
           audioRef.current.load();
-        }
-        
-        // Auto-play if we were playing before or it's a new lesson load
-        // Start playback immediately with first chunk
-        if (wasPlayingBeforeBuffer || isPartial) {
-          setTimeout(() => {
-            if (audioRef.current) {
-              audioRef.current.play()
-                .then(() => {
-                  setIsAudioPlaying(true);
-                  if (!isPartial) {
+          setAudioProgress(0);
+          setAudioCurrentTime(0);
+          
+          // Auto-play for new audio if conditions are met
+          if (wasPlayingBeforeBuffer && availableChunks.length >= 1) {
+            setTimeout(() => {
+              if (audioRef.current) {
+                audioRef.current.play()
+                  .then(() => {
+                    setIsAudioPlaying(true);
                     setWasPlayingBeforeBuffer(false);
-                  }
-                })
-                .catch(error => {
-                  console.error('Error auto-playing audio:', error);
-                });
+                  })
+                  .catch(error => {
+                    console.error('Error auto-playing new audio:', error);
+                  });
+              }
+            }, 300);
+          }
+        } else {
+          // For partial updates, try to maintain position
+          const previousSrc = audioRef.current.src;
+          audioRef.current.src = url;
+          
+          // Wait for the new audio to load enough data
+          const handleCanPlay = () => {
+            if (audioRef.current && currentTime > 0) {
+              audioRef.current.currentTime = currentTime;
+              
+              // Resume playback if it was playing before
+              if (wasCurrentlyPlaying || wasPlayingBeforeBuffer) {
+                audioRef.current.play()
+                  .then(() => {
+                    setIsAudioPlaying(true);
+                    if (!isPartial) {
+                      setWasPlayingBeforeBuffer(false);
+                    }
+                  })
+                  .catch(error => {
+                    console.error('Error resuming audio playback:', error);
+                  });
+              }
             }
-          }, 100);
+            audioRef.current?.removeEventListener('canplay', handleCanPlay);
+          };
+          
+          audioRef.current.addEventListener('canplay', handleCanPlay);
+          audioRef.current.load();
         }
       }
     }
@@ -412,16 +447,20 @@ export default function LearningPlatform() {
   };
 
   const handleAudioTimeUpdate = () => {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.duration > 0 && !isNaN(audioRef.current.duration)) {
       const current = audioRef.current.currentTime;
       const duration = audioRef.current.duration;
-      setAudioCurrentTime(current);
-      setAudioProgress((current / duration) * 100);
+      
+      // Only update if values are valid
+      if (!isNaN(current) && !isNaN(duration) && duration > 0) {
+        setAudioCurrentTime(current);
+        setAudioProgress((current / duration) * 100);
+      }
     }
   };
 
   const handleAudioPlayPause = () => {
-    if (audioRef.current && canPlayAudio && !isAudioLoading) {
+    if (audioRef.current && canPlayAudio) {
       if (isAudioPlaying) {
         audioRef.current.pause();
       } else {
@@ -445,10 +484,11 @@ export default function LearningPlatform() {
   };
 
   const handleAudioLoadedMetadata = () => {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.duration > 0) {
       setAudioDuration(audioRef.current.duration);
-      // Ensure we can play after metadata is loaded
-      if (!canPlayAudio && audioRef.current.readyState >= 2) {
+      
+      // Enable playback when metadata is loaded and we have sufficient readyState
+      if (audioRef.current.readyState >= 2) {
         setCanPlayAudio(true);
       }
     }
@@ -464,53 +504,92 @@ export default function LearningPlatform() {
   };
 
   const handleAudioWaiting = () => {
-    // This event fires when the audio needs to buffer more data
+    // Audio is waiting for more data
+    console.log("Audio buffering at position:", audioRef.current?.currentTime);
+    
     if (isAudioPlaying) {
-      // Remember that we were playing before buffering
       setWasPlayingBeforeBuffer(true);
       
-      // No need to pause here - let the browser handle buffering naturally
-      // Just update the UI state to show buffering is happening
-      console.log("Audio buffering at position:", audioRef.current?.currentTime);
+      // Don't force pause - let browser handle it naturally
+      // The browser will automatically pause when it needs to buffer
     }
   };
 
   const handleAudioCanPlay = () => {
     setCanPlayAudio(true);
     
-    // If we were playing before buffering, resume playback immediately
-    if (wasPlayingBeforeBuffer && audioRef.current && !isAudioPlaying) {
+    // Resume playback if we were playing before buffering
+    if (wasPlayingBeforeBuffer && audioRef.current && audioRef.current.paused) {
       audioRef.current.play()
         .then(() => {
           setIsAudioPlaying(true);
-          // Only reset wasPlayingBeforeBuffer if we're not in the middle of loading chunks
+          // Only clear the flag if we're not still loading chunks
           if (!isAudioLoading) {
             setWasPlayingBeforeBuffer(false);
           }
         })
         .catch(error => {
           console.error('Error resuming audio after buffering:', error);
-          // Don't reset wasPlayingBeforeBuffer on error so we can try again
         });
     }
   };
 
   const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
-    console.error('Audio error:', e);
+    const target = e.currentTarget as HTMLAudioElement;
+    console.error('Audio error:', {
+      error: target.error,
+      networkState: target.networkState,
+      readyState: target.readyState,
+      currentSrc: target.currentSrc
+    });
+    
+    // Reset states on error
     setCanPlayAudio(false);
     setIsAudioPlaying(false);
-    setWasPlayingBeforeBuffer(false); // Reset this state on error
+    setWasPlayingBeforeBuffer(false);
+    
+    // Try to recover from certain errors
+    if (target.error?.code === MediaError.MEDIA_ERR_NETWORK) {
+      console.log('Network error detected, attempting to reload audio...');
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.load();
+        }
+      }, 1000);
+    }
   };
 
   const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (audioRef.current) {
-      const newTime = (parseFloat(e.target.value) / 100) * audioDuration;
+    // Prevent seeking during loading or if audio isn't ready
+    if (!canPlayAudio || isAudioLoading || !audioRef.current || !audioDuration || audioDuration === 0) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Ensure the seek value is valid
+    const seekValue = parseFloat(e.target.value);
+    if (isNaN(seekValue) || seekValue < 0 || seekValue > 100) {
+      return;
+    }
+    
+    const newTime = (seekValue / 100) * audioDuration;
+    
+    // Validate the new time
+    if (isNaN(newTime) || newTime < 0 || newTime > audioDuration) {
+      return;
+    }
+    
+    try {
       audioRef.current.currentTime = newTime;
+      setAudioCurrentTime(newTime);
+      setAudioProgress(seekValue);
+    } catch (error) {
+      console.error('Error seeking audio:', error);
     }
   };
 
   const handlePlaybackRateChange = (rate: number) => {
-    if (audioRef.current && canPlayAudio && !isAudioLoading) {
+    if (audioRef.current && canPlayAudio) {
       try {
         audioRef.current.playbackRate = rate;
         setAudioPlaybackRate(rate);
