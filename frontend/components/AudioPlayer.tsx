@@ -28,6 +28,9 @@ function AudioPlayer({
   isCompact = false,
   onClose,
   isAudioLoading,
+  audioLoadingProgress = 0, // Provide default value
+  canPlayAudio = true, // New prop to indicate if audio can be played
+  audioBufferLength = 0, // New prop to show buffer status
   isMobile = false,
 }: {
   isPlaying: boolean;
@@ -48,6 +51,9 @@ function AudioPlayer({
   isCompact?: boolean;
   onClose?: () => void;
   isAudioLoading?: boolean;
+  audioLoadingProgress?: number; // Keep as optional
+  canPlayAudio?: boolean;
+  audioBufferLength?: number;
   isMobile?: boolean;
 }) {
   const [showSpeedDropdown, setShowSpeedDropdown] = useState(false);
@@ -71,9 +77,9 @@ function AudioPlayer({
           variant={isPlaying ? "default" : "secondary"} 
           className="w-8 h-8 rounded-full flex-shrink-0" 
           onClick={onPlayPause}
-          disabled={isAudioLoading}
+          disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10}
         >
-          {isAudioLoading ? (
+          {(isAudioLoading && (audioLoadingProgress || 0) < 10) ? (
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           ) : (
             isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />
@@ -84,18 +90,40 @@ function AudioPlayer({
           <div className="flex items-center justify-between gap-2 mb-1">
             <span className="text-xs font-medium truncate">{lessonName}</span>
             <span className="text-xs opacity-75 flex-shrink-0">
-              {formatTime(currentTime)} / {formatTime(duration)}
+              {isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100 ? (
+                <>
+                  <span className="text-green-400">●</span> {Math.round(audioLoadingProgress)}%
+                </>
+              ) : (
+                `${formatTime(currentTime)} / ${formatTime(duration)}`
+              )}
             </span>
           </div>
-          <input 
-            type="range" 
-            min="0" 
-            max="100" 
-            value={isAudioLoading ? 0 : progress} 
-            onChange={onSeek} 
-            disabled={isAudioLoading} 
-            className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider-compact" 
-          />
+          <div className="relative">
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={isAudioLoading && !canPlayAudio ? 0 : progress} 
+              onChange={onSeek} 
+              disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10} 
+              className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider-compact" 
+            />
+            {/* Buffer progress indicator */}
+            {(isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100) && (
+              <div 
+                className="absolute top-0 left-0 h-1 bg-blue-400/50 rounded-lg transition-all duration-300"
+                style={{ width: `${audioLoadingProgress}%` }}
+              />
+            )}
+            {/* Playback progress */}
+            {canPlayAudio && progress > 0 && (
+              <div 
+                className="absolute top-0 left-0 h-1 bg-blue-600 rounded-lg transition-all duration-100"
+                style={{ width: `${progress}%` }}
+              />
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -241,16 +269,52 @@ function AudioPlayer({
             variant={isPlaying ? "default" : "secondary"} 
             className="w-10 h-10 rounded-full flex-shrink-0" 
             onClick={onPlayPause}
-            disabled={isAudioLoading}
+            disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10}
         >
-            {isAudioLoading ? <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div> : (isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />)}
+            {(isAudioLoading && (audioLoadingProgress || 0) < 10) ? (
+              <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />
+            )}
         </Button>
         <div className="w-full flex-1 sm:mx-3">
             <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="text-sm font-medium text-gray-700 truncate">{lessonName}</span>
-                <span className="text-xs text-gray-500 flex-shrink-0">{formatTime(currentTime)} / {formatTime(duration)}</span>
+                <span className="text-xs text-gray-500 flex-shrink-0">
+                  {isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100 ? (
+                    <>
+                      <span className="text-green-500">● </span>Loading {Math.round(audioLoadingProgress)}%
+                    </>
+                  ) : (
+                    `${formatTime(currentTime)} / ${formatTime(duration)}`
+                  )}
+                </span>
             </div>
-            <input type="range" min="0" max="100" value={isAudioLoading ? 0 : progress} onChange={onSeek} disabled={isAudioLoading} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"/>
+            <div className="relative">
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                value={isAudioLoading && !canPlayAudio ? 0 : progress} 
+                onChange={onSeek} 
+                disabled={!canPlayAudio && (audioLoadingProgress || 0) < 10} 
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+              {/* Buffer progress indicator */}
+              {(isAudioLoading && audioLoadingProgress !== undefined && audioLoadingProgress < 100) && (
+                <div 
+                  className="absolute top-0 left-0 h-2 bg-blue-300/50 rounded-lg transition-all duration-300"
+                  style={{ width: `${audioLoadingProgress}%` }}
+                />
+              )}
+              {/* Playback progress */}
+              {canPlayAudio && progress > 0 && (
+                <div 
+                  className="absolute top-0 left-0 h-2 bg-blue-600 rounded-lg transition-all duration-100"
+                  style={{ width: `${progress}%` }}
+                />
+              )}
+            </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language Selector for Desktop */}

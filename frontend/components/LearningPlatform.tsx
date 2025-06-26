@@ -86,17 +86,23 @@ export default function LearningPlatform() {
   const [scrollSpeed, setScrollSpeed] = useState(1)
   const [zoomLevel, setZoomLevel] = useState(1)
 
-  // Audio player state
+  // Audio player state (cleaned up)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([])
+  const [totalChunks, setTotalChunks] = useState(0)
   const [isAudioPlaying, setIsAudioPlaying] = useState(false)
   const [audioProgress, setAudioProgress] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [audioPlaybackRate, setAudioPlaybackRate] = useState(1)
-  const [audioLanguage, setAudioLanguage] = useState('english') // New language state
+  const [audioLanguage, setAudioLanguage] = useState('english')
   const [isAudioPlayerVisible, setIsAudioPlayerVisible] = useState(true)
   const [isAudioLoading, setIsAudioLoading] = useState(false)
+  const [audioLoadingProgress, setAudioLoadingProgress] = useState(0)
+  const [canPlayAudio, setCanPlayAudio] = useState(false)
+  const [audioBufferLength, setAudioBufferLength] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
+
   // Add ref for fullscreen iframe
   const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
   // Add ref for main content iframe
@@ -214,8 +220,7 @@ export default function LearningPlatform() {
     setIsLoading(false);
   };
   
-  const fetchAudio = async (item: any) => {
-    // Abort previous audio fetch if any
+  const fetchAudioChunked = async (item: any) => {
     if (audioAbortControllerRef.current) {
       audioAbortControllerRef.current.abort();
     }
@@ -226,54 +231,149 @@ export default function LearningPlatform() {
       setAudioUrl(null);
       setIsAudioPlayerVisible(false);
       setIsAudioLoading(false);
+      setAudioChunks([]);
+      setTotalChunks(0);
+      setCanPlayAudio(false);
       return;
     }
+
     setIsAudioLoading(true);
-    // Stop and reset previous audio
+    setAudioLoadingProgress(0);
+
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+
     setAudioUrl(null);
     setIsAudioPlaying(false);
     setAudioProgress(0);
     setAudioCurrentTime(0);
     setAudioDuration(0);
+    setAudioChunks([]);
+    setTotalChunks(0);
+    setCanPlayAudio(false);
+
     try {
-      const res = await axios.get(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`, { 
-        responseType: "blob",
+      const metaRes = await axios.head(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`, {
         signal: abortController.signal
       });
-      const audioBlob = new Blob([res.data], { type: res.headers['content-type'] || "audio/mpeg" });
-      const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
+      const contentLength = parseInt(metaRes.headers['content-length'] || '0');
+      const chunkSize = Math.ceil(contentLength / 10);
+      const totalChunks = Math.ceil(contentLength / chunkSize);
+      setTotalChunks(totalChunks);
+
+      // Load chunks sequentially
+      let loadedChunks: Blob[] = [];
+      for (let i = 0; i < totalChunks; i++) {
+        if (abortController.signal.aborted) break;
+        const start = i * chunkSize;
+        const end = start + chunkSize - 1;
+        const res = await axios.get(
+          `${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`,
+          {
+            responseType: "blob",
+            signal: abortController.signal,
+            headers: { 'Range': `bytes=${start}-${end}` }
+          }
+        );
+        loadedChunks[i] = new Blob([res.data], { type: res.headers['content-type'] || "audio/mpeg" });
+        setAudioChunks([...loadedChunks]);
+        setAudioLoadingProgress(((i + 1) / totalChunks) * 100);
+
+        // Update audioUrl as soon as the first chunk is loaded
+        if (i === 0 || loadedChunks.filter(Boolean).length >= Math.min(3, totalChunks)) {
+          updateAudioUrl(loadedChunks);
+        }
+      }
       setIsAudioPlayerVisible(true);
     } catch (error) {
       if (axios.isCancel(error)) {
-        console.log('Audio fetch request canceled:', item.href);
+        console.log('Chunked audio fetch request canceled:', item.href);
       } else {
         setAudioUrl(null);
         setIsAudioPlayerVisible(false);
-        console.error("Error fetching audio content for", item.href, error);
+        setAudioChunks([]);
+        setCanPlayAudio(false);
+        console.error("Error fetching chunked audio content for", item.href, error);
       }
     } finally {
       setIsAudioLoading(false);
     }
   };
 
-  const handleAudioPlayPause = () => {
+  const updateAudioUrl = (chunks: Blob[]) => {
+    const availableChunks = chunks.filter(Boolean);
+    if (availableChunks.length === 0) return;
+    const combinedBlob = new Blob(availableChunks, { type: "audio/mpeg" });
+    const url = URL.createObjectURL(combinedBlob);
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioUrl(url);
+    if (availableChunks.length > 0 && !canPlayAudio) {
+      setCanPlayAudio(true);
+      setIsAudioPlayerVisible(true);
+    }
+    setAudioBufferLength(availableChunks.length);
+  };
+
+  const handleAudioTimeUpdate = () => {
     if (audioRef.current) {
-      if (isAudioPlaying) audioRef.current.pause();
-      else audioRef.current.play();
+      const current = audioRef.current.currentTime;
+      const duration = audioRef.current.duration;
+      setAudioCurrentTime(current);
+      setAudioProgress((current / duration) * 100);
     }
   };
 
-  const handleAudioTimeUpdate = () => { if (audioRef.current) { const current = audioRef.current.currentTime; const duration = audioRef.current.duration; setAudioCurrentTime(current); setAudioProgress((current / duration) * 100); }};
-  const handleAudioLoadedMetadata = () => { if (audioRef.current) setAudioDuration(audioRef.current.duration); };
-  const handleAudioEnded = () => { setIsAudioPlaying(false); };
-  const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => { if (audioRef.current) { const newTime = (parseFloat(e.target.value) / 100) * audioDuration; audioRef.current.currentTime = newTime; }};
-  const handlePlaybackRateChange = (rate: number) => { if (audioRef.current) { audioRef.current.playbackRate = rate; setAudioPlaybackRate(rate); }};
-  
+  const handleAudioPlayPause = () => {
+    if (audioRef.current && canPlayAudio) {
+      if (isAudioPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error('Error playing audio:', error);
+        });
+      }
+    }
+  };
+
+  const handleAudioLoadedMetadata = () => {
+    if (audioRef.current) {
+      setAudioDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsAudioPlaying(false);
+    setAudioProgress(100);
+  };
+
+  const handleAudioCanPlayThrough = () => {
+    if (!canPlayAudio) setCanPlayAudio(true);
+  };
+
+  const handleAudioWaiting = () => {
+    // Optionally show buffering UI
+  };
+
+  const handleAudioCanPlay = () => {
+    if (!canPlayAudio) setCanPlayAudio(true);
+  };
+
+  const handleAudioSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (audioRef.current) {
+      const newTime = (parseFloat(e.target.value) / 100) * audioDuration;
+      audioRef.current.currentTime = newTime;
+    }
+  };
+
+  const handlePlaybackRateChange = (rate: number) => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+      setAudioPlaybackRate(rate);
+    }
+  };
+
   const handleItemSelect = (item: any) => {
     if(item.name === selectedItem?.name) return;
     setSelectedItem(item);
@@ -340,9 +440,10 @@ export default function LearningPlatform() {
     setAudioDuration(0);
     setIsAudioPlayerVisible(false);
     setIsAudioLoading(false);
+    
     if (selectedItem && selectedItem.href) {
       fetchAndShowHtml(selectedItem);
-      fetchAudio(selectedItem);
+      fetchAudioChunked(selectedItem); // Use chunked loading
     } else {
       setIframeUrl(null);
       setAudioUrl(null);
@@ -351,9 +452,10 @@ export default function LearningPlatform() {
     }
 
     return () => {
-      // Abort any ongoing fetches on cleanup
+      // Cleanup
       if (htmlAbortControllerRef.current) htmlAbortControllerRef.current.abort();
       if (audioAbortControllerRef.current) audioAbortControllerRef.current.abort();
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
     // eslint-disable-next-line
   }, [selectedItem?.href]);
@@ -361,7 +463,7 @@ export default function LearningPlatform() {
   // Add effect to refetch audio when language changes
   useEffect(() => {
     if (selectedItem && selectedItem.href && audioUrl) {
-      fetchAudio(selectedItem);
+      fetchAudioChunked(selectedItem); // Use chunked loading
     }
     // eslint-disable-next-line
   }, [audioLanguage]);
@@ -673,6 +775,9 @@ export default function LearningPlatform() {
                             isCompact={true}
                             onClose={() => setIsAudioPlayerVisible(false)}
                             isAudioLoading={isAudioLoading}
+                            audioLoadingProgress={audioLoadingProgress}
+                            canPlayAudio={canPlayAudio}
+                            audioBufferLength={audioBufferLength}
                           />
                         </div>
                       )}
@@ -734,6 +839,10 @@ export default function LearningPlatform() {
                       onEnded={handleAudioEnded}
                       onPlay={() => setIsAudioPlaying(true)}
                       onPause={() => setIsAudioPlaying(false)}
+                      onCanPlay={handleAudioCanPlay}
+                      onCanPlayThrough={handleAudioCanPlayThrough}
+                      onWaiting={handleAudioWaiting}
+                      preload="auto"
                       />
                   )}
                 </div>
@@ -763,6 +872,9 @@ export default function LearningPlatform() {
                   lessonName={selectedItem?.name}
                   onClose={() => setIsAudioPlayerVisible(false)}
                   isAudioLoading={isAudioLoading}
+                  audioLoadingProgress={audioLoadingProgress}
+                  canPlayAudio={canPlayAudio}
+                  audioBufferLength={audioBufferLength}
                   isMobile={windowWidth < 768}
                 />
               </div>
