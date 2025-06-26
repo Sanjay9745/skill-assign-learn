@@ -716,7 +716,7 @@ export default function LearningPlatform() {
           </div>
         </aside>
 
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col overflow-hidden" style={{paddingBottom: 0}}>
           <div 
             className="md:hidden fixed left-0 right-0 top-16 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 z-30 safe-area-inset-top"
             style={{ 
@@ -883,7 +883,6 @@ export default function LearningPlatform() {
                             isAutoScrollOn={autoScroll}
                             lessonName={selectedItem?.name}
                             isCompact={true}
-                            isDarkMode={true}
                             onClose={() => setIsAudioPlayerVisible(false)}
                             isAudioLoading={isAudioLoading}
                             audioLoadingProgress={audioLoadingProgress}
@@ -952,7 +951,7 @@ export default function LearningPlatform() {
                       )}
 
                       {audioUrl && !isAudioPlayerVisible && (
-                        <div className="absolute bottom-4 right-4 z-20">
+                        <div className="absolute bottom-4 right-4 z-20 lg:bottom-28">
                           <Button 
                             size="icon" 
                             className="rounded-full shadow-lg w-12 h-12 bg-blue-600 hover:bg-blue-700" 
