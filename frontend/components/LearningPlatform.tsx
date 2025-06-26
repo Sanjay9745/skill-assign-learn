@@ -162,10 +162,10 @@ export default function LearningPlatform() {
   }, [isMounted]);
 
   useEffect(() => {
-    if (audioLanguage) {
+    if (isMounted && audioLanguage) {
       localStorage.setItem("audioLanguage", audioLanguage);
     }
-  }, [audioLanguage]);
+  }, [audioLanguage, isMounted]);
 
   const fetchAndShowHtml = async (item: any) => {
     if (htmlAbortControllerRef.current) {
@@ -225,7 +225,7 @@ export default function LearningPlatform() {
     setIsLoading(false);
   };
   
-  const fetchAudioChunked = async (item: any) => {
+  const fetchAudioChunked = async (item: any, language?: string) => {
     if (audioAbortControllerRef.current) {
       audioAbortControllerRef.current.abort();
     }
@@ -248,6 +248,8 @@ export default function LearningPlatform() {
       audioRef.current.load();
     }
 
+    const currentLanguage = language || audioLanguage;
+
     setIsAudioLoading(true);
     setAudioLoadingProgress(0);
     setAudioUrl(null);
@@ -260,7 +262,7 @@ export default function LearningPlatform() {
     setCanPlayAudio(false);
 
     try {
-      const metaRes = await axios.head(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`, {
+      const metaRes = await axios.head(`${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${currentLanguage}`, {
         signal: abortController.signal
       });
       const contentLength = parseInt(metaRes.headers['content-length'] || '0');
@@ -281,7 +283,7 @@ export default function LearningPlatform() {
         const end = Math.min(start + chunkSize - 1, contentLength - 1);
         
         const res = await axios.get(
-          `${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${audioLanguage}`,
+          `${cdnUrl}/audio?courseAudio=${item.href}-audio&language=${currentLanguage}`,
           {
             responseType: "blob",
             signal: abortController.signal,
@@ -392,11 +394,16 @@ export default function LearningPlatform() {
   const handleLanguageChange = (newLanguage: string) => {
     if (newLanguage === audioLanguage) return;
     
+    console.log('Language changing from', audioLanguage, 'to', newLanguage);
     setAudioLanguage(newLanguage);
+    
+    // Immediately save to localStorage
+    if (isMounted) {
+      localStorage.setItem("audioLanguage", newLanguage);
+    }
+    
     if (selectedItem && selectedItem.href) {
-      setTimeout(() => {
-        fetchAudioChunked(selectedItem);
-      }, 100);
+      fetchAudioChunked(selectedItem, newLanguage);
     }
   };
 
@@ -478,12 +485,6 @@ export default function LearningPlatform() {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [selectedItem?.href]);
-
-  useEffect(() => {
-    if (selectedItem && selectedItem.href && audioUrl) {
-      fetchAudioChunked(selectedItem);
-    }
-  }, [audioLanguage]);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 3;
@@ -736,7 +737,7 @@ export default function LearningPlatform() {
           </div>
 
           <div className="flex-1 p-2 md:p-4 lg:p-6 xl:p-8 overflow-hidden pb-safe">
-            <Card className="h-full shadow-xl border-0 overflow-hidden">
+            <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ minHeight: windowWidth < 768 ? "calc(100vh - 200px)" : "calc(100vh - 300px)" }}>
               <div className="h-full flex flex-col">
                 <div className="flex-1 relative">
                   {isFullscreen && (
@@ -918,7 +919,10 @@ export default function LearningPlatform() {
                           src={iframeUrl} 
                           className="w-full h-full rounded-xl" 
                           title={selectedItem?.name} 
-                          style={{ border: "none", minHeight: "300px" }} 
+                          style={{ 
+                            border: "none", 
+                            minHeight: windowWidth < 768 ? "500px" : "600px"
+                          }} 
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full p-8 bg-gradient-to-br from-slate-50 to-blue-50">
